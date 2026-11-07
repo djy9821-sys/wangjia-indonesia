@@ -1,7 +1,10 @@
 import 'dart:convert';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../cart.dart';
 
 import '../config.dart';
 import '../models.dart';
@@ -20,24 +23,45 @@ class MedusaClient {
   static final MedusaClient instance = MedusaClient._();
 
   final _http = http.Client();
+  // iOS Keychain / Android Keystore-backed storage for the session token.
+  static const _secure = FlutterSecureStorage(
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device),
+  );
+  static const _tokenKey = 'medusa_token';
   String? _token;
   Region? _region;
+
+  /// Called when the backend rejects the stored token (expired / revoked).
+  void Function()? onUnauthorized;
 
   bool get isLoggedIn => _token != null;
 
   Future<void> init() async {
-    final prefs = await SharedPreferences.getInstance();
-    _token = prefs.getString('medusa_token');
+    try {
+      _token = await _secure.read(key: _tokenKey);
+      // Migrate a token saved by the first builds in plain preferences.
+      if (_token == null) {
+        final prefs = await SharedPreferences.getInstance();
+        final legacy = prefs.getString(_tokenKey);
+        if (legacy != null) {
+          await _saveToken(legacy);
+          await prefs.remove(_tokenKey);
+        }
+      }
+    } catch (_) {
+      _token = null;
+    }
   }
 
   Future<void> _saveToken(String? token) async {
     _token = token;
-    final prefs = await SharedPreferences.getInstance();
-    if (token == null) {
-      await prefs.remove('medusa_token');
-    } else {
-      await prefs.setString('medusa_token', token);
-    }
+    try {
+      if (token == null) {
+        await _secure.delete(key: _tokenKey);
+      } else {
+        await _secure.write(key: _tokenKey, value: token);
+      }
+    } catch (_) {}
   }
 
   Map<String, String> get _headers => {
@@ -52,6 +76,11 @@ class MedusaClient {
 
   Map<String, dynamic> _decode(http.Response res) {
     final body = res.body.isEmpty ? <String, dynamic>{} : jsonDecode(res.body);
+    if (res.statusCode == 401 && _token != null && !res.request!.url.path.startsWith('/auth/')) {
+      // Session is gone: drop the token and send the app back to login.
+      _saveToken(null);
+      onUnauthorized?.call();
+    }
     if (res.statusCode >= 400) {
       final msg = body is Map && body['message'] != null
           ? body['message'].toString()
@@ -155,13 +184,22 @@ class MedusaClient {
 
   // ---------- cart & checkout ----------
 
-  Future<String> createCartWithItem(String variantId, int quantity) async {
+  Future<String> createCartWithItem(String variantId, int quantity) =>
+      createCartWithLines([(variantId, quantity)]);
+
+  /// Creates a Medusa cart holding every (variantId, quantity) pair.
+  Future<String> createCartWithLines(List<(String, int)> lines) async {
     final r = await region();
     final cart = await post('/store/carts', {'region_id': r.id});
     final cartId = (cart['cart'] as Map)['id'] as String;
-    await post('/store/carts/$cartId/line-items', {'variant_id': variantId, 'quantity': quantity});
+    for (final (variantId, qty) in lines) {
+      await post('/store/carts/$cartId/line-items', {'variant_id': variantId, 'quantity': qty});
+    }
     return cartId;
   }
+
+  Future<String> createCartFromItems(List<CartItem> items) =>
+      createCartWithLines(items.map((i) => (i.variantId, i.quantity)).toList());
 
   Future<void> setCartAddress(
     String cartId, {
@@ -198,6 +236,28 @@ class MedusaClient {
   }
 
   Future<void> requestQuote(String cartId) => post('/store/quotes', {'cart_id': cartId});
+
+  // ---------- quotes ----------
+
+  Future<List<Quote>> quotes() async {
+    final res = await get('/store/quotes', query: {'limit': '50', 'order': '-created_at'});
+    return (res['quotes'] as List)
+        .map((e) => Quote.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// Quote with the merchant's latest (possibly unconfirmed) prices applied.
+  Future<Quote> quote(String id) async {
+    final res = await get('/store/quotes/$id/preview');
+    final q = res['quote'] as Map<String, dynamic>;
+    final preview = q['order_preview'] as Map<String, dynamic>?;
+    return Quote.fromJson(q, preview: preview);
+  }
+
+  Future<void> acceptQuote(String id) => post('/store/quotes/$id/accept', {});
+  Future<void> rejectQuote(String id) => post('/store/quotes/$id/reject', {});
+  Future<void> sendQuoteMessage(String id, String text) =>
+      post('/store/quotes/$id/messages', {'text': text});
 
   // ---------- orders ----------
 

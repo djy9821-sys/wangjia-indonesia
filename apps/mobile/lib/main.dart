@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'api/medusa_client.dart';
+import 'cart.dart';
 import 'l10n/strings.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
@@ -10,6 +11,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID');
   await MedusaClient.instance.init();
+  await CartStore.instance.load();
   runApp(const TrukAirApp());
 }
 
@@ -41,6 +43,15 @@ class AuthGate extends StatefulWidget {
 
 class _AuthGateState extends State<AuthGate> {
   late Future<Map<String, dynamic>?> _me = MedusaClient.instance.me();
+
+  @override
+  void initState() {
+    super.initState();
+    // Expired or revoked session anywhere in the app -> back to login.
+    MedusaClient.instance.onUnauthorized = () {
+      if (mounted) _refresh();
+    };
+  }
 
   void _refresh() => setState(() {
       _me = MedusaClient.instance.me();

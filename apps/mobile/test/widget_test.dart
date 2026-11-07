@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:truk_air_app/l10n/strings.dart';
-import 'package:truk_air_app/screens/login_screen.dart';
+import 'package:wangjia_app/l10n/strings.dart';
+import 'package:wangjia_app/screens/login_screen.dart';
 
 void main() {
   testWidgets('login screen renders in Indonesian', (tester) async {

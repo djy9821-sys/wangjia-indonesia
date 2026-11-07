@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../api/medusa_client.dart';
+import '../cart.dart';
 import '../format.dart';
 import '../l10n/strings.dart';
 import '../models.dart';
@@ -11,10 +12,8 @@ import 'order_detail_screen.dart';
 /// Money is collected afterwards through the payment plan, so the order is
 /// completed with the "system" payment provider (no charge here).
 class CheckoutScreen extends StatefulWidget {
-  final Product product;
-  final Variant variant;
-  final int quantity;
-  const CheckoutScreen({super.key, required this.product, required this.variant, required this.quantity});
+  final List<CartItem> items;
+  const CheckoutScreen({super.key, required this.items});
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
@@ -125,7 +124,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     setState(() => _busy = true);
     try {
       final api = MedusaClient.instance;
-      _cartId ??= await api.createCartWithItem(widget.variant.id, widget.quantity);
+      _cartId ??= await api.createCartFromItems(widget.items);
       await api.setCartAddress(_cartId!, email: _email.text.trim(), address: _addressJson);
       final options = await api.shippingOptions(_cartId!);
       setState(() {
@@ -146,6 +145,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       final api = MedusaClient.instance;
       await api.addShippingMethod(_cartId!, _optionId!);
       final order = await api.completeCart(_cartId!);
+      CartStore.instance.clear();
       if (!mounted) return;
       showSnack(context, S.t('order_placed'));
       Navigator.of(context).pushAndRemoveUntil(
@@ -163,8 +163,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final price = widget.variant.price ?? 0;
-    final subtotal = price * widget.quantity;
+    final subtotal = widget.items.fold<num>(0, (s, i) => s + i.lineTotal);
+    final currency = widget.items.isEmpty ? 'idr' : widget.items.first.currency;
     return Scaffold(
       appBar: AppBar(title: Text(S.t('checkout'))),
       body: Form(
@@ -173,11 +173,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             Card(
-              child: ListTile(
-                leading: const Icon(Icons.local_shipping),
-                title: Text(widget.product.title),
-                subtitle: Text('${widget.variant.title} × ${widget.quantity}'),
-                trailing: Text(money(subtotal, widget.variant.currency)),
+              child: Column(
+                children: [
+                  ...widget.items.map((it) => ListTile(
+                        dense: true,
+                        leading: const Icon(Icons.water_outlined),
+                        title: Text(it.productTitle),
+                        subtitle: Text('${it.variantTitle} × ${it.quantity}'),
+                        trailing: Text(money(it.lineTotal, it.currency)),
+                      )),
+                  ListTile(
+                    title: Text(S.t('subtotal'), style: Theme.of(context).textTheme.titleSmall),
+                    trailing: Text(money(subtotal, currency), style: Theme.of(context).textTheme.titleSmall),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
@@ -220,7 +229,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       .map((o) => RadioListTile<String>(
                             value: o.id,
                             title: Text(o.name),
-                            subtitle: Text(o.amount == 0 ? '-' : money(o.amount, widget.variant.currency)),
+                            subtitle: Text(o.amount == 0 ? '-' : money(o.amount, currency)),
                           ))
                       .toList(),
                 ),

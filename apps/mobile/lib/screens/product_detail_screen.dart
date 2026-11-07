@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../api/medusa_client.dart';
+import '../cart.dart';
 import '../config.dart';
 import '../format.dart';
 import '../l10n/strings.dart';
 import '../models.dart';
 import '../widgets/common.dart';
 import '../widgets/wangjia_logo.dart';
-import 'checkout_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
-  const ProductDetailScreen({super.key, required this.product});
+  final VoidCallback? onOpenCart;
+  const ProductDetailScreen({super.key, required this.product, this.onOpenCart});
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
 }
@@ -104,9 +105,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           FilledButton.icon(
             onPressed: _busy
                 ? null
-                : () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => CheckoutScreen(product: p, variant: _variant, quantity: _qty),
-                    )),
+                : () {
+                    CartStore.instance.add(CartItem.fromProduct(p, _variant, _qty));
+                    showSnack(context, S.t('added_to_cart'));
+                  },
+            icon: const Icon(Icons.add_shopping_cart),
+            label: Text(S.t('add_to_cart')),
+          ),
+          const SizedBox(height: 10),
+          FilledButton.tonalIcon(
+            onPressed: _busy
+                ? null
+                : () {
+                    CartStore.instance.add(CartItem.fromProduct(p, _variant, _qty));
+                    Navigator.of(context).popUntil((r) => r.isFirst);
+                    widget.onOpenCart?.call();
+                  },
             icon: const Icon(Icons.shopping_cart_checkout),
             label: Text(S.t('order_now')),
           ),

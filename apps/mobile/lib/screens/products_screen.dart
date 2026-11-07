@@ -9,7 +9,8 @@ import '../widgets/wangjia_logo.dart';
 import 'product_detail_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
-  const ProductsScreen({super.key});
+  final VoidCallback? onOpenCart;
+  const ProductsScreen({super.key, this.onOpenCart});
   @override
   State<ProductsScreen> createState() => _ProductsScreenState();
 }
@@ -40,7 +41,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 padding: const EdgeInsets.all(16),
                 itemCount: products.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, i) => _ProductCard(product: products[i]),
+                itemBuilder: (context, i) => _ProductCard(product: products[i], onOpenCart: widget.onOpenCart),
               ),
             );
           },
@@ -50,7 +51,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
 class _ProductCard extends StatelessWidget {
   final Product product;
-  const _ProductCard({required this.product});
+  final VoidCallback? onOpenCart;
+  const _ProductCard({required this.product, this.onOpenCart});
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +62,7 @@ class _ProductCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => ProductDetailScreen(product: product)),
+          MaterialPageRoute(builder: (_) => ProductDetailScreen(product: product, onOpenCart: onOpenCart)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -8,7 +8,7 @@ or upload a bank-transfer receipt), shipment tracking.
 
 ```bash
 # first time (needs the Flutter SDK on PATH)
-flutter create --org id.co.trukair --project-name truk_air_app --platforms ios,android .
+flutter create --org id.co.wangjia --project-name wangjia_app --platforms ios,android .
 flutter pub get
 
 # iOS simulator against the local backend

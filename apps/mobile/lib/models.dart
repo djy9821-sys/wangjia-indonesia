@@ -252,3 +252,65 @@ class Wilayah {
   factory Wilayah.fromJson(Map<String, dynamic> j) =>
       Wilayah(j['code'] as String, j['name'] as String);
 }
+
+class QuoteMessage {
+  final String id;
+  final String text;
+  final bool fromCustomer;
+  final String? createdAt;
+  QuoteMessage(this.id, this.text, this.fromCustomer, this.createdAt);
+  factory QuoteMessage.fromJson(Map<String, dynamic> j) => QuoteMessage(
+        j['id'] as String,
+        (j['text'] ?? '') as String,
+        j['customer_id'] != null,
+        j['created_at'] as String?,
+      );
+}
+
+/// A request-for-quote. Totals come from the draft order (or the order
+/// preview while the merchant has unconfirmed edits).
+class Quote {
+  final String id;
+  final String status;
+  final String? createdAt;
+  final String currency;
+  final num total;
+  final int? displayId;
+  final List<OrderItem> items;
+  final List<QuoteMessage> messages;
+  Quote({
+    required this.id,
+    required this.status,
+    this.createdAt,
+    required this.currency,
+    required this.total,
+    this.displayId,
+    this.items = const [],
+    this.messages = const [],
+  });
+
+  factory Quote.fromJson(Map<String, dynamic> j, {Map<String, dynamic>? preview}) {
+    final draft = (j['draft_order'] as Map<String, dynamic>?) ?? {};
+    final source = preview ?? draft;
+    final msgs = ((j['messages'] as List?) ?? [])
+        .map((e) => QuoteMessage.fromJson(e as Map<String, dynamic>))
+        .toList()
+      ..sort((a, b) => (a.createdAt ?? '').compareTo(b.createdAt ?? ''));
+    return Quote(
+      id: j['id'] as String,
+      status: (j['status'] ?? 'pending_merchant') as String,
+      createdAt: j['created_at'] as String?,
+      currency: (draft['currency_code'] ?? 'idr') as String,
+      total: _num(source['total'] ?? draft['total']),
+      displayId: draft['display_id'] == null ? null : _num(draft['display_id']).toInt(),
+      items: ((source['items'] as List?) ?? (draft['items'] as List?) ?? [])
+          .map((e) => OrderItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      messages: msgs,
+    );
+  }
+
+  bool get awaitingCustomer => status == 'pending_customer';
+  bool get awaitingMerchant => status == 'pending_merchant';
+  bool get closed => status == 'accepted' || status.endsWith('rejected');
+}

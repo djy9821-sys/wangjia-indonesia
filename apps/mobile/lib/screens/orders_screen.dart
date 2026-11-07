@@ -8,7 +8,8 @@ import '../widgets/common.dart';
 import 'order_detail_screen.dart';
 
 class OrdersScreen extends StatefulWidget {
-  const OrdersScreen({super.key});
+  final bool embedded;
+  const OrdersScreen({super.key, this.embedded = false});
   @override
   State<OrdersScreen> createState() => _OrdersScreenState();
 }
@@ -25,7 +26,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(S.t('orders'))),
+        appBar: widget.embedded ? null : AppBar(title: Text(S.t('orders'))),
         body: FutureBuilder<List<Order>>(
           future: _future,
           builder: (context, snap) {

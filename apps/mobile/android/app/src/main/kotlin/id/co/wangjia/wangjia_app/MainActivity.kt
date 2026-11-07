@@ -1,4 +1,4 @@
-package id.co.trukair.truk_air_app
+package id.co.wangjia.wangjia_app
 
 import io.flutter.embedding.android.FlutterActivity
 
