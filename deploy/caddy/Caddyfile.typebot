@@ -1,0 +1,6 @@
+{$TYPEBOT_BUILDER_DOMAIN} {
+	reverse_proxy builder:3000
+}
+{$TYPEBOT_VIEWER_DOMAIN} {
+	reverse_proxy viewer:3000
+}

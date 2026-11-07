@@ -1,0 +1,61 @@
+# Typebot: open-source conversational forms / chatbots. Used as the first
+# responder on the web store (chat bubble) and for lead qualification
+# (pond size, stocking density -> recommended aerator, phone number), handing
+# hot leads to Chatwoot and the sales team.
+#   cp .env.typebot.example .env.typebot && edit
+#   docker compose -f docker-compose.typebot.yml --env-file .env.typebot up -d
+# Builder (staff): https://<TYPEBOT_BUILDER_DOMAIN>   Viewer (customers): https://<TYPEBOT_VIEWER_DOMAIN>
+name: wangjia-typebot
+
+x-typebot: &typebot
+  restart: unless-stopped
+  env_file: .env.typebot
+  environment:
+    DATABASE_URL: postgresql://typebot:${TYPEBOT_DB_PASSWORD:?set TYPEBOT_DB_PASSWORD}@postgres:5432/typebot
+    NEXTAUTH_URL: https://${TYPEBOT_BUILDER_DOMAIN:?set TYPEBOT_BUILDER_DOMAIN}
+    NEXT_PUBLIC_VIEWER_URL: https://${TYPEBOT_VIEWER_DOMAIN:?set TYPEBOT_VIEWER_DOMAIN}
+    DEFAULT_WORKSPACE_PLAN: UNLIMITED
+  depends_on:
+    postgres: { condition: service_healthy }
+
+services:
+  builder:
+    <<: *typebot
+    image: baptistearno/typebot-builder:3.8
+    expose: ["3000"]
+
+  viewer:
+    <<: *typebot
+    image: baptistearno/typebot-viewer:3.8
+    expose: ["3000"]
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: typebot
+      POSTGRES_USER: typebot
+      POSTGRES_PASSWORD: ${TYPEBOT_DB_PASSWORD}
+    volumes:
+      - typebot-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U typebot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      TYPEBOT_BUILDER_DOMAIN: ${TYPEBOT_BUILDER_DOMAIN}
+      TYPEBOT_VIEWER_DOMAIN: ${TYPEBOT_VIEWER_DOMAIN}
+    volumes:
+      - ./caddy/Caddyfile.typebot:/etc/caddy/Caddyfile:ro
+      - typebot-caddy:/data
+    depends_on: [builder, viewer]
+
+volumes:
+  typebot-pg:
+  typebot-caddy:

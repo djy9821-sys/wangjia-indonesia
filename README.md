@@ -11,9 +11,9 @@ confirms the money, and only then the warehouse ships. 中文说明见 [README.z
 | Folder | What | Stack |
 |---|---|---|
 | `apps/backend` | API, admin dashboard, workflows, jobs | [Medusa v2](https://medusajs.com) (B2B starter) + custom modules |
-| `apps/storefront` | Web store (Indonesian) with the same payment-plan page | Next.js 15 |
+| `apps/storefront` | Web store (Indonesian) with the payment-plan page, warranty check, policy pages and an SEO advice blog | Next.js 15 |
 | `apps/mobile` | Customer app: catalogue, cart, quotes, instalments, receipts, tracking, push, QR warranty check, map pin for delivery | Flutter |
-| `deploy/` | One-VPS production stack: Postgres, Redis, Caddy HTTPS, Uptime Kuma, Umami, backups; separate Chatwoot and GlitchTip stacks | Docker Compose |
+| `deploy/` | One-VPS production stack: Postgres, Redis, Caddy HTTPS, Uptime Kuma, Umami, backups; separate Chatwoot, GlitchTip, Typebot and DocuSeal stacks | Docker Compose |
 | `brand/` | Placeholder logo assets until the official files arrive | SVG/PNG |
 | `infra/` | Local Postgres without Docker/Homebrew (embedded‑postgres) | Node |
 

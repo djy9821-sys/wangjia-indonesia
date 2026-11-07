@@ -70,3 +70,5 @@ apps/mobile/android/app/google-services.json
 apps/backend/.env.production
 /deploy/.env.chatwoot
 /deploy/.env.glitchtip
+/deploy/.env.typebot
+/deploy/.env.docuseal

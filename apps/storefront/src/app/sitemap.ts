@@ -2,10 +2,14 @@ import { sdk } from "@/lib/config"
 import { listRegions } from "@/lib/data/regions"
 import { getSiteOrigin, listCountryCodes } from "@/lib/util/site"
 import type { MetadataRoute } from "next"
+import { ARTICLES } from "@/lib/blog"
 
 const STATIC_PATHS = [
   "",
   "/store",
+  "/blog",
+  "/garansi",
+  ...ARTICLES.map((a) => `/blog/${a.slug}`),
   "/shipping",
   "/returns",
   "/terms",

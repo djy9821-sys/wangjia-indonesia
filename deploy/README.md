@@ -28,3 +28,8 @@ Midtrans 后台的通知地址填 `https://api.<域名>/webhooks/midtrans`；App
 1. `cp deploy/.env.glitchtip.example deploy/.env.glitchtip`，填域名、数据库密码、`SECRET_KEY`（`openssl rand -hex 32`）和告警邮箱 SMTP。
 2. `docker compose -f deploy/docker-compose.glitchtip.yml --env-file deploy/.env.glitchtip up -d`，打开域名注册第一个账号（之后注册已关闭）。
 3. 建三个项目：backend、storefront、app，把各自的 DSN 填到后端 `.env.production` 的 `SENTRY_DSN`、App 打包的 `--dart-define=SENTRY_DSN=…`。后端只上报 5xx 和未处理异常，4xx 业务错误不报。
+
+## Typebot 对话机器人 / DocuSeal 电子签（可选，可与 Chatwoot 同机）
+
+- Typebot：`cp deploy/.env.typebot.example deploy/.env.typebot`，填两个域名（builder 给员工、viewer 给客户）、数据库密码、`ENCRYPTION_SECRET`、SMTP；`docker compose -f deploy/docker-compose.typebot.yml --env-file deploy/.env.typebot up -d`。用 `ADMIN_EMAIL` 的邮箱魔法链接登录 builder，做好流程后把「Share → Bubble」脚本贴到商城布局。
+- DocuSeal：`cp deploy/.env.docuseal.example deploy/.env.docuseal`，填域名、密码、`SECRET_KEY_BASE`、`DOCUSEAL_WEBHOOK_SECRET`；`docker compose -f deploy/docker-compose.docuseal.yml --env-file deploy/.env.docuseal up -d`。后端 `.env.production` 填同一个 `DOCUSEAL_WEBHOOK_SECRET`。

@@ -196,6 +196,10 @@ class S {
     'spare_parts': 'Suku cadang',
     'spare_parts_hint': 'Impeller, gearbox, pelampung: suku cadang asli untuk mesin ini',
     'tap_unit_hint': 'Ketuk mesin untuk minta servis atau pesan suku cadang.',
+    'update_required': 'Perbarui aplikasi',
+    'update_required_hint': 'Versi ini tidak didukung lagi. Pasang versi terbaru untuk melanjutkan.',
+    'update_available': 'Versi baru aplikasi WANGJIA tersedia.',
+    'update_now': 'Perbarui',
   };
 
   static const _en = <String, String>{
@@ -385,5 +389,9 @@ class S {
     'spare_parts': 'Spare parts',
     'spare_parts_hint': 'Impeller, gearbox, float: genuine parts for this machine',
     'tap_unit_hint': 'Tap a machine to request service or order spare parts.',
+    'update_required': 'Please update the app',
+    'update_required_hint': 'This version is no longer supported. Install the latest version to continue.',
+    'update_available': 'A new version of the WANGJIA app is available.',
+    'update_now': 'Update',
   };
 }

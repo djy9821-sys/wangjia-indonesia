@@ -1,0 +1,52 @@
+# DocuSeal: open-source e-signature. Sales sends the sales contract / PO for
+# machine orders; the customer signs from a WhatsApp link; the signed PDF is
+# archived and (via webhook) the order is marked as contracted.
+#   cp .env.docuseal.example .env.docuseal && edit
+#   docker compose -f docker-compose.docuseal.yml --env-file .env.docuseal up -d
+# Then open https://<DOCUSEAL_DOMAIN>, create the admin, upload the contract
+# template, and under Settings -> Webhooks add
+#   https://api.<domain>/webhooks/docuseal  with secret header X-Docuseal-Secret = DOCUSEAL_WEBHOOK_SECRET
+name: wangjia-docuseal
+
+services:
+  app:
+    image: docuseal/docuseal:1.9
+    restart: unless-stopped
+    env_file: .env.docuseal
+    environment:
+      DATABASE_URL: postgresql://docuseal:${DOCUSEAL_DB_PASSWORD:?set DOCUSEAL_DB_PASSWORD}@postgres:5432/docuseal
+      FORCE_SSL: ${DOCUSEAL_DOMAIN:?set DOCUSEAL_DOMAIN}
+    volumes:
+      - docuseal-data:/data
+    expose: ["3000"]
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: docuseal
+      POSTGRES_USER: docuseal
+      POSTGRES_PASSWORD: ${DOCUSEAL_DB_PASSWORD}
+    volumes:
+      - docuseal-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U docuseal"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    command: ["caddy", "reverse-proxy", "--from", "${DOCUSEAL_DOMAIN}", "--to", "app:3000"]
+    volumes:
+      - docuseal-caddy:/data
+    depends_on: [app]
+
+volumes:
+  docuseal-data:
+  docuseal-pg:
+  docuseal-caddy:

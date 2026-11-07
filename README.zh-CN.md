@@ -189,6 +189,13 @@ App 填地址时可以在地图（OpenStreetMap，免密钥）上把图钉拖到
 
 每次推送到 `main`，GitHub Actions 会多跑一个「Android APK (test build)」任务，在该次运行的 Artifacts 里可以下载 `app-release.apk`（调试签名，可直接安装到安卓手机给 李总 的团队试用）。接口地址等参数来自仓库的 Actions Variables：`MEDUSA_URL`、`MEDUSA_PUBLISHABLE_KEY`、`STOREFRONT_URL`、`WHATSAPP_NUMBER`（没设就用默认值）。
 
+## 获客与合同（可选服务）
+
+- **商城博客**（`apps/storefront/src/lib/blog/index.tsx`）：印尼语养殖知识文章（选型、每公顷台数、保养、验真），自动进 sitemap，文末带产品和验真入口。加文章只需在数组里追加一项，不需要 CMS。
+- **Typebot**（`deploy/docker-compose.typebot.yml`）：开源对话机器人。建一个「塘口面积 → 水深 → 用电 → 推荐型号 → 留电话」的流程，把 Viewer 的气泡脚本贴进商城 `layout.tsx`，热线索用 Typebot 的 Chatwoot/Webhook 模块推给销售。WhatsApp 号码的 Webhook 只能指向一个系统，建议留给 Chatwoot（人工 + 系统通知），机器人先在网页上跑。
+- **DocuSeal**（`deploy/docker-compose.docuseal.yml`）：开源电子签。销售上传销售合同模板，发签署链接给客户（WhatsApp），在 DocuSeal 的 Webhook 里填 `https://api.<域名>/webhooks/docuseal` 和密钥头 `X-Docuseal-Secret`，并在模板/提交里带上 `order_id`；签完后订单 metadata 自动记录 `contract_signed_at` 和签署文件链接。
+- **App 版本策略**：后台 `.env` 的 `APP_MIN_VERSION` / `APP_LATEST_VERSION` / `APP_ANDROID_URL` / `APP_IOS_URL`。低于最低版本 App 会锁定并引导更新，低于最新版本只显示横幅；不依赖应用商店，侧载 APK 也有效。
+
 ## 发布 App（Fastlane）
 
 `apps/mobile/fastlane/` 有 TestFlight / App Store / Play 内测 / Play 正式四条发布通道，见 [apps/mobile/README.md](apps/mobile/README.md)。

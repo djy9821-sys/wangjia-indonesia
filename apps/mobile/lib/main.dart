@@ -11,6 +11,7 @@ import 'l10n/strings.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
 import 'screens/warranty_screen.dart';
+import 'update_check.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,7 +49,7 @@ class TrukAirApp extends StatelessWidget {
             useMaterial3: true,
             inputDecorationTheme: const InputDecorationTheme(border: OutlineInputBorder()),
           ),
-          home: const AuthGate(),
+          home: const UpdateGate(child: AuthGate()),
         ),
       );
 }
