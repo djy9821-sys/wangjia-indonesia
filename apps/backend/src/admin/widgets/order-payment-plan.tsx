@@ -497,6 +497,17 @@ const OrderPaymentPlanWidget = ({ data: order }: DetailWidgetProps<AdminOrder>) 
         <div className="flex items-center justify-between px-6 py-4">
           <Heading level="h2">{t("付款计划与到款确认")}</Heading>
           <div className="flex items-center gap-x-3">
+            {(() => {
+              const phone = (order as any).customer?.phone || (order as any).shipping_address?.phone;
+              if (!phone) return null;
+              const wa = String(phone).replace(/[^\d]/g, "").replace(/^0/, "62");
+              const text = encodeURIComponent(`Halo, ini WANGJIA mengenai pesanan #${order.display_id}.`);
+              return (
+                <a href={`https://wa.me/${wa}?text=${text}`} target="_blank" rel="noreferrer">
+                  <Button size="small" variant="secondary">{t("WhatsApp 客户")}</Button>
+                </a>
+              );
+            })()}
             <Text size="small" className="text-ui-fg-subtle">
               {t("当前角色：")}{role}
             </Text>

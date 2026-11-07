@@ -114,6 +114,11 @@ export const adminPaymentPlansMiddlewares: MiddlewareRoute[] = [
     middlewares: [],
   },
   {
+    method: ["GET"],
+    matcher: "/admin/overview",
+    middlewares: [],
+  },
+  {
     method: ["POST"],
     matcher: "/admin/team/:id/role",
     middlewares: [ensureAdminRole(), validateAndTransformBody(AdminSetTeamRole)],

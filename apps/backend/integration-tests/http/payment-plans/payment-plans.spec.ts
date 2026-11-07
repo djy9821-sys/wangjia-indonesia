@@ -23,7 +23,7 @@ const PNG_BASE64 =
 
 medusaIntegrationTestRunner({
   inApp: true,
-  env: { ADMIN_DEFAULT_ROLE: "owner", OTP_DEV_CODE: "000000" },
+  env: { ADMIN_DEFAULT_ROLE: "owner", OTP_DEV_CODE: "000000", RATE_LIMIT_DISABLED: "true" },
   testSuite: ({ api, getContainer }) => {
     let storeHeaders, region, salesChannel, product;
 

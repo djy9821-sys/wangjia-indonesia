@@ -25,7 +25,7 @@ export type PlanContext = {
   };
   plan: {
     id: string;
-    installments?: { id: string; sequence: number; label: string; amount: number | string; status: string }[];
+    installments?: { id: string; sequence: number; label: string; amount: number | string; status: string; due_date?: string | null }[];
   };
 };
 
@@ -46,6 +46,7 @@ export async function loadPlanContext(
       "installments.label",
       "installments.amount",
       "installments.status",
+      "installments.due_date",
     ],
     filters: { id: planId },
   });
@@ -224,6 +225,27 @@ export const PlanNotifications = {
       container, ctx, "order-cancelled",
       `Halo ${name(ctx)}, pesanan #${ctx.order.display_id} dibatalkan${reason ? `: ${reason}` : ""}. Hubungi kami via WhatsApp bila ingin memesan kembali.`,
       `Pesanan dibatalkan - Pesanan #${ctx.order.display_id}`
+    );
+  },
+
+  async installmentDue(container: MedusaContainer, ctx: PlanContext, installmentId: string, overdue: boolean) {
+    const i = inst(ctx, installmentId);
+    const due = ctx.plan.installments?.find((x) => x.id === installmentId) as any;
+    const dueText = due?.due_date ? new Date(due.due_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "";
+    await sendCustomer(
+      container, ctx, overdue ? "payment-overdue" : "payment-due",
+      overdue
+        ? `Halo ${name(ctx)}, pembayaran ${i?.label ?? ""} sebesar ${i ? idr(i.amount) : ""} untuk pesanan WANGJIA #${ctx.order.display_id} sudah melewati jatuh tempo (${dueText}). Mohon segera dibayar melalui aplikasi agar pesanan tidak dibatalkan. Abaikan jika sudah transfer.`
+        : `Halo ${name(ctx)}, pengingat: pembayaran ${i?.label ?? ""} sebesar ${i ? idr(i.amount) : ""} untuk pesanan WANGJIA #${ctx.order.display_id} jatuh tempo ${dueText}. Bayar lewat aplikasi (QRIS/VA/e-wallet) atau transfer lalu unggah bukti.`,
+      overdue ? `Pembayaran terlambat - Pesanan #${ctx.order.display_id}` : `Pengingat pembayaran - Pesanan #${ctx.order.display_id}`
+    );
+  },
+
+  async overdueSummary(container: MedusaContainer, lines: string[]) {
+    await sendStaff(
+      container, "finance", "overdue-summary",
+      `[逾期未付] 今日 ${lines.length} 笔`,
+      `以下分期已逾期，客户已收到 WhatsApp 提醒：\n\n${lines.join("\n")}\n\n后台：${process.env.ADMIN_URL ?? "http://localhost:9000/app"}/finance`
     );
   },
 
