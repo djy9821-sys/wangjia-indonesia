@@ -221,4 +221,12 @@ const ID: Record<string, string> = {
   "地图定位（客户已打点）": "Buka peta (titik dari pelanggan)",
   "未打点": "Belum ada titik peta",
   "单号请写成「承运商代码:单号」，如 jne:JP0123456789、sicepat:000123456789、lion:1234567890，App 才能显示物流轨迹。发货时顺便在「防伪保修」页把机身序列号关联到订单。": "Tulis resi sebagai \"kode-ekspedisi:nomor\", mis. jne:JP0123456789, sicepat:000123456789, lion:1234567890, agar aplikasi bisa menampilkan lacak kiriman. Saat kirim, tautkan nomor seri mesin ke pesanan di halaman Garansi.",
+  "本月": "Bulan ini",
+  "可疑扫码": "scan mencurigakan",
+  "机身序列号": "Nomor seri mesin",
+  "装箱时扫二维码或输入序列号，客户在 App 里就能看到这台机器并一键登记保修。": "Saat packing, scan QR atau ketik nomor seri; pelanggan akan melihat mesin ini di aplikasi dan bisa daftar garansi sekali ketuk.",
+  "添加": "Tambah",
+  "还没有关联序列号。": "Belum ada nomor seri.",
+  "移除": "Hapus",
+  "打开防伪保修页": "Buka halaman Garansi",
 };

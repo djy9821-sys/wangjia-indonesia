@@ -132,6 +132,8 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 | GET | `/store/warranty/verify/:code` | 扫码验真（只需 publishable key；`code` 可以是二维码里的完整链接） |
 | POST | `/store/warranty/register` | 登记保修 `{ code, farm_location }`，同一客户重复登记幂等，他人已登记返回 400 |
 | GET | `/store/warranty/units` | 我登记过的设备与保修到期日 |
+| GET | `/store/orders/:id/warranty-units` | 这个订单发出的机身序列号；配合 `POST /store/warranty/register { unit_id }` 一键登记，不用扫码 |
+| DELETE | `/store/account` | 客户自助注销（App Store / Play 审核要求）：联系方式匿名化、地址和推送设备删除、登录身份删除、旧 token 立即失效；订单与保修记录保留 |
 | GET | `/store/wilayah` · `/store/wilayah/:provinceCode` · `/store/wilayah/:regencyCode` | 省 → 市县 → 区 三级联动（只需 publishable key） |
 
 后台接口（管理员登录）：
@@ -151,6 +153,7 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 | GET/POST | `/admin/warranty/units` | 序列号列表 / 批量生成 `{ product_id, variant_id, quantity, batch, warranty_months }`（warehouse、sales） |
 | GET | `/admin/warranty/units/export?batch=` | 标签打印用 CSV（序列号、二维码内容） |
 | POST | `/admin/warranty/units/:id` | 关联订单 / 作废 / 备注 `{ order_id, status, notes }` |
+| GET/POST/DELETE | `/admin/orders/:id/warranty-units(/:unitId)` | 订单页「机身序列号」面板：装箱时扫码/输入序列号关联到订单、移除（warehouse、sales） |
 
 ## 防伪与保修（扫码）
 
@@ -159,6 +162,8 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 - 任何人用手机相机扫码会打开商城的验真页：正品显示产品、序列号、保修状态；仿品或已作废标签显示「无法验证」并提示举报。
 - App 里「账户 → Garansi & Keaslian」用相机扫码（或手动输码）后可一键登记保修：绑定客户、记录塘口位置、算出到期日，并通过 WhatsApp / 邮件 / 推送发送保修凭证。同一台机只能被一个客户登记。
 - 后台能看每个序列号的扫码次数：同一标签被扫很多次是仿品复制标签的信号。
+- 仓库装箱时在订单页「机身序列号」面板输入/扫描序列号，客户在 App 订单详情就能看到自己那台机器，一键登记保修（不用扫码）；「我的机器」点一下就能 WhatsApp 报修，消息里自带序列号。
+- 总览页多了「已登记保修」卡片（本月新增、可疑扫码数）。
 
 ## 收货地图打点
 

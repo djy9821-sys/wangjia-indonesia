@@ -36,4 +36,10 @@ class AppConfig {
 
   /// Dev only: "host:port" of an HTTP proxy for all non-local requests.
   static const devProxy = String.fromEnvironment('DEV_PROXY', defaultValue: '');
+
+  /// Privacy policy shown in the account screen (store review requirement).
+  static const privacyUrl = String.fromEnvironment(
+    'PRIVACY_URL',
+    defaultValue: 'http://localhost:8000/id/privacy',
+  );
 }

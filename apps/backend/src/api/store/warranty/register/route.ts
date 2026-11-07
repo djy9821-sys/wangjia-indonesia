@@ -3,7 +3,10 @@ import {
   MedusaResponse,
 } from "@medusajs/framework";
 import { MedusaError } from "@medusajs/framework/utils";
+import { WARRANTY_MODULE } from "../../../../modules/warranty";
+import WarrantyModuleService from "../../../../modules/warranty/service";
 import { extractWarrantyCode } from "../../../../utils/warranty";
+import { assertOrderOwnedByCustomer } from "../../payment-plans/utils";
 import { registerWarrantyUnitWorkflow } from "../../../../workflows/warranty/workflows/register-warranty-unit";
 import { StoreRegisterWarranty } from "../../../admin/warranty/validators";
 
@@ -12,7 +15,18 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<StoreRegisterWarranty>,
   res: MedusaResponse
 ) => {
-  const code = extractWarrantyCode(req.validatedBody.code);
+  let code = req.validatedBody.code ? extractWarrantyCode(req.validatedBody.code) : null;
+  if (!code && req.validatedBody.unit_id) {
+    // One-tap registration from the order screen: the unit must sit in an
+    // order that belongs to the caller.
+    const service = req.scope.resolve<WarrantyModuleService>(WARRANTY_MODULE);
+    const unit = await service.retrieveWarrantyUnit(req.validatedBody.unit_id).catch(() => null);
+    if (!unit?.order_id) {
+      throw new MedusaError(MedusaError.Types.NOT_FOUND, "Unit tidak ditemukan.");
+    }
+    await assertOrderOwnedByCustomer(req.scope, unit.order_id, req.auth_context.actor_id);
+    code = unit.code;
+  }
   if (!code) {
     throw new MedusaError(MedusaError.Types.INVALID_DATA, "Kode QR tidak valid.");
   }

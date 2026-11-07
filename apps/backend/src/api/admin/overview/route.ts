@@ -48,7 +48,17 @@ export const GET = async (req: AuthenticatedMedusaRequest, res: MedusaResponse) 
     pagination: { take: 1000, skip: 0 },
   });
 
+  const { data: units } = await query.graph({
+    entity: "warranty_unit",
+    fields: ["id", "status", "registered_at", "scan_count"],
+    pagination: { take: 10000, skip: 0 },
+  });
+  const registered = (units as any[]).filter((u) => u.status === "registered");
+  const registeredThisMonth = registered.filter((u) => u.registered_at && new Date(u.registered_at) >= monthStart).length;
+  const suspicious = (units as any[]).filter((u) => u.status !== "void" && Number(u.scan_count ?? 0) > 5).length;
+
   res.json({
+    warranty: { registered: registered.length, registered_this_month: registeredThisMonth, suspicious },
     awaiting_confirmation: { count: awaiting.length, amount: awaiting.reduce((s, i) => s + Number(i.amount), 0) },
     overdue: { count: overdue.length, amount: overdue.reduce((s, i) => s + Number(i.amount), 0) },
     to_ship: { count: toShip },

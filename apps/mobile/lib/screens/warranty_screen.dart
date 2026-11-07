@@ -89,6 +89,7 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
               ]),
               const SizedBox(height: 24),
               Text(S.t('my_units'), style: Theme.of(context).textTheme.titleMedium),
+              Text('${S.t('request_service')}: ${S.t('chat_whatsapp')}', style: Theme.of(context).textTheme.bodySmall),
               const SizedBox(height: 8),
               FutureBuilder<List<WarrantyUnit>>(
                 future: _future,
@@ -115,6 +116,10 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
                             trailing: StatusChip(
                               u.expired ? S.t('expired') : S.t('active'),
                               u.expired ? const Color(0xFF6B7280) : const Color(0xFF1B8A5A),
+                            ),
+                            onTap: () => launchUrl(
+                              Uri.parse('https://wa.me/${AppConfig.whatsappNumber}?text=${Uri.encodeComponent('Halo WANGJIA, saya ingin minta servis untuk ${u.title} nomor seri ${u.serial}.')}'),
+                              mode: LaunchMode.externalApplication,
                             ),
                           ),
                         ),

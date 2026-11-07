@@ -36,10 +36,16 @@ export const AdminExportWarrantyUnits = z.object({
 });
 export type AdminExportWarrantyUnits = z.infer<typeof AdminExportWarrantyUnits>;
 
+export const AdminLinkWarrantyUnit = z.object({ serial: z.string().min(4).max(200) }).strict();
+export type AdminLinkWarrantyUnit = z.infer<typeof AdminLinkWarrantyUnit>;
+
+/* Either the QR code (scanned / typed) or the id of a unit in one of the customer's orders. */
 export const StoreRegisterWarranty = z
   .object({
-    code: z.string().min(6).max(200),
+    code: z.string().min(6).max(200).optional(),
+    unit_id: z.string().min(6).max(60).optional(),
     farm_location: z.string().max(300).nullish(),
   })
-  .strict();
+  .strict()
+  .refine((v) => Boolean(v.code || v.unit_id), { message: "code or unit_id is required" });
 export type StoreRegisterWarranty = z.infer<typeof StoreRegisterWarranty>;

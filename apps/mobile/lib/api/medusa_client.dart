@@ -428,4 +428,23 @@ class MedusaClient {
           TrackingInfo.fromJson(l as Map<String, dynamic>),
     ];
   }
+
+  /// Machines shipped in an order (linked by the warehouse at packing time).
+  Future<List<WarrantyUnit>> orderWarrantyUnits(String orderId) async {
+    final res = await get('/store/orders/$orderId/warranty-units');
+    return (res['units'] as List).map((e) => WarrantyUnit.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// One-tap registration of a unit that sits in one of my orders.
+  Future<WarrantyUnit> registerWarrantyUnit(String unitId) async {
+    final res = await post('/store/warranty/register', {'unit_id': unitId});
+    return WarrantyUnit.fromJson(res['unit'] as Map<String, dynamic>);
+  }
+
+  /// Deletes the account (anonymises the customer, revokes the login).
+  Future<void> deleteAccount() async {
+    final res = await _http.delete(_uri('/store/account'), headers: _headers);
+    _decode(res);
+    await _saveToken(null);
+  }
 }

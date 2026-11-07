@@ -7,6 +7,7 @@ import '../l10n/strings.dart';
 import '../models.dart';
 import '../widgets/common.dart';
 import 'tracking_sheet.dart';
+import 'order_units_section.dart';
 import 'payment_webview_screen.dart';
 import 'upload_proof_sheet.dart';
 
@@ -179,6 +180,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> with WidgetsBindi
                                 )
                               : null,
                         )),
+                  const Divider(height: 32),
+                  OrderUnitsSection(orderId: order.id),
                   const SizedBox(height: 32),
                 ],
               ),

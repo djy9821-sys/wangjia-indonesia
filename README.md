@@ -36,9 +36,10 @@ Key backend pieces (all under `apps/backend/src`):
 - **Jobs** — expire unpaid plans, daily payment reminders.
 - **Invoices** — proforma / invoice PDF with PPN, signed 24h download links.
 - **Indonesian regions** — 38 provinces / 514 regencies / 7,285 districts served from `data/wilayah.json`.
-- **`modules/warranty`** — serial numbers + QR codes per unit; public genuine check, in‑app warranty registration, scan counts as a counterfeit signal, CSV for label printing.
+- **`modules/warranty`** — serial numbers + QR codes per unit; public genuine check, in‑app warranty registration (scan, or one tap from the order), order ↔ serial linking at packing time, scan counts as a counterfeit signal, CSV for label printing.
 - **Tracking** — `/store/orders/:id/tracking` with carrier history through Biteship when `BITESHIP_API_KEY` is set.
 - **Error reporting** — Sentry‑compatible (`SENTRY_DSN`), self‑hosted GlitchTip compose in `deploy/`.
+- **Account deletion** — `DELETE /store/account` anonymises the customer and revokes the login (store review requirement).
 
 ## Quick start (local)
 

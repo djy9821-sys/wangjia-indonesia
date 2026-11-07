@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../config.dart';
+import '../widgets/common.dart';
 
 import '../api/medusa_client.dart';
 import '../l10n/strings.dart';
@@ -106,12 +110,48 @@ class _AccountScreen extends StatelessWidget {
               ),
             ),
             ListTile(
+              leading: const Icon(Icons.privacy_tip_outlined),
+              title: Text(S.t('privacy_policy')),
+              trailing: const Icon(Icons.open_in_new, size: 18),
+              onTap: () => launchUrl(Uri.parse(AppConfig.privacyUrl), mode: LaunchMode.externalApplication),
+            ),
+            ListTile(
               leading: const Icon(Icons.logout),
               title: Text(S.t('logout')),
               onTap: () async {
                 await PushService.instance.unregister();
                 await MedusaClient.instance.logout();
                 onLoggedOut();
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete_forever_outlined, color: Theme.of(context).colorScheme.error),
+              title: Text(S.t('delete_account'), style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              onTap: () async {
+                final ok = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: Text(S.t('delete_account')),
+                    content: Text(S.t('delete_account_confirm')),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(S.t('cancel'))),
+                      FilledButton(
+                        style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+                        onPressed: () => Navigator.of(ctx).pop(true),
+                        child: Text(S.t('delete')),
+                      ),
+                    ],
+                  ),
+                );
+                if (ok != true || !context.mounted) return;
+                try {
+                  await PushService.instance.unregister();
+                  await MedusaClient.instance.deleteAccount();
+                  if (context.mounted) showSnack(context, S.t('delete_account_done'));
+                  onLoggedOut();
+                } catch (e) {
+                  if (context.mounted) showSnack(context, '$e');
+                }
               },
             ),
           ],

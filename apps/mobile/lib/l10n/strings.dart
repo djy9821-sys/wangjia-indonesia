@@ -180,6 +180,16 @@ class S {
     'open_carrier': 'Buka halaman ekspedisi',
     'warranty_label': 'Garansi',
     'close': 'Tutup',
+    // account & order units
+    'privacy_policy': 'Kebijakan privasi',
+    'delete_account': 'Hapus akun',
+    'delete_account_confirm': 'Hapus akun Anda? Login dan data kontak dihapus permanen. Catatan pesanan dan garansi tetap disimpan WANGJIA untuk keperluan pajak dan servis. Tidak bisa dibatalkan.',
+    'delete_account_done': 'Akun dihapus.',
+    'order_units': 'Mesin dalam pesanan ini',
+    'order_units_hint': 'Gudang mencatat nomor seri setiap mesin yang dikirim. Daftarkan garansi di sini, tanpa perlu scan.',
+    'order_units_none': 'Nomor seri akan muncul di sini setelah gudang mengirim pesanan Anda.',
+    'register_now': 'Daftarkan garansi',
+    'request_service': 'Minta servis',
   };
 
   static const _en = <String, String>{
@@ -353,5 +363,15 @@ class S {
     'open_carrier': 'Open carrier page',
     'warranty_label': 'Warranty',
     'close': 'Close',
+    // account & order units
+    'privacy_policy': 'Privacy policy',
+    'delete_account': 'Delete account',
+    'delete_account_confirm': 'Delete your account? Your login and contact details are removed permanently. Order and warranty records stay with WANGJIA for tax and service purposes. This cannot be undone.',
+    'delete_account_done': 'Account deleted.',
+    'order_units': 'Machines in this order',
+    'order_units_hint': 'The warehouse records the serial number of every machine it ships. Register the warranty here, no scanning needed.',
+    'order_units_none': 'Serial numbers appear here once the warehouse ships your order.',
+    'register_now': 'Register warranty',
+    'request_service': 'Request service',
   };
 }

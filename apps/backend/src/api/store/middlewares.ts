@@ -9,6 +9,7 @@ import { storePushTokensMiddlewares } from "./push-tokens/middlewares";
 import { storeQuotesMiddlewares } from "./quotes/middlewares";
 import { storeSearchMiddlewares } from "./search/middlewares";
 import { storeWarrantyMiddlewares } from "./warranty/middlewares";
+import { storeAccountMiddlewares } from "./account/middlewares";
 
 export const storeMiddlewares: MiddlewareRoute[] = [
   ...storeCartsMiddlewares,
@@ -21,4 +22,5 @@ export const storeMiddlewares: MiddlewareRoute[] = [
   ...storeOtpMiddlewares,
   ...storePushTokensMiddlewares,
   ...storeWarrantyMiddlewares,
+  ...storeAccountMiddlewares,
 ];

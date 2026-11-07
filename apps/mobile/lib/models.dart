@@ -438,6 +438,8 @@ class WarrantyUnit {
   final String? registeredAt;
   final String? warrantyExpiresAt;
   final String? farmLocation;
+  final bool registered;
+  final bool registeredToMe;
   WarrantyUnit({
     required this.id,
     required this.serial,
@@ -447,6 +449,8 @@ class WarrantyUnit {
     this.registeredAt,
     this.warrantyExpiresAt,
     this.farmLocation,
+    this.registered = false,
+    this.registeredToMe = false,
   });
   factory WarrantyUnit.fromJson(Map<String, dynamic> j) => WarrantyUnit(
         id: (j['id'] ?? '') as String,
@@ -457,6 +461,8 @@ class WarrantyUnit {
         registeredAt: j['registered_at'] as String?,
         warrantyExpiresAt: j['warranty_expires_at'] as String?,
         farmLocation: j['farm_location'] as String?,
+        registered: j['registered'] == true || j['status'] == 'registered',
+        registeredToMe: j['registered_to_me'] == true,
       );
   String get title => [productTitle, if ((variantTitle ?? '').isNotEmpty) variantTitle!].join(' · ');
   bool get expired =>

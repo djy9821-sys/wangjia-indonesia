@@ -2,6 +2,7 @@ import { allowFields, errorHandler } from "@medusajs/framework/http";
 import { MedusaNextFunction, MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { defineMiddlewares } from "@medusajs/medusa";
 import { captureServerError } from "../utils/sentry";
+import { rejectDeletedCustomer } from "./middlewares/reject-deleted-customer";
 import { adminMiddlewares } from "./admin/middlewares";
 import { storeMiddlewares } from "./store/middlewares";
 import {
@@ -31,6 +32,8 @@ export default defineMiddlewares({
     { matcher: "/store/warranty/register", method: ["POST"], middlewares: [uploadRateLimit] },
     ...adminMiddlewares,
     ...storeMiddlewares,
+    // After the route's own authenticate() so auth_context is populated.
+    { matcher: "/store/*", middlewares: [rejectDeletedCustomer] },
     {
       matcher: "/store/customers/me",
       middlewares: [allowFields("employee")],

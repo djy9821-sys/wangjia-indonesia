@@ -7,6 +7,7 @@ import { ensureAdminRole } from "../../middlewares/ensure-admin-role";
 import {
   AdminExportWarrantyUnits,
   AdminGenerateWarrantyUnits,
+  AdminLinkWarrantyUnit,
   AdminListWarrantyUnits,
   AdminUpdateWarrantyUnit,
 } from "./validators";
@@ -37,5 +38,15 @@ export const adminWarrantyMiddlewares: MiddlewareRoute[] = [
       ensureAdminRole("warehouse", "sales"),
       validateAndTransformBody(AdminUpdateWarrantyUnit),
     ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/orders/:id/warranty-units",
+    middlewares: [ensureAdminRole("warehouse", "sales"), validateAndTransformBody(AdminLinkWarrantyUnit)],
+  },
+  {
+    method: ["DELETE"],
+    matcher: "/admin/orders/:id/warranty-units/:unitId",
+    middlewares: [ensureAdminRole("warehouse", "sales")],
   },
 ];

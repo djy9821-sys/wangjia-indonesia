@@ -6,7 +6,8 @@ Features: login/register with WhatsApp OTP, product catalog in IDR with specs an
 (saved addresses, province/regency/district picker, map pin for the pond), request a quote and chat on it,
 order detail with the payment plan (pay an instalment via Midtrans Snap or upload a bank-transfer receipt),
 invoice download, shipment tracking with carrier history, push notifications, QR scan for genuine check and
-warranty registration, error reporting.
+warranty registration (one tap from the order for machines the warehouse packed), WhatsApp service request,
+in-app account deletion, error reporting.
 
 ```bash
 # first time (needs the Flutter SDK on PATH)
@@ -21,7 +22,7 @@ flutter run --dart-define=MEDUSA_URL=http://10.0.2.2:9000 --dart-define=MEDUSA_P
 ```
 
 Other `--dart-define`s: `WHATSAPP_NUMBER=62812…`, `MIDTRANS_FINISH_URL=…`, `SENTRY_DSN=…` (GlitchTip app
-project; empty = reporting off), `APP_ENV=production`, `APP_VERSION=1.0.0`, `DEV_PROXY=127.0.0.1:7890` (dev only:
+project; empty = reporting off), `APP_ENV=production`, `APP_VERSION=1.0.0`, `PRIVACY_URL=https://wangjia.co.id/id/privacy` (account screen link, required by the stores), `DEV_PROXY=127.0.0.1:7890` (dev only:
 route map tiles / geocoding through a local proxy, since Dart ignores the system proxy).
 
 ## Release (Fastlane)

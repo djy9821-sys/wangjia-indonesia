@@ -12,6 +12,7 @@ type Overview = {
   to_ship: { count: number };
   quotes_pending: { count: number };
   received_this_month: { amount: number };
+  warranty: { registered: number; registered_this_month: number; suspicious: number };
 };
 
 /* Four numbers above the orders list: what needs attention today. */
@@ -29,6 +30,7 @@ const OverviewWidget = () => {
     { to: "/warehouse", label: t("待发货"), value: String(data.to_ship.count), sub: t("已放行订单"), tone: data.to_ship.count ? "text-ui-tag-blue-text" : "" },
     { to: "/quotes", label: t("待报价"), value: String(data.quotes_pending.count), sub: t("客户询价"), tone: data.quotes_pending.count ? "text-ui-tag-purple-text" : "" },
     { to: "/finance", label: t("本月已收"), value: formatMoney(data.received_this_month.amount), sub: t("按到账日期"), tone: "text-ui-tag-green-text" },
+    { to: "/warranty", label: t("已登记保修"), value: String(data.warranty.registered), sub: `${t("本月")} +${data.warranty.registered_this_month}${data.warranty.suspicious ? ` · ${t("可疑扫码")} ${data.warranty.suspicious}` : ""}`, tone: data.warranty.suspicious ? "text-ui-tag-red-text" : "text-ui-tag-green-text" },
   ];
   return (
     <Container className="p-0 overflow-hidden">
