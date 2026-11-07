@@ -1,0 +1,421 @@
+import { defineWidgetConfig } from "@medusajs/admin-sdk";
+import type { DetailWidgetProps, AdminOrder } from "@medusajs/framework/types";
+import {
+  Badge,
+  Button,
+  Container,
+  Heading,
+  Input,
+  Label,
+  Select,
+  Text,
+  Textarea,
+  toast,
+  Toaster,
+} from "@medusajs/ui";
+import { useState } from "react";
+import {
+  useConfirmInstallment,
+  useCreatePaymentPlan,
+  useMyRole,
+  useOrderPaymentPlan,
+  useRejectProof,
+  useReleasePlan,
+} from "../hooks/api/payment-plans";
+import type {
+  ModuleInstallment,
+  ModulePaymentPlan,
+  ModulePaymentProof,
+} from "../../types/payment-plan";
+import {
+  formatDate,
+  formatMoney,
+  INSTALLMENT_STATUS_COLOR,
+  INSTALLMENT_STATUS_LABEL,
+  PAYMENT_METHOD_LABEL,
+  PROOF_STATUS_LABEL,
+  RELEASE_POLICY_LABEL,
+} from "../utils/payment-plan";
+
+type Row = { label: string; amount: string; due_date: string };
+
+const errMsg = (e: unknown) =>
+  (e as { message?: string })?.message ?? "操作失败";
+
+/* ---------- create form ---------- */
+
+const CreatePlanForm = ({ order }: { order: AdminOrder }) => {
+  const total = Number(order.total ?? 0);
+  const currency = order.currency_code;
+  const [policy, setPolicy] = useState<"deposit_paid" | "full_paid">(
+    "deposit_paid"
+  );
+  const [note, setNote] = useState("");
+  const [rows, setRows] = useState<Row[]>([
+    { label: "Uang muka 30% / 定金", amount: String(Math.round(total * 0.3)), due_date: "" },
+    { label: "Pelunasan 70% / 尾款", amount: String(total - Math.round(total * 0.3)), due_date: "" },
+  ]);
+  const create = useCreatePaymentPlan(order.id);
+
+  const preset = (parts: number[]) => {
+    const labels =
+      parts.length === 1
+        ? ["Pembayaran penuh / 全款"]
+        : parts.length === 2
+          ? ["Uang muka / 定金", "Pelunasan / 尾款"]
+          : parts.map((_, i) => `Tahap ${i + 1} / 第 ${i + 1} 期`);
+    let remaining = total;
+    const next = parts.map((p, i) => {
+      const amt =
+        i === parts.length - 1 ? remaining : Math.round((total * p) / 100);
+      remaining -= amt;
+      return {
+        label: `${labels[i]} ${p}%`,
+        amount: String(amt),
+        due_date: "",
+      };
+    });
+    setRows(next);
+  };
+
+  const sum = rows.reduce((s, r) => s + Number(r.amount || 0), 0);
+  const diff = total - sum;
+
+  const submit = async () => {
+    try {
+      await create.mutateAsync({
+        release_policy: policy,
+        note: note || null,
+        installments: rows.map((r) => ({
+          label: r.label,
+          amount: Number(r.amount),
+          due_date: r.due_date || null,
+        })),
+      });
+      toast.success("付款计划已创建");
+    } catch (e) {
+      toast.error(errMsg(e));
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-y-4 px-6 py-4">
+      <Text size="small" className="text-ui-fg-subtle">
+        订单总额 {formatMoney(total, currency)}。把总额拆成几期，客户在 App
+        里按期付款。
+      </Text>
+
+      <div className="flex flex-wrap gap-2">
+        <Button size="small" variant="secondary" onClick={() => preset([30, 70])}>
+          30% / 70%
+        </Button>
+        <Button size="small" variant="secondary" onClick={() => preset([50, 50])}>
+          50% / 50%
+        </Button>
+        <Button size="small" variant="secondary" onClick={() => preset([30, 40, 30])}>
+          30% / 40% / 30%
+        </Button>
+        <Button size="small" variant="secondary" onClick={() => preset([100])}>
+          全款
+        </Button>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2">
+        <div className="flex flex-col gap-y-1">
+          <Label size="small">发货条件</Label>
+          <Select value={policy} onValueChange={(v) => setPolicy(v as typeof policy)}>
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value="deposit_paid">{RELEASE_POLICY_LABEL.deposit_paid}</Select.Item>
+              <Select.Item value="full_paid">{RELEASE_POLICY_LABEL.full_paid}</Select.Item>
+            </Select.Content>
+          </Select>
+        </div>
+        <div className="flex flex-col gap-y-1">
+          <Label size="small">备注（客户可见）</Label>
+          <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="例如：银行账户 BCA 123456 a.n. PT ..." />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-y-2">
+        {rows.map((r, i) => (
+          <div key={i} className="grid gap-2 md:grid-cols-[1fr_180px_160px_auto]">
+            <Input
+              value={r.label}
+              placeholder="名称，如 定金 30%"
+              onChange={(e) =>
+                setRows(rows.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))
+              }
+            />
+            <Input
+              type="number"
+              value={r.amount}
+              placeholder="金额"
+              onChange={(e) =>
+                setRows(rows.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))
+              }
+            />
+            <Input
+              type="date"
+              value={r.due_date}
+              onChange={(e) =>
+                setRows(rows.map((x, j) => (j === i ? { ...x, due_date: e.target.value } : x)))
+              }
+            />
+            <Button
+              size="small"
+              variant="transparent"
+              disabled={rows.length === 1}
+              onClick={() => setRows(rows.filter((_, j) => j !== i))}
+            >
+              删除
+            </Button>
+          </div>
+        ))}
+        <div>
+          <Button
+            size="small"
+            variant="secondary"
+            onClick={() => setRows([...rows, { label: "", amount: "0", due_date: "" }])}
+          >
+            + 加一期
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <Text size="small" className={diff === 0 ? "text-ui-fg-subtle" : "text-ui-fg-error"}>
+          合计 {formatMoney(sum, currency)}
+          {diff !== 0 && `，与订单总额相差 ${formatMoney(diff, currency)}`}
+        </Text>
+        <Button size="small" onClick={submit} isLoading={create.isPending} disabled={diff !== 0}>
+          创建付款计划
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+/* ---------- proof row ---------- */
+
+const ProofRow = ({
+  proof,
+  installment,
+  plan,
+  canFinance,
+  orderId,
+}: {
+  proof: ModulePaymentProof;
+  installment: ModuleInstallment;
+  plan: ModulePaymentPlan;
+  canFinance: boolean;
+  orderId: string;
+}) => {
+  const confirm = useConfirmInstallment(orderId);
+  const reject = useRejectProof(orderId);
+  const [reason, setReason] = useState("");
+  const [rejecting, setRejecting] = useState(false);
+
+  const onAccept = async () => {
+    try {
+      await confirm.mutateAsync({ id: installment.id, proof_id: proof.id, payment_method: "bank_transfer" });
+      toast.success("已确认到账");
+    } catch (e) {
+      toast.error(errMsg(e));
+    }
+  };
+  const onReject = async () => {
+    try {
+      await reject.mutateAsync({ id: proof.id, review_note: reason || null });
+      toast.success("凭证已拒绝");
+      setRejecting(false);
+    } catch (e) {
+      toast.error(errMsg(e));
+    }
+  };
+
+  return (
+    <div className="rounded-md border border-ui-border-base bg-ui-bg-subtle p-3 text-sm flex flex-col gap-y-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <a href={proof.file_url} target="_blank" rel="noreferrer" className="text-ui-fg-interactive underline">
+          查看转账凭证
+        </a>
+        <Badge size="2xsmall" color={proof.status === "accepted" ? "green" : proof.status === "rejected" ? "red" : "orange"}>
+          {PROOF_STATUS_LABEL[proof.status]}
+        </Badge>
+        <span className="text-ui-fg-subtle">
+          {proof.bank_name ?? "-"} · {proof.sender_name ?? "-"} ·{" "}
+          {proof.amount != null ? formatMoney(proof.amount, plan.currency_code) : "金额未填"} ·{" "}
+          {formatDate(proof.transferred_at ?? proof.created_at)}
+        </span>
+      </div>
+      {proof.note && <Text size="xsmall" className="text-ui-fg-subtle">客户备注：{proof.note}</Text>}
+      {proof.review_note && <Text size="xsmall" className="text-ui-fg-error">审核意见：{proof.review_note}</Text>}
+      {canFinance && proof.status === "pending" && installment.status !== "paid" && (
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="small" onClick={onAccept} isLoading={confirm.isPending}>
+            核对无误，确认到账
+          </Button>
+          {!rejecting ? (
+            <Button size="small" variant="danger" onClick={() => setRejecting(true)}>
+              拒绝凭证
+            </Button>
+          ) : (
+            <>
+              <Input size="small" placeholder="拒绝原因（客户可见）" value={reason} onChange={(e) => setReason(e.target.value)} />
+              <Button size="small" variant="danger" onClick={onReject} isLoading={reject.isPending}>确认拒绝</Button>
+              <Button size="small" variant="transparent" onClick={() => setRejecting(false)}>取消</Button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ---------- plan view ---------- */
+
+const PlanView = ({ plan, orderId, role }: { plan: ModulePaymentPlan; orderId: string; role: string }) => {
+  const canFinance = role === "owner" || role === "finance";
+  const isOwner = role === "owner";
+  const confirm = useConfirmInstallment(orderId);
+  const release = useReleasePlan(orderId);
+  const [manualNote, setManualNote] = useState<Record<string, string>>({});
+
+  const installments = [...(plan.installments ?? [])].sort((a, b) => a.sequence - b.sequence);
+  const paid = installments.filter((i) => i.status === "paid").reduce((s, i) => s + Number(i.amount), 0);
+
+  const manualConfirm = async (inst: ModuleInstallment) => {
+    try {
+      await confirm.mutateAsync({ id: inst.id, payment_method: "other", note: manualNote[inst.id] || null });
+      toast.success("已确认到账");
+    } catch (e) {
+      toast.error(errMsg(e));
+    }
+  };
+
+  const forceRelease = async () => {
+    try {
+      await release.mutateAsync(plan.id);
+      toast.success("已放行，仓库可以发货");
+    } catch (e) {
+      toast.error(errMsg(e));
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-y-4 px-6 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {plan.released_at ? (
+            <Badge color="green">已放行发货 · {formatDate(plan.released_at)}</Badge>
+          ) : (
+            <Badge color="orange">未放行，仓库不能发货</Badge>
+          )}
+          <Badge color="grey">{RELEASE_POLICY_LABEL[plan.release_policy]}</Badge>
+          <Badge color={plan.status === "completed" ? "green" : "blue"}>
+            {plan.status === "completed" ? "全部付清" : plan.status === "cancelled" ? "已取消" : "进行中"}
+          </Badge>
+        </div>
+        <Text size="small" className="text-ui-fg-subtle">
+          已收 {formatMoney(paid, plan.currency_code)} / {formatMoney(plan.total_amount, plan.currency_code)}
+        </Text>
+      </div>
+      {plan.note && <Text size="small" className="text-ui-fg-subtle">备注：{plan.note}</Text>}
+
+      <div className="flex flex-col gap-y-3">
+        {installments.map((inst) => (
+          <div key={inst.id} className="rounded-lg border border-ui-border-base p-4 flex flex-col gap-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-x-3">
+                <Text weight="plus">
+                  {inst.sequence}. {inst.label}
+                </Text>
+                <Badge size="2xsmall" color={INSTALLMENT_STATUS_COLOR[inst.status]}>
+                  {INSTALLMENT_STATUS_LABEL[inst.status]}
+                </Badge>
+                {inst.payment_method && (
+                  <Badge size="2xsmall" color="grey">{PAYMENT_METHOD_LABEL[inst.payment_method]}</Badge>
+                )}
+              </div>
+              <Text weight="plus">{formatMoney(inst.amount, plan.currency_code)}</Text>
+            </div>
+            <div className="flex flex-wrap gap-x-4 text-ui-fg-subtle txt-small">
+              <span>到期：{inst.due_date ? formatDate(inst.due_date).slice(0, 10) : "未设定"}</span>
+              {inst.paid_at && <span>到账：{formatDate(inst.paid_at)}</span>}
+              {inst.confirmed_by && <span>确认人：{inst.confirmed_by === "midtrans" ? "Midtrans 自动" : inst.confirmed_by}</span>}
+              {inst.gateway_reference && <span>Midtrans 单号：{inst.gateway_reference}</span>}
+            </div>
+            {(inst.proofs ?? []).map((p) => (
+              <ProofRow key={p.id} proof={p} installment={inst} plan={plan} canFinance={canFinance} orderId={orderId} />
+            ))}
+            {canFinance && inst.status !== "paid" && inst.status !== "cancelled" && (
+              <div className="flex flex-wrap items-center gap-2">
+                <Input
+                  size="small"
+                  placeholder="无凭证直接确认：填写收款说明（如 银行流水号）"
+                  value={manualNote[inst.id] ?? ""}
+                  onChange={(e) => setManualNote({ ...manualNote, [inst.id]: e.target.value })}
+                />
+                <Button size="small" variant="secondary" onClick={() => manualConfirm(inst)} isLoading={confirm.isPending}>
+                  手动确认到账
+                </Button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {isOwner && !plan.released_at && (
+        <div className="flex items-center justify-end">
+          <Button size="small" variant="danger" onClick={forceRelease} isLoading={release.isPending}>
+            负责人强制放行发货
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ---------- widget ---------- */
+
+const OrderPaymentPlanWidget = ({ data: order }: DetailWidgetProps<AdminOrder>) => {
+  const { data, isLoading, error } = useOrderPaymentPlan(order.id);
+  const me = useMyRole();
+  const role = me.data?.role ?? "owner";
+  const canCreate = role === "owner" || role === "sales" || role === "finance";
+
+  return (
+    <>
+      <Container className="divide-y p-0">
+        <div className="flex items-center justify-between px-6 py-4">
+          <Heading level="h2">付款计划与到款确认</Heading>
+          <Text size="small" className="text-ui-fg-subtle">
+            当前角色：{role}
+          </Text>
+        </div>
+        {isLoading && <Text className="px-6 py-4">加载中…</Text>}
+        {error && <Text className="px-6 py-4 text-ui-fg-error">{errMsg(error)}</Text>}
+        {!isLoading && !error && data?.payment_plan && (
+          <PlanView plan={data.payment_plan} orderId={order.id} role={role} />
+        )}
+        {!isLoading && !error && !data?.payment_plan && (
+          canCreate ? (
+            <CreatePlanForm order={order} />
+          ) : (
+            <Text className="px-6 py-4 text-ui-fg-subtle">尚未创建付款计划，请联系销售或财务。</Text>
+          )
+        )}
+      </Container>
+      <Toaster />
+    </>
+  );
+};
+
+export const config = defineWidgetConfig({
+  zone: "order.details.after",
+});
+
+export default OrderPaymentPlanWidget;

@@ -1,0 +1,11 @@
+{
+  "name": "indo-b2b-infra",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "pg": "node pg.js"
+  },
+  "dependencies": {
+    "embedded-postgres": "^18.6.0-beta.19"
+  }
+}

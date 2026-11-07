@@ -1,0 +1,7 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "backend", "url": "http://localhost:9000", "port": 9000 },
+    { "name": "storefront", "url": "http://localhost:8000", "port": 8000 }
+  ]
+}
