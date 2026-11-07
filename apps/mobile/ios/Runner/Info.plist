@@ -70,6 +70,8 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Galeri dipakai untuk memilih foto bukti transfer yang akan diunggah.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Kamera dipakai untuk memindai QR di mesin WANGJIA (cek keaslian dan daftar garansi).</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

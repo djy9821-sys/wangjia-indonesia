@@ -29,7 +29,7 @@ type Unit = {
   created_at: string;
 };
 type ListResponse = { units: Unit[]; count: number; stats: { in_stock: number; registered: number } };
-type ProductsResponse = { products: { id: string; title: string; variants: { id: string; title: string }[] }[] };
+type ProductsResponse = { products: { id: string; title: string; metadata?: Record<string, unknown> | null; variants: { id: string; title: string }[] }[] };
 
 const STATUS_LABEL: Record<Unit["status"], string> = {
   in_stock: "在库",
@@ -62,7 +62,7 @@ const GenerateForm = ({ onDone }: { onDone: () => void }) => {
     queryKey: ["warranty", "products"],
     queryFn: () =>
       sdk.client.fetch<ProductsResponse>("/admin/products", {
-        query: { limit: 100, fields: "id,title,variants.id,variants.title" },
+        query: { limit: 100, fields: "id,title,metadata,variants.id,variants.title" },
       }),
   });
   const [productId, setProductId] = useState("");
@@ -110,7 +110,16 @@ const GenerateForm = ({ onDone }: { onDone: () => void }) => {
       <div className="flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-y-1 min-w-56">
           <Text size="xsmall">{t("产品")}</Text>
-          <Select value={productId} onValueChange={(v) => { setProductId(v); setVariantId(""); }}>
+          <Select
+            value={productId}
+            onValueChange={(v) => {
+              setProductId(v);
+              setVariantId("");
+              // Products can carry their own warranty length (metadata.warranty_months).
+              const m = Number(products.data?.products.find((p) => p.id === v)?.metadata?.warranty_months);
+              if (Number.isFinite(m) && m > 0) setMonths(String(m));
+            }}
+          >
             <Select.Trigger><Select.Value placeholder={t("选择产品")} /></Select.Trigger>
             <Select.Content>
               {(products.data?.products ?? []).map((p) => (
