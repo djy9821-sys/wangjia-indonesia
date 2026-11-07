@@ -440,6 +440,30 @@ medusaIntegrationTestRunner({
         expect(bad.status).toEqual(400);
       });
 
+      it("registers and removes push device tokens for the customer", async () => {
+        const token = "fcm-token-" + "x".repeat(40);
+        const reg = await api.post(`/store/push-tokens`, { token, platform: "ios", app_version: "0.1.0" }, storeHeaders);
+        expect(reg.status).toEqual(200);
+        expect(reg.data.device.platform).toEqual("ios");
+
+        // re-registering the same token is idempotent
+        const again = await api.post(`/store/push-tokens`, { token, platform: "ios" }, storeHeaders);
+        expect(again.data.device.id).toEqual(reg.data.device.id);
+
+        const list = await api.get(`/store/push-tokens`, storeHeaders);
+        expect(list.data.devices).toHaveLength(1);
+
+        const del = await api.delete(`/store/push-tokens/${encodeURIComponent(token)}`, storeHeaders);
+        expect(del.data.deleted).toEqual(true);
+        const after = await api.get(`/store/push-tokens`, storeHeaders);
+        expect(after.data.devices).toHaveLength(0);
+
+        const anon = await api
+          .post(`/store/push-tokens`, { token }, { headers: { "x-publishable-api-key": storeHeaders.headers["x-publishable-api-key"] } })
+          .catch((e) => e.response);
+        expect(anon.status).toEqual(401);
+      });
+
       it("hides other customers' plans and rejects unauthenticated access", async () => {
         const { orderId } = await createOrderViaQuote();
         await api.post(

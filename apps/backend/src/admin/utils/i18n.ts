@@ -148,6 +148,10 @@ const ID: Record<string, string> = {
   "查看凭证": "Lihat bukti",
   "无凭证": "Tanpa bukti",
   "财务到款": "Keuangan",
+  "导出到款与退款明细（CSV，给会计）": "Ekspor penerimaan & pengembalian dana (CSV untuk akuntan)",
+  "按到账日期筛选，含订单号、客户、金额、方式、确认人。": "Difilter berdasarkan tanggal dana masuk; berisi no. pesanan, pelanggan, jumlah, metode, yang mengonfirmasi.",
+  "下载 CSV": "Unduh CSV",
+  "导出失败": "Ekspor gagal",
   // warehouse page
   "仓库：待发货订单": "Gudang: pesanan siap kirim",
   "只显示财务已确认到款并放行的订单。点开订单后用「Create Fulfillment」备货，再用「Mark as shipped」填写货运公司与单号。": "Hanya pesanan yang dananya sudah dikonfirmasi keuangan. Buka pesanan, pakai \"Create Fulfillment\" untuk menyiapkan, lalu \"Mark as shipped\" untuk isi ekspedisi dan no. resi.",

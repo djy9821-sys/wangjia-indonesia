@@ -2,7 +2,8 @@ import { t, useLang } from "../../utils/i18n";
 import { LangToggle } from "../../components/common/lang-toggle";
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { CurrencyDollar } from "@medusajs/icons";
-import { Badge, Button, Container, Heading, Table, Text, Toaster, toast } from "@medusajs/ui";
+import { Badge, Button, Container, Heading, Input, Table, Text, Toaster, toast } from "@medusajs/ui";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   InstallmentRow,
@@ -96,6 +97,37 @@ const Row = ({ row }: { row: InstallmentRow }) => {
   );
 };
 
+const ExportBar = () => {
+  const today = new Date().toISOString().slice(0, 10);
+  const monthStart = today.slice(0, 8) + "01";
+  const [from, setFrom] = useState(monthStart);
+  const [to, setTo] = useState(today);
+  const download = async () => {
+    const res = await fetch(`/admin/payment-installments/export?from=${from}&to=${to}`, { credentials: "include" });
+    if (!res.ok) {
+      toast.error(t("导出失败"));
+      return;
+    }
+    const blob = await res.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `wangjia-penerimaan-${from}_${to}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  return (
+    <Container className="flex flex-wrap items-end gap-3 px-6 py-4">
+      <div className="flex flex-col gap-y-1">
+        <Text size="small" weight="plus">{t("导出到款与退款明细（CSV，给会计）")}</Text>
+        <Text size="xsmall" className="text-ui-fg-subtle">{t("按到账日期筛选，含订单号、客户、金额、方式、确认人。")}</Text>
+      </div>
+      <Input type="date" size="small" value={from} onChange={(e) => setFrom(e.target.value)} />
+      <Input type="date" size="small" value={to} onChange={(e) => setTo(e.target.value)} />
+      <Button size="small" variant="secondary" onClick={download}>{t("下载 CSV")}</Button>
+    </Container>
+  );
+};
+
 const FinancePage = () => {
   useLang();
   const awaiting = useInstallments("awaiting_confirmation");
@@ -135,6 +167,7 @@ const FinancePage = () => {
     <div className="flex flex-col gap-y-4">
       <Section title={t("财务：待确认到款")} q={awaiting} hint={t("客户已上传转账凭证或 Midtrans 支付处理中。核对银行流水后确认，仓库才会看到发货任务。")} />
       <Section title={t("尚未付款的款项")} q={unpaid} hint={t("已创建付款计划但客户还没付的期数。")} />
+      <ExportBar />
       <Toaster />
     </div>
   );

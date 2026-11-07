@@ -1,0 +1,22 @@
+# Automatic HTTPS for every host below (Let's Encrypt).
+{$WEB_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy storefront:8000
+}
+
+{$API_DOMAIN} {
+	encode zstd gzip
+	# Receipt uploads are a few MB; Midtrans webhooks are tiny.
+	request_body {
+		max_size 20MB
+	}
+	reverse_proxy backend:9000
+}
+
+{$STATUS_DOMAIN} {
+	reverse_proxy uptime-kuma:3001
+}
+
+{$ANALYTICS_DOMAIN} {
+	reverse_proxy umami:3000
+}

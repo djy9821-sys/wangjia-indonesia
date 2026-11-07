@@ -1,6 +1,8 @@
 import { MedusaContainer } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { roleFromMetadata } from "./admin-roles";
+import { PUSH_DEVICE_MODULE } from "../modules/push-device";
+import PushDeviceModuleService from "../modules/push-device/service";
 
 /*
   Builds and sends the five customer/staff notifications of the payment flow.
@@ -15,6 +17,7 @@ export type PlanContext = {
   order: {
     id: string;
     display_id: number | string;
+    customer_id?: string | null;
     email?: string | null;
     customer?: { first_name?: string | null; last_name?: string | null; phone?: string | null } | null;
     shipping_address?: { phone?: string | null } | null;
@@ -54,6 +57,7 @@ export async function loadPlanContext(
     fields: [
       "id",
       "display_id",
+      "customer_id",
       "email",
       "currency_code",
       "customer.first_name",
@@ -102,12 +106,51 @@ function customerTargets(ctx: PlanContext) {
   return { phone, email };
 }
 
-function sendCustomer(container: MedusaContainer, ctx: PlanContext, template: string, text: string, subject: string) {
+/*
+  Push to every device the customer registered. Tokens that FCM reports as
+  dead (UNREGISTERED / NOT_FOUND) are removed so we stop sending to them.
+*/
+async function pushCustomer(
+  container: MedusaContainer,
+  ctx: PlanContext,
+  template: string,
+  title: string,
+  body: string,
+  extra: Record<string, unknown> = {}
+) {
+  if (!ctx.order.customer_id) return;
+  const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
+  const devices = container.resolve<PushDeviceModuleService>(PUSH_DEVICE_MODULE);
+  const notification = container.resolve(Modules.NOTIFICATION);
+  const tokens = await devices.listPushDeviceTokens({ customer_id: ctx.order.customer_id });
+  for (const t of tokens) {
+    try {
+      await notification.createNotifications({
+        to: t.token,
+        channel: "push",
+        template,
+        data: { title, body, data: { order_id: ctx.order.id, type: template, ...extra } },
+      });
+    } catch (e) {
+      const msg = (e as Error).message ?? "";
+      if (/UNREGISTERED|NOT_FOUND|INVALID_ARGUMENT/i.test(msg)) {
+        await devices.deletePushDeviceTokens(t.id);
+        logger.info(`[push] removed dead token for customer ${ctx.order.customer_id}`);
+      } else {
+        logger.error(`[push] failed: ${msg}`);
+      }
+    }
+  }
+}
+
+async function sendCustomer(container: MedusaContainer, ctx: PlanContext, template: string, text: string, subject: string) {
   const { phone, email } = customerTargets(ctx);
   const list: Parameters<typeof notify>[1] = [];
   if (phone) list.push({ to: phone, channel: "whatsapp", template, data: { text } });
   if (email) list.push({ to: email, channel: "email", template, data: { subject, text } });
-  return notify(container, list);
+  await notify(container, list);
+  // Push: subject is short enough for the notification title, text for the body.
+  await pushCustomer(container, ctx, template, subject, text.split("\n")[0].slice(0, 180));
 }
 
 async function sendStaff(container: MedusaContainer, role: "finance" | "warehouse", template: string, subject: string, text: string) {

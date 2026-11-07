@@ -24,6 +24,8 @@
 - **产品规格参数**：在后台商品的 Metadata 面板里加 `spec:01 Daya motor` = `1 HP` 这样的键值（前面的两位数字只用来排序，不显示），App 产品页和网页产品页的“Spesifikasi”表会自动出现。商品图片用后台自带的上传，App 里自动变成可左右滑、可放大的图集。
 - **App 内支付**：Midtrans 支付页在 App 内打开，付完自动回到订单并刷新；GoPay、ShopeePay、DANA 的深链接会交给对应 App。
 - **账户功能**：忘记密码（App/网页发邮件，链接到网页 `/id/reset-password` 设新密码，需要 `STOREFRONT_URL`）；地址簿（App 的“Alamat Saya”，下单时可选常用地址并勾选保存）；注册时 WhatsApp OTP（`POST /store/otp/request`、`/store/otp/verify`，`OTP_REQUIRED=true` 时没验证过手机不能注册，本地可用 `OTP_DEV_CODE`）。
+- **推送通知**：客户通知除 WhatsApp/邮件外同时推送到 App（Firebase Cloud Messaging）。设备令牌在登录后自动注册到 `/store/push-tokens`，退出时删除；FCM 报无效的令牌会自动清理。点击通知直接打开对应订单。
+- **财务导出**：后台“财务到款”页底部按到账日期导出 CSV（到款与退款，含订单号、客户、金额、方式、确认人），UTF-8 带 BOM，Excel 直接打开，给会计做对账和 PPN 申报。
 - **网页端付款**：网页商城"账户 → 订单详情"里有与 App 一致的"Rencana Pembayaran"：看分期、在线付款（Midtrans）、上传转账凭证、看退款。
 - **后台双语**：付款计划面板、财务到款、仓库发货、团队角色四个页面右上角有"中文 / ID"开关，默认跟随 Medusa 后台语言（中文界面显示中文，其他显示印尼语），选择保存在浏览器里。文案字典在 `src/admin/utils/i18n.ts`。
 - **角色**：owner（负责人，全部权限）、sales（销售：报价、建/取消付款计划）、finance（财务：确认到款、拒绝凭证、退款、取消）、warehouse（仓库：发货）、none（只读）。在后台"团队角色"页分配，只有负责人能改，且系统至少保留一个负责人。没分配任何角色之前所有管理员按负责人处理（首次引导），分配第一个角色后即按实际角色生效；未分配的人默认 `ADMIN_DEFAULT_ROLE`（默认 none）。
@@ -139,6 +141,10 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 | POST | `/admin/team/:userId/role` | 分配角色 `{ role }`（owner） |
 | GET | `/admin/warehouse/orders` | 仓库待发货 |
 
+## 部署
+
+`deploy/` 里有一台 VPS 跑全套的方案：Postgres、Redis、后端、网页商城、Caddy（自动 HTTPS）、Uptime Kuma（监控告警）、Umami（访问统计）、每日数据库备份。步骤见 [deploy/README.md](deploy/README.md)。
+
 ## 上线前要办的事（代码之外）
 
 1. 用印尼公司主体申请 Midtrans / Xendit 商户（公司文件、NPWP、法人身份证、公司银行账户）。
@@ -146,3 +152,4 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 3. 用公司主体注册 Google Play 开发者账号。
 5. 申请 WhatsApp Business Cloud API 与 Resend，填入 `WHATSAPP_*`、`RESEND_API_KEY`；WhatsApp 24 小时会话外的消息需要先在 Meta 后台审核模板。
 6. 开通 Cloudflare R2（或 S3）并填入 `S3_*`，开一台 Redis 并填入 `REDIS_URL`。
+7. 推送：在 Firebase 控制台建项目，加 iOS 应用（Bundle ID `id.co.wangjia.wangjiaApp`）和 Android 应用（包名 `id.co.wangjia.wangjia_app`），把 `GoogleService-Info.plist` 放到 `apps/mobile/ios/Runner/`、`google-services.json` 放到 `apps/mobile/android/app/`（两个文件都已在 .gitignore 外，建议不要提交）；iOS 还要在 Apple 开发者后台生成 APNs 密钥并上传到 Firebase。后端在"项目设置 → 服务账号"生成私钥 JSON，路径或内容填到 `FIREBASE_SERVICE_ACCOUNT`。没配置时推送只写日志。

@@ -142,6 +142,11 @@ export const adminPaymentPlansMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ["GET"],
+    matcher: "/admin/payment-installments/export",
+    middlewares: [ensureAdminRole("finance")],
+  },
+  {
+    method: ["GET"],
     matcher: "/admin/payment-installments",
     middlewares: [
       validateAndTransformQuery(

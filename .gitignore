@@ -60,3 +60,11 @@ Thumbs.db
 
 # uploaded payment receipts (local file provider)
 apps/backend/static/*-pinst_*
+
+# Firebase client configs (per environment, get them from the Firebase console)
+apps/mobile/ios/Runner/GoogleService-Info.plist
+apps/mobile/android/app/google-services.json
+
+# deployment secrets
+/deploy/.env
+apps/backend/.env.production

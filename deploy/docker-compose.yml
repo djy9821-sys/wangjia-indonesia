@@ -1,0 +1,115 @@
+# Production stack on one VPS (4 vCPU / 8 GB is plenty to start).
+#   cp deploy/.env.example deploy/.env && edit
+#   docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --build
+name: wangjia
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-wangjia}
+      POSTGRES_USER: ${DB_USER:-wangjia}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-wangjia} -d ${DB_NAME:-wangjia}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+
+  backend:
+    build:
+      context: ..
+      dockerfile: apps/backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+    env_file: ../apps/backend/.env.production
+    environment:
+      DATABASE_URL: postgres://${DB_USER:-wangjia}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-wangjia}
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+    volumes:
+      - backend-static:/app/apps/backend/.medusa/server/static
+    expose: ["9000"]
+
+  storefront:
+    build:
+      context: ..
+      dockerfile: apps/storefront/Dockerfile
+      args:
+        NEXT_PUBLIC_MEDUSA_BACKEND_URL: https://${API_DOMAIN:?set API_DOMAIN}
+        NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${PUBLISHABLE_KEY:?set PUBLISHABLE_KEY}
+        NEXT_PUBLIC_BASE_URL: https://${WEB_DOMAIN:?set WEB_DOMAIN}
+        NEXT_PUBLIC_WHATSAPP_NUMBER: ${WHATSAPP_NUMBER:-6281200000000}
+    restart: unless-stopped
+    depends_on: [backend]
+    environment:
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:-change-me}
+    expose: ["8000"]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      API_DOMAIN: ${API_DOMAIN}
+      WEB_DOMAIN: ${WEB_DOMAIN}
+      STATUS_DOMAIN: ${STATUS_DOMAIN:-status.${WEB_DOMAIN}}
+      ANALYTICS_DOMAIN: ${ANALYTICS_DOMAIN:-analytics.${WEB_DOMAIN}}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
+    depends_on: [backend, storefront]
+
+  # Uptime monitoring with WhatsApp/Telegram/email alerts (configure in its UI).
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    restart: unless-stopped
+    volumes:
+      - kumadata:/app/data
+    expose: ["3001"]
+
+  # Privacy-friendly web analytics for the storefront.
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgres://${DB_USER:-wangjia}:${DB_PASSWORD}@postgres:5432/umami
+      APP_SECRET: ${UMAMI_SECRET:-change-me-too}
+    expose: ["3000"]
+
+  # Nightly database dump to the backups volume (sync it off-box with rclone).
+  backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      PGPASSWORD: ${DB_PASSWORD}
+    volumes:
+      - backups:/backups
+      - ./scripts/backup.sh:/backup.sh:ro
+    entrypoint: ["sh", "-c", "while true; do sh /backup.sh ${DB_USER:-wangjia} ${DB_NAME:-wangjia}; sleep 86400; done"]
+
+volumes:
+  pgdata:
+  redisdata:
+  backend-static:
+  caddydata:
+  caddyconfig:
+  kumadata:
+  backups:

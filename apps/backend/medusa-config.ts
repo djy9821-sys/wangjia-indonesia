@@ -2,6 +2,7 @@ import { QUOTE_MODULE } from "./src/modules/quote";
 import { APPROVAL_MODULE } from "./src/modules/approval";
 import { COMPANY_MODULE } from "./src/modules/company";
 import { PAYMENT_PLAN_MODULE } from "./src/modules/payment-plan";
+import { PUSH_DEVICE_MODULE } from "./src/modules/push-device";
 import { loadEnv, defineConfig, Modules } from "@medusajs/framework/utils";
 
 loadEnv(process.env.NODE_ENV || "development", process.cwd());
@@ -90,6 +91,9 @@ const modules: Record<string, any> = {
   [PAYMENT_PLAN_MODULE]: {
     resolve: "./modules/payment-plan",
   },
+  [PUSH_DEVICE_MODULE]: {
+    resolve: "./modules/push-device",
+  },
   [Modules.NOTIFICATION]: {
     resolve: "@medusajs/medusa/notification",
     options: {
@@ -102,6 +106,14 @@ const modules: Record<string, any> = {
             access_token: process.env.WHATSAPP_ACCESS_TOKEN,
             phone_number_id: process.env.WHATSAPP_PHONE_NUMBER_ID,
             api_version: process.env.WHATSAPP_API_VERSION || "v21.0",
+          },
+        },
+        {
+          resolve: "./src/modules/notification-fcm",
+          id: "fcm",
+          options: {
+            channels: ["push"],
+            service_account: process.env.FIREBASE_SERVICE_ACCOUNT,
           },
         },
         {
