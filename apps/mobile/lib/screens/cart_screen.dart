@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../api/medusa_client.dart';
@@ -31,7 +32,7 @@ class _CartScreenState extends State<CartScreen> {
       showSnack(context, S.t('quote_requested'));
       widget.onQuoteRequested?.call();
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      if (mounted) showSnack(context, friendlyError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -72,7 +73,7 @@ class _CartScreenState extends State<CartScreen> {
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
                                 child: it.thumbnail != null
-                                    ? Image.network(it.thumbnail!, width: 56, height: 56, fit: BoxFit.cover)
+                                    ? CachedNetworkImage(imageUrl: it.thumbnail!, width: 56, height: 56, fit: BoxFit.cover)
                                     : const WangjiaLogo(size: 56, withText: false),
                               ),
                               const SizedBox(width: 12),

@@ -12,7 +12,9 @@ import 'warranty_scan_screen.dart';
 
 /// Garansi & Keaslian: scan a label, type a code, see registered machines.
 class WarrantyScreen extends StatefulWidget {
-  const WarrantyScreen({super.key});
+  /// Code from a deep link (QR scanned with the phone camera); checked on open.
+  final String? initialCode;
+  const WarrantyScreen({super.key, this.initialCode});
   @override
   State<WarrantyScreen> createState() => _WarrantyScreenState();
 }
@@ -21,6 +23,15 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
   late Future<List<WarrantyUnit>> _future = MedusaClient.instance.myWarrantyUnits();
   final _code = TextEditingController();
   bool _checking = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialCode != null) {
+      _code.text = widget.initialCode!;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _checkTyped());
+    }
+  }
 
   Future<void> _reload() async {
     setState(() {
@@ -87,7 +98,7 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
         _reload();
       }
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      if (mounted) showSnack(context, friendlyError(e));
     } finally {
       if (mounted) setState(() => _checking = false);
     }
@@ -199,7 +210,7 @@ class _ResultSheetState extends State<_ResultSheet> {
       setState(() => _registered = unit);
       showSnack(context, S.t('registered_ok'));
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      if (mounted) showSnack(context, friendlyError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }

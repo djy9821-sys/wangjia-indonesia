@@ -72,7 +72,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> with WidgetsBindi
       }
       await _reload();
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      if (mounted) showSnack(context, friendlyError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -125,7 +125,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> with WidgetsBindi
                           final url = await MedusaClient.instance.invoiceLink(order.id);
                           await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
                         } catch (e) {
-                          if (context.mounted) showSnack(context, '$e');
+                          if (context.mounted) showSnack(context, friendlyError(e));
                         }
                       },
                       icon: const Icon(Icons.picture_as_pdf_outlined),

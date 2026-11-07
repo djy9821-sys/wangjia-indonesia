@@ -200,6 +200,14 @@ class S {
     'update_required_hint': 'Versi ini tidak didukung lagi. Pasang versi terbaru untuk melanjutkan.',
     'update_available': 'Versi baru aplikasi WANGJIA tersedia.',
     'update_now': 'Perbarui',
+    'err_offline': 'Tidak ada koneksi internet. Periksa sinyal lalu coba lagi.',
+    'err_timeout': 'Server terlalu lama merespons. Coba lagi.',
+    'err_session': 'Sesi Anda berakhir. Silakan masuk lagi.',
+    'err_forbidden': 'Anda tidak punya akses ke bagian ini.',
+    'err_not_found': 'Data tidak ditemukan.',
+    'err_too_many': 'Terlalu banyak percobaan. Tunggu sebentar.',
+    'err_server': 'Server bermasalah. Tim kami sudah diberi tahu, coba lagi nanti.',
+    'err_generic': 'Terjadi kesalahan. Silakan coba lagi.',
   };
 
   static const _en = <String, String>{
@@ -393,5 +401,13 @@ class S {
     'update_required_hint': 'This version is no longer supported. Install the latest version to continue.',
     'update_available': 'A new version of the WANGJIA app is available.',
     'update_now': 'Update',
+    'err_offline': 'No internet connection. Check your signal and try again.',
+    'err_timeout': 'The server took too long to respond. Try again.',
+    'err_session': 'Your session has expired. Please sign in again.',
+    'err_forbidden': 'You do not have access to this.',
+    'err_not_found': 'Not found.',
+    'err_too_many': 'Too many attempts. Please wait a moment.',
+    'err_server': 'Server problem. Our team has been notified, please try again later.',
+    'err_generic': 'Something went wrong. Please try again.',
   };
 }

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -30,7 +31,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       await MedusaClient.instance.requestQuote(cartId);
       if (mounted) showSnack(context, S.t('quote_requested'));
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      if (mounted) showSnack(context, friendlyError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -180,7 +181,7 @@ class _GalleryState extends State<_Gallery> {
           itemBuilder: (_, i) => InteractiveViewer(
             minScale: 1,
             maxScale: 5,
-            child: Center(child: Image.network(widget.images[i], fit: BoxFit.contain)),
+            child: Center(child: CachedNetworkImage(imageUrl: widget.images[i], fit: BoxFit.contain)),
           ),
         ),
       ),
@@ -209,12 +210,10 @@ class _GalleryState extends State<_Gallery> {
               onPageChanged: (i) => setState(() => _index = i),
               itemBuilder: (_, i) => GestureDetector(
                 onTap: () => _openFull(i),
-                child: Image.network(
-                  widget.images[i],
+                child: CachedNetworkImage(imageUrl: widget.images[i],
                   fit: BoxFit.cover,
-                  loadingBuilder: (c, child, progress) =>
-                      progress == null ? child : const Center(child: CircularProgressIndicator()),
-                  errorBuilder: (_, __, ___) => const Center(child: Icon(Icons.broken_image_outlined)),
+                  placeholder: (_, __) => const Center(child: CircularProgressIndicator()),
+                  errorWidget: (_, __, ___) => const Center(child: Icon(Icons.broken_image_outlined)),
                 ),
               ),
             ),

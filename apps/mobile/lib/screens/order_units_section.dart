@@ -30,7 +30,7 @@ class _OrderUnitsSectionState extends State<OrderUnitsSection> {
         _future = MedusaClient.instance.orderWarrantyUnits(widget.orderId);
       });
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      if (mounted) showSnack(context, friendlyError(e));
     } finally {
       if (mounted) setState(() => _busy.remove(u.id));
     }

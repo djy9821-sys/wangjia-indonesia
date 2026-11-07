@@ -33,7 +33,7 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
       if (mounted) showSnack(context, okMsg);
       await _reload();
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      if (mounted) showSnack(context, friendlyError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }

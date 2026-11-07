@@ -150,7 +150,7 @@ class _AccountScreen extends StatelessWidget {
                   if (context.mounted) showSnack(context, S.t('delete_account_done'));
                   onLoggedOut();
                 } catch (e) {
-                  if (context.mounted) showSnack(context, '$e');
+                  if (context.mounted) showSnack(context, friendlyError(e));
                 }
               },
             ),

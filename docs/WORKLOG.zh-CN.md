@@ -39,6 +39,9 @@
 - `f6a638f` `7a84b75` 网页注册补 WhatsApp 号码字段（动作里已读取，表单漏了）。
 - `29216f6` 商城 SEO 博客（4 篇印尼语文章，进 sitemap）；App 版本策略接口与更新门控（侧载 APK 也有效）；Typebot、DocuSeal compose 与文档；DocuSeal 签约回调写入订单；集成测试增至 30 个。（CI 四项含 APK 全绿：7a84b75；29216f6 运行中）
 
+- `7b6c4fc` 本工作日志。
+- （进行中）App 打磨：错误提示人话化（断网/超时/会话过期/服务器错误 → 印尼语提示，所有请求加 25 秒超时）；原生启动画面（flutter_native_splash，品牌蓝 + logo）；商品图片磁盘缓存（cached_network_image）；扫码直达 App（iOS Universal Links + Android App Links：entitlements、manifest、`onGenerateRoute`，商城提供 `/.well-known/apple-app-site-association` 与 `assetlinks.json`，需填 Apple Team ID 与安卓签名指纹）。
+
 ## 本机验证手段
 - 后端：`pnpm test:integration:http`（30 个用例）、tsc、medusa lint；curl 走接口；浏览器查后台页面。
 - 商城：tsc、lint；浏览器查页面；sitemap 检查。
@@ -50,3 +53,5 @@
 - Apple Developer / Google Play 账号，域名与 VPS。
 - Android 真机/模拟器测试（本机无 Android SDK，只能靠 CI 产物）。
 - 印尼律师过一遍隐私政策与条款文案。
+- App 真机验证：相机扫码、FCM 推送、Midtrans 沙盒支付、Universal/App Links（安卓用 CI 产出的 APK，iOS 需开发者账号签名）。
+- 端到端自动化：用 Maestro 把“登录 → 下单 → 付款计划 → 扫码登记”写成脚本放进 CI。

@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _tick();
       if (mounted) showSnack(context, S.t('code_sent'));
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      if (mounted) showSnack(context, friendlyError(e));
     }
   }
 
@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
       if (mounted) showSnack(context, S.t('phone_verified'));
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      if (mounted) showSnack(context, friendlyError(e));
     }
   }
 
@@ -111,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
       widget.onLoggedIn();
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      if (mounted) showSnack(context, friendlyError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }

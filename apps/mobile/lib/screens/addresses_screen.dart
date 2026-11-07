@@ -118,7 +118,7 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
       ));
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      if (mounted) showSnack(context, friendlyError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -131,7 +131,7 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
       await MedusaClient.instance.deleteAddress(a.id!);
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      if (mounted) showSnack(context, friendlyError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }

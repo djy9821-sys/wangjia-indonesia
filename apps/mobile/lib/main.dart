@@ -50,6 +50,14 @@ class TrukAirApp extends StatelessWidget {
             inputDecorationTheme: const InputDecorationTheme(border: OutlineInputBorder()),
           ),
           home: const UpdateGate(child: AuthGate()),
+          // Universal / App Links: https://<storefront>/id/garansi/<code> -> warranty check.
+          onGenerateRoute: (settings) {
+            final m = RegExp(r'^(?:/[a-z]{2})?/garansi/([A-Za-z0-9]{6,20})/?$').firstMatch(settings.name ?? '');
+            if (m != null) {
+              return MaterialPageRoute(builder: (_) => WarrantyScreen(initialCode: m.group(1)));
+            }
+            return null;
+          },
         ),
       );
 }

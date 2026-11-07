@@ -113,7 +113,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         _optionId = options.isNotEmpty ? options.first.id : null;
       });
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      if (mounted) showSnack(context, friendlyError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -138,7 +138,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         (route) => route.isFirst,
       );
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      if (mounted) showSnack(context, friendlyError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }

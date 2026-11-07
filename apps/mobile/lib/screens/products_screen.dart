@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../api/medusa_client.dart';
@@ -130,7 +131,7 @@ class _ProductCard extends StatelessWidget {
             AspectRatio(
               aspectRatio: 16 / 9,
               child: product.thumbnail != null
-                  ? Image.network(product.thumbnail!, fit: BoxFit.cover)
+                  ? CachedNetworkImage(imageUrl: product.thumbnail!, fit: BoxFit.cover)
                   : Container(
                       color: const Color(0xFFE3EEF5),
                       child: const Center(child: WangjiaLogo(size: 64, withText: false)),

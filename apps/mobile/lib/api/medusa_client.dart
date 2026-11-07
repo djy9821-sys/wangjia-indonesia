@@ -90,11 +90,14 @@ class MedusaClient {
     return body is Map<String, dynamic> ? body : <String, dynamic>{};
   }
 
+  /// Rural networks stall more often than they fail: cap every call.
+  static const _timeout = Duration(seconds: 25);
+
   Future<Map<String, dynamic>> get(String path, {Map<String, String>? query}) async =>
-      _decode(await _http.get(_uri(path, query), headers: _headers));
+      _decode(await _http.get(_uri(path, query), headers: _headers).timeout(_timeout));
 
   Future<Map<String, dynamic>> post(String path, [Object? body]) async => _decode(
-        await _http.post(_uri(path), headers: _headers, body: jsonEncode(body ?? {})),
+        await _http.post(_uri(path), headers: _headers, body: jsonEncode(body ?? {})).timeout(_timeout),
       );
 
   // ---------- auth ----------

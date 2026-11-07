@@ -28,6 +28,16 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- QR labels (https://<storefront>/id/garansi/<code>) open the app when it is installed.
+                 Host must match APP_LINK_HOST; verification needs /.well-known/assetlinks.json on that host. -->
+            <meta-data android:name="flutter_deeplinking_enabled" android:value="true" />
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="wangjia.co.id" android:pathPrefix="/id/garansi/" />
+                <data android:scheme="https" android:host="www.wangjia.co.id" android:pathPrefix="/id/garansi/" />
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

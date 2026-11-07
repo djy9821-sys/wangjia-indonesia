@@ -39,7 +39,7 @@ class _WarrantyScanScreenState extends State<WarrantyScanScreen> {
       final changed = await showWarrantyResult(context, result);
       if (changed == true) _registered = true;
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      if (mounted) showSnack(context, friendlyError(e));
     } finally {
       _handling = false;
       if (mounted) {
