@@ -20,13 +20,14 @@ export async function generateMetadata(props: {
   return {
     title: "WANGJIA Kincir Air — Aerator Tambak Indonesia",
     description:
-      "A performant frontend ecommerce starter template with Next.js 14 and Medusa.",
+      "Toko resmi WANGJIA® Indonesia: kincir air / aerator tambak 1 HP & 2 HP untuk udang dan ikan, suku cadang asli, pembayaran bertahap, pengiriman ke seluruh Indonesia, garansi 1 tahun.",
+    keywords: ["kincir air", "aerator tambak", "paddle wheel aerator", "WANGJIA", "kincir tambak udang", "aerator 1 HP", "aerator 2 HP", "增氧机 印尼"],
     alternates: {
       canonical: `${origin}/${countryCode}`,
       languages: {
         ...Object.fromEntries(
           listCountryCodes(regions).map((code) => [
-            `en-${code.toUpperCase()}`,
+            code === "id" ? "id-ID" : `en-${code.toUpperCase()}`,
             `${origin}/${code}`,
           ])
         ),

@@ -11,4 +11,12 @@
 
 Midtrans 后台的通知地址填 `https://api.<域名>/webhooks/midtrans`；App 的 `--dart-define=MEDUSA_URL=https://api.<域名>`。
 
-Chatwoot（客服工作台）体量较大，建议单独一台小机器或用其云版本，不放在这个 compose 里。
+## Chatwoot 客服台（单独一台小机器）
+
+`docker-compose.chatwoot.yml` 把 Chatwoot（含 Postgres、Redis、Caddy）装在另一台 2 vCPU / 4 GB 的机器上，域名如 `chat.wangjia.co.id`：
+
+1. `cp deploy/.env.chatwoot.example deploy/.env.chatwoot`，填域名、数据库密码、`SECRET_KEY_BASE`（`openssl rand -hex 64`）和发信 SMTP。
+2. `docker compose -f deploy/docker-compose.chatwoot.yml --env-file deploy/.env.chatwoot run --rm rails bundle exec rails db:chatwoot_prepare`（只在第一次）。
+3. `docker compose -f deploy/docker-compose.chatwoot.yml --env-file deploy/.env.chatwoot up -d`，打开域名创建管理员账号。
+4. 在 Chatwoot 里新建 WhatsApp 收件箱（WhatsApp Cloud），用和后端 `WHATSAPP_PHONE_NUMBER_ID` 同一个号码，这样客户看到的是同一个 WANGJIA 号码：系统通知由后端发，人工回复在 Chatwoot 里做。Meta 后台的 Webhook 指向 Chatwoot 给出的地址。
+5. 网页商城想加在线聊天气泡，把 Chatwoot 收件箱里的网站 Widget 脚本贴进 `apps/storefront/src/app/[countryCode]/(main)/layout.tsx`。

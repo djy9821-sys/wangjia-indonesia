@@ -34,7 +34,7 @@ export const buildProductStructuredData = ({
     images.push(product.thumbnail)
   }
   const description = product.description || product.title
-  const brand = { "@type": "Brand", name: STORE_NAME }
+  const brand = { "@type": "Brand", name: "WANGJIA" }
   const policies = getRegionPolicies(region)
   const optionTitles = new Map(
     (product.options ?? []).map((option) => [option.id, option.title])

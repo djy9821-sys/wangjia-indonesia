@@ -1,0 +1,80 @@
+# Chatwoot customer-service inbox (WhatsApp Cloud API, web chat, email) on its own small VPS.
+#   cp .env.chatwoot.example .env.chatwoot && edit
+#   docker compose -f docker-compose.chatwoot.yml --env-file .env.chatwoot up -d
+#   first run:  docker compose -f docker-compose.chatwoot.yml --env-file .env.chatwoot run --rm rails bundle exec rails db:chatwoot_prepare
+# Then open https://<CHATWOOT_DOMAIN>, create the account, add a WhatsApp inbox with the same
+# Meta phone number ID used by the backend (WHATSAPP_PHONE_NUMBER_ID) so sales replies and
+# system notifications share one number.
+name: wangjia-chatwoot
+
+x-chatwoot: &chatwoot
+  image: chatwoot/chatwoot:v4.1.0
+  restart: unless-stopped
+  env_file: .env.chatwoot
+  environment:
+    POSTGRES_HOST: postgres
+    POSTGRES_USERNAME: chatwoot
+    POSTGRES_PASSWORD: ${CHATWOOT_DB_PASSWORD:?set CHATWOOT_DB_PASSWORD}
+    POSTGRES_DATABASE: chatwoot
+    REDIS_URL: redis://redis:6379
+    RAILS_ENV: production
+    NODE_ENV: production
+    INSTALLATION_ENV: docker
+    FRONTEND_URL: https://${CHATWOOT_DOMAIN:?set CHATWOOT_DOMAIN}
+    DEFAULT_LOCALE: id
+    FORCE_SSL: "true"
+    ACTIVE_STORAGE_SERVICE: local
+  volumes:
+    - chatwoot-storage:/app/storage
+  depends_on:
+    postgres: { condition: service_healthy }
+    redis: { condition: service_started }
+
+services:
+  rails:
+    <<: *chatwoot
+    command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
+    expose: ["3000"]
+
+  sidekiq:
+    <<: *chatwoot
+    command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: chatwoot
+      POSTGRES_USER: chatwoot
+      POSTGRES_PASSWORD: ${CHATWOOT_DB_PASSWORD}
+    volumes:
+      - chatwoot-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chatwoot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - chatwoot-redis:/data
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      CHATWOOT_DOMAIN: ${CHATWOOT_DOMAIN}
+    command: ["caddy", "reverse-proxy", "--from", "${CHATWOOT_DOMAIN}", "--to", "rails:3000"]
+    volumes:
+      - chatwoot-caddy:/data
+    depends_on: [rails]
+
+volumes:
+  chatwoot-pg:
+  chatwoot-redis:
+  chatwoot-storage:
+  chatwoot-caddy:

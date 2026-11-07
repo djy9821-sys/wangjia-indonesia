@@ -68,3 +68,4 @@ apps/mobile/android/app/google-services.json
 # deployment secrets
 /deploy/.env
 apps/backend/.env.production
+/deploy/.env.chatwoot
