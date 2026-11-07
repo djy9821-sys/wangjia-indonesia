@@ -54,20 +54,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: p.images.isNotEmpty
-                  ? PageView(children: p.images.map((u) => Image.network(u, fit: BoxFit.cover)).toList())
-                  : Container(
-                      color: const Color(0xFFE3EEF5),
-                      child: const Center(child: WangjiaLogo(size: 96, withText: false)),
-                    ),
-            ),
-          ),
+          _Gallery(images: p.images),
           const SizedBox(height: 16),
           Text(p.title, style: Theme.of(context).textTheme.headlineSmall),
+          if (p.subtitle != null && p.subtitle!.isNotEmpty)
+            Text(p.subtitle!, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54)),
           const SizedBox(height: 8),
           Text(
             _variant.price == null ? S.t('ask_price') : money(_variant.price, _variant.currency),
@@ -100,7 +91,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          if (p.description != null) Text(p.description!, style: Theme.of(context).textTheme.bodyMedium),
+          if (p.specs.isNotEmpty) ...[
+            Text(S.t('specs'), style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            _SpecTable(specs: p.specs),
+            const SizedBox(height: 16),
+          ],
+          if (p.description != null && p.description!.isNotEmpty) ...[
+            Text(S.t('description'), style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text(p.description!, style: Theme.of(context).textTheme.bodyMedium),
+          ],
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: _busy
@@ -140,4 +141,124 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       ),
     );
   }
+}
+
+
+/// Swipeable image gallery with dots; tap opens a zoomable full-screen view.
+class _Gallery extends StatefulWidget {
+  final List<String> images;
+  const _Gallery({required this.images});
+  @override
+  State<_Gallery> createState() => _GalleryState();
+}
+
+class _GalleryState extends State<_Gallery> {
+  int _index = 0;
+
+  void _openFull(int start) {
+    Navigator.of(context).push(MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) => Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(backgroundColor: Colors.black, foregroundColor: Colors.white),
+        body: PageView.builder(
+          controller: PageController(initialPage: start),
+          itemCount: widget.images.length,
+          itemBuilder: (_, i) => InteractiveViewer(
+            minScale: 1,
+            maxScale: 5,
+            child: Center(child: Image.network(widget.images[i], fit: BoxFit.contain)),
+          ),
+        ),
+      ),
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.images.isEmpty) {
+      return AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Container(
+          decoration: BoxDecoration(color: const Color(0xFFE3EEF5), borderRadius: BorderRadius.circular(12)),
+          child: const Center(child: WangjiaLogo(size: 96, withText: false)),
+        ),
+      );
+    }
+    return Column(
+      children: [
+        AspectRatio(
+          aspectRatio: 4 / 3,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: PageView.builder(
+              itemCount: widget.images.length,
+              onPageChanged: (i) => setState(() => _index = i),
+              itemBuilder: (_, i) => GestureDetector(
+                onTap: () => _openFull(i),
+                child: Image.network(
+                  widget.images[i],
+                  fit: BoxFit.cover,
+                  loadingBuilder: (c, child, progress) =>
+                      progress == null ? child : const Center(child: CircularProgressIndicator()),
+                  errorBuilder: (_, __, ___) => const Center(child: Icon(Icons.broken_image_outlined)),
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (widget.images.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                widget.images.length,
+                (i) => Container(
+                  width: i == _index ? 18 : 7,
+                  height: 7,
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  decoration: BoxDecoration(
+                    color: i == _index ? const Color(0xFF0E5A8A) : Colors.black26,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _SpecTable extends StatelessWidget {
+  final List<(String, String)> specs;
+  const _SpecTable({required this.specs});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black12),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          children: [
+            for (var i = 0; i < specs.length; i++)
+              Container(
+                color: i.isEven ? const Color(0xFFF5F8FA) : Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 140,
+                      child: Text(specs[i].$1, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                    ),
+                    Expanded(child: Text(specs[i].$2, style: Theme.of(context).textTheme.bodyMedium)),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      );
 }

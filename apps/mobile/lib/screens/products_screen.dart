@@ -17,6 +17,8 @@ class ProductsScreen extends StatefulWidget {
 
 class _ProductsScreenState extends State<ProductsScreen> {
   late Future<List<Product>> _future = MedusaClient.instance.products();
+  late final Future<List<Category>> _categories = MedusaClient.instance.categories();
+  String? _categoryId;
 
   Future<void> _reload() async {
     setState(() {
@@ -33,16 +35,58 @@ class _ProductsScreenState extends State<ProductsScreen> {
           builder: (context, snap) {
             if (snap.hasError) return ErrorRetry(error: snap.error!, onRetry: _reload);
             if (!snap.hasData) return const Center(child: CircularProgressIndicator());
-            final products = snap.data!;
-            if (products.isEmpty) return Center(child: Text(S.t('no_products')));
-            return RefreshIndicator(
-              onRefresh: _reload,
-              child: ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: products.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, i) => _ProductCard(product: products[i], onOpenCart: widget.onOpenCart),
-              ),
+            final all = snap.data!;
+            final products = _categoryId == null
+                ? all
+                : all.where((p) => p.categoryIds.contains(_categoryId)).toList();
+            return Column(
+              children: [
+                FutureBuilder<List<Category>>(
+                  future: _categories,
+                  builder: (context, cs) {
+                    final cats = cs.data ?? [];
+                    if (cats.isEmpty) return const SizedBox.shrink();
+                    return SizedBox(
+                      height: 48,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ChoiceChip(
+                              label: Text(S.t('all')),
+                              selected: _categoryId == null,
+                              onSelected: (_) => setState(() => _categoryId = null),
+                            ),
+                          ),
+                          ...cats.map((c) => Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: ChoiceChip(
+                                  label: Text(c.name),
+                                  selected: _categoryId == c.id,
+                                  onSelected: (_) => setState(() => _categoryId = c.id),
+                                ),
+                              )),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                Expanded(
+                  child: products.isEmpty
+                      ? Center(child: Text(S.t('no_products')))
+                      : RefreshIndicator(
+                          onRefresh: _reload,
+                          child: ListView.separated(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: products.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            itemBuilder: (context, i) => _ProductCard(product: products[i], onOpenCart: widget.onOpenCart),
+                          ),
+                        ),
+                ),
+              ],
             );
           },
         ),
@@ -82,6 +126,8 @@ class _ProductCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(product.title, style: Theme.of(context).textTheme.titleMedium),
+                  if (product.subtitle != null && product.subtitle!.isNotEmpty)
+                    Text(product.subtitle!, style: Theme.of(context).textTheme.bodySmall),
                   const SizedBox(height: 6),
                   Text(
                     min == null ? S.t('ask_price') : '${product.variants.length > 1 ? 'Mulai ' : ''}${money(min, currency)}',

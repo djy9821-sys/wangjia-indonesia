@@ -29,30 +29,50 @@ class Variant {
 class Product {
   final String id;
   final String title;
+  final String? subtitle;
   final String? description;
   final String? thumbnail;
   final List<String> images;
   final List<Variant> variants;
+  /// Ordered (label, value) pairs from metadata keys "spec:<label>".
+  final List<(String, String)> specs;
+  final List<String> categoryIds;
   Product({
     required this.id,
     required this.title,
+    this.subtitle,
     this.description,
     this.thumbnail,
     this.images = const [],
     this.variants = const [],
+    this.specs = const [],
+    this.categoryIds = const [],
   });
-  factory Product.fromJson(Map<String, dynamic> j) => Product(
-        id: j['id'] as String,
-        title: (j['title'] ?? '') as String,
-        description: j['description'] as String?,
-        thumbnail: j['thumbnail'] as String?,
-        images: ((j['images'] as List?) ?? [])
-            .map((e) => (e as Map<String, dynamic>)['url'] as String)
-            .toList(),
-        variants: ((j['variants'] as List?) ?? [])
-            .map((e) => Variant.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+  factory Product.fromJson(Map<String, dynamic> j) {
+    final meta = (j['metadata'] as Map<String, dynamic>?) ?? {};
+    // Keys may carry a numeric prefix ("spec:03 Listrik") to fix the order.
+    final specKeys = meta.keys.where((k) => k.startsWith('spec:') && meta[k] != null && '${meta[k]}'.isNotEmpty).toList()..sort();
+    final specs = specKeys
+        .map((k) => (k.substring(5).replaceFirst(RegExp(r'^\d+\s+'), ''), '${meta[k]}'))
+        .toList();
+    return Product(
+      id: j['id'] as String,
+      title: (j['title'] ?? '') as String,
+      subtitle: j['subtitle'] as String?,
+      description: j['description'] as String?,
+      thumbnail: j['thumbnail'] as String?,
+      images: ((j['images'] as List?) ?? [])
+          .map((e) => (e as Map<String, dynamic>)['url'] as String)
+          .toList(),
+      variants: ((j['variants'] as List?) ?? [])
+          .map((e) => Variant.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      specs: specs,
+      categoryIds: ((j['categories'] as List?) ?? [])
+          .map((e) => (e as Map<String, dynamic>)['id'] as String)
+          .toList(),
+    );
+  }
 
   num? get minPrice {
     final prices = variants.map((v) => v.price).whereType<num>().toList();
@@ -313,4 +333,12 @@ class Quote {
   bool get awaitingCustomer => status == 'pending_customer';
   bool get awaitingMerchant => status == 'pending_merchant';
   bool get closed => status == 'accepted' || status.endsWith('rejected');
+}
+
+class Category {
+  final String id;
+  final String name;
+  Category(this.id, this.name);
+  factory Category.fromJson(Map<String, dynamic> j) =>
+      Category(j['id'] as String, (j['name'] ?? '') as String);
 }

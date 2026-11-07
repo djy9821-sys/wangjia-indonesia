@@ -65,11 +65,27 @@ export default async function rebrand({ container }: ExecArgs) {
   const { data: [channel] } = await query.graph({ entity: "sales_channel", fields: ["id"] });
   const idr = (amount: number) => [{ currency_code: "idr", amount }];
 
-  const products = WANGJIA_PRODUCTS(collection?.id, categoryId, profile.id, channel.id, idr).filter(
-    (p) => !have.has(p.handle)
-  );
+  const all = WANGJIA_PRODUCTS(collection?.id, categoryId, profile.id, channel.id, idr);
+  const products = all.filter((p) => !have.has(p.handle));
   if (products.length) {
     await createProductsWorkflow(container).run({ input: { products } });
+  }
+  // Keep spec metadata of existing products in sync with the seed definition.
+  const { data: existingFull } = await query.graph({ entity: "product", fields: ["id", "handle", "metadata"] });
+  const specUpdates = existingFull
+    .filter((p: any) => all.some((d) => d.handle === p.handle && (d as any).metadata))
+    .map((p: any) => ({
+      id: p.id,
+      // Medusa merges metadata on update; an empty string removes a key, so
+      // stale spec keys are blanked before the seed definition is applied.
+      metadata: {
+        ...Object.fromEntries(Object.keys(p.metadata ?? {}).filter((k) => k.startsWith("spec:")).map((k) => [k, ""])),
+        ...((all.find((d) => d.handle === p.handle) as any).metadata ?? {}),
+      },
+    }));
+  if (specUpdates.length) {
+    await updateProductsWorkflow(container).run({ input: { products: specUpdates } });
+    logger.info(`Synced spec metadata on ${specUpdates.length} product(s)`);
   }
   logger.info(`WANGJIA catalog ready (${products.length} created, ${WANGJIA_PRODUCTS.length} total defined)`);
 }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../api/medusa_client.dart';
 import '../format.dart';
 import '../l10n/strings.dart';
 import '../models.dart';
 import '../widgets/common.dart';
+import 'payment_webview_screen.dart';
 import 'upload_proof_sheet.dart';
 
 class OrderDetailScreen extends StatefulWidget {
@@ -55,8 +55,13 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> with WidgetsBindi
     try {
       final url = await MedusaClient.instance.midtransRedirectUrl(inst.id);
       if (!mounted) return;
-      showSnack(context, S.t('back_from_payment'));
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+      final paid = await Navigator.of(context).push<bool>(
+        MaterialPageRoute(builder: (_) => PaymentWebViewScreen(url: url)),
+      );
+      if (paid == true && mounted) {
+        showSnack(context, S.t('back_from_payment'));
+      }
+      await _reload();
     } catch (e) {
       if (mounted) showSnack(context, '$e');
     } finally {

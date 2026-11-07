@@ -12,11 +12,11 @@ type ProductTabsProps = {
 const ProductTabs = ({ product }: ProductTabsProps) => {
   const tabs = [
     {
-      label: "Description",
+      label: "Deskripsi",
       component: <ProductSpecsTab product={product} />,
     },
     {
-      label: "Specifications",
+      label: "Spesifikasi",
       component: <ProductSpecificationsTab product={product} />,
     },
   ]
@@ -64,41 +64,56 @@ const ProductSpecsTab = ({ product }: ProductTabsProps) => {
   )
 }
 
+/*
+  Specs live in product metadata as "spec:<label>" = "<value>" so they can be
+  edited in the admin's Metadata panel without a custom UI. Other metadata
+  keys (brand, internal flags) are not shown.
+*/
+// Keys may carry a numeric prefix ("spec:03 Listrik") to fix the display order.
+const specEntries = (metadata?: Record<string, unknown> | null) =>
+  Object.entries(metadata ?? {})
+    .filter(([k, v]) => k.startsWith("spec:") && v !== null && v !== "")
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([k, v]) => [k.slice(5).replace(/^\d+\s+/, ""), String(v)] as const)
+
 const ProductSpecificationsTab = ({ product }: ProductTabsProps) => {
+  const specs = specEntries(product.metadata)
   return (
     <div className="text-small-regular py-8">
       <Table className="rounded-lg shadow-borders-base overflow-hidden border-none">
         <Table.Body>
-          {product.weight && (
+          {specs.map(([label, value]) => (
+            <Table.Row key={label}>
+              <Table.Cell className="border-r">
+                <span className="font-semibold">{label}</span>
+              </Table.Cell>
+              <Table.Cell className="px-4">{value}</Table.Cell>
+            </Table.Row>
+          ))}
+          {!specs.length && product.weight && (
             <Table.Row>
               <Table.Cell className="border-r">
-                <span className="font-semibold">Weight</span>
+                <span className="font-semibold">Berat</span>
               </Table.Cell>
-              <Table.Cell className="px-4">{product.weight} grams</Table.Cell>
+              <Table.Cell className="px-4">{(product.weight / 1000).toLocaleString("id-ID")} kg</Table.Cell>
             </Table.Row>
           )}
           {(product.height || product.width || product.length) && (
             <Table.Row>
               <Table.Cell className="border-r">
-                <span className="font-semibold">Dimensions (HxWxL)</span>
+                <span className="font-semibold">Dimensi (T × L × P)</span>
               </Table.Cell>
               <Table.Cell className="px-4">
-                {product.height}mm x {product.width}mm x {product.length}mm
+                {product.height} × {product.width} × {product.length} mm
               </Table.Cell>
             </Table.Row>
           )}
 
-          {product.metadata &&
-            Object.entries(product.metadata).map(([key, value]) => (
-              <Table.Row key={key}>
-                <Table.Cell className="border-r">
-                  <span className="font-semibold">{key}</span>
-                </Table.Cell>
-                <Table.Cell className="px-4">
-                  <p>{value as string}</p>
-                </Table.Cell>
-              </Table.Row>
-            ))}
+          {!specs.length && !product.weight && (
+            <Table.Row>
+              <Table.Cell className="px-4 text-ui-fg-subtle">Spesifikasi belum diisi.</Table.Cell>
+            </Table.Row>
+          )}
         </Table.Body>
       </Table>
     </div>

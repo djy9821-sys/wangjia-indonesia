@@ -154,7 +154,7 @@ class MedusaClient {
     final r = await region();
     final res = await get('/store/products', query: {
       'region_id': r.id,
-      'fields': '*variants.calculated_price,+variants.inventory_quantity,*images',
+      'fields': '*variants.calculated_price,+variants.inventory_quantity,*images,*categories,+metadata,+subtitle',
       'limit': '50',
     });
     final products = (res['products'] as List)
@@ -180,6 +180,13 @@ class MedusaClient {
   Future<List<Wilayah>> districts(String regencyCode) async {
     final res = await get('/store/wilayah/$regencyCode');
     return (res['districts'] as List).map((e) => Wilayah.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<List<Category>> categories() async {
+    final res = await get('/store/product-categories', query: {'limit': '50', 'fields': 'id,name,rank'});
+    return (res['product_categories'] as List)
+        .map((e) => Category.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   // ---------- cart & checkout ----------
