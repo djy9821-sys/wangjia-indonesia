@@ -125,6 +125,14 @@ export default async function Footer() {
                 <li>
                   <LocalizedClientLink
                     className="hover:text-ui-fg-base"
+                    href="/garansi"
+                  >
+                    Cek keaslian &amp; garansi
+                  </LocalizedClientLink>
+                </li>
+                <li>
+                  <LocalizedClientLink
+                    className="hover:text-ui-fg-base"
                     href="/shipping"
                   >
                     Shipping information

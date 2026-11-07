@@ -220,4 +220,5 @@ const ID: Record<string, string> = {
   "防伪保修": "Garansi",
   "地图定位（客户已打点）": "Buka peta (titik dari pelanggan)",
   "未打点": "Belum ada titik peta",
+  "单号请写成「承运商代码:单号」，如 jne:JP0123456789、sicepat:000123456789、lion:1234567890，App 才能显示物流轨迹。发货时顺便在「防伪保修」页把机身序列号关联到订单。": "Tulis resi sebagai \"kode-ekspedisi:nomor\", mis. jne:JP0123456789, sicepat:000123456789, lion:1234567890, agar aplikasi bisa menampilkan lacak kiriman. Saat kirim, tautkan nomor seri mesin ke pesanan di halaman Garansi.",
 };

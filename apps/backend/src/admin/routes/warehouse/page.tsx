@@ -18,6 +18,8 @@ const WarehousePage = () => {
           <div className="flex items-center justify-between"><Heading level="h2">{t("仓库：待发货订单")}</Heading><LangToggle /></div>
           <Text size="small" className="text-ui-fg-subtle">
             {t("只显示财务已确认到款并放行的订单。点开订单后用「Create Fulfillment」备货，再用「Mark as shipped」填写货运公司与单号。")}
+            <br />
+            {t("单号请写成「承运商代码:单号」，如 jne:JP0123456789、sicepat:000123456789、lion:1234567890，App 才能显示物流轨迹。发货时顺便在「防伪保修」页把机身序列号关联到订单。")}
           </Text>
         </div>
         {q.isLoading && <Text className="px-6 pb-4">{t("加载中…")}</Text>}
