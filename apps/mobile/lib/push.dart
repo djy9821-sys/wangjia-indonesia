@@ -82,7 +82,9 @@ class PushService {
 class PushListener extends StatefulWidget {
   final Widget child;
   final void Function(String orderId) onOpenOrder;
-  const PushListener({super.key, required this.child, required this.onOpenOrder});
+  /// Warranty notifications (registered / expiring) open the Garansi screen.
+  final VoidCallback? onOpenWarranty;
+  const PushListener({super.key, required this.child, required this.onOpenOrder, this.onOpenWarranty});
   @override
   State<PushListener> createState() => _PushListenerState();
 }
@@ -100,12 +102,20 @@ class _PushListenerState extends State<PushListener> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('${n.title ?? ''}\n${n.body ?? ''}'.trim()),
         duration: const Duration(seconds: 6),
-        action: orderId == null ? null : SnackBarAction(label: 'Lihat', onPressed: () => widget.onOpenOrder(orderId)),
+        action: orderId != null
+            ? SnackBarAction(label: 'Lihat', onPressed: () => widget.onOpenOrder(orderId))
+            : m.data['warranty_unit_id'] != null && widget.onOpenWarranty != null
+                ? SnackBarAction(label: 'Lihat', onPressed: widget.onOpenWarranty!)
+                : null,
       ));
     });
     _b = PushService.instance.opened.stream.listen((m) {
       final orderId = m.data['order_id'] as String?;
-      if (orderId != null) widget.onOpenOrder(orderId);
+      if (orderId != null) {
+        widget.onOpenOrder(orderId);
+      } else if (m.data['warranty_unit_id'] != null) {
+        widget.onOpenWarranty?.call();
+      }
     });
   }
 

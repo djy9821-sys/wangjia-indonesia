@@ -10,6 +10,7 @@ import 'screens/order_detail_screen.dart';
 import 'l10n/strings.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
+import 'screens/warranty_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +35,9 @@ class TrukAirApp extends StatelessWidget {
           builder: (context, child) => PushListener(
             onOpenOrder: (id) => navigatorKey.currentState?.push(
               MaterialPageRoute(builder: (_) => OrderDetailScreen(orderId: id)),
+            ),
+            onOpenWarranty: () => navigatorKey.currentState?.push(
+              MaterialPageRoute(builder: (_) => const WarrantyScreen()),
             ),
             child: child ?? const SizedBox.shrink(),
           ),
