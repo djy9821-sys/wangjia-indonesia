@@ -29,6 +29,7 @@ browse → order or request a quote → sales creates a payment plan (deposit / 
 Key backend pieces (all under `apps/backend/src`):
 
 - **`modules/payment-plan`** — plans, instalments, receipts, refunds; release policy `deposit_paid` or `full_paid`.
+- **Auto plan for small orders** — orders up to `AUTO_PLAN_MAX_TOTAL` get a single full‑payment plan on placement, so spare parts can be paid immediately.
 - **Fulfilment gate** — orders cannot be fulfilled until finance released them; order edits are locked while a plan is active.
 - **Midtrans** — Snap transactions per instalment, verified webhook, refunds through the gateway.
 - **Roles** — owner / sales / finance / warehouse in admin user metadata, managed on the 团队角色 page.
