@@ -6,6 +6,7 @@ import '../format.dart';
 import '../l10n/strings.dart';
 import '../models.dart';
 import '../widgets/common.dart';
+import 'tracking_sheet.dart';
 import 'payment_webview_screen.dart';
 import 'upload_proof_sheet.dart';
 
@@ -170,6 +171,13 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> with WidgetsBindi
                             if (f.trackingNumbers.isNotEmpty) '${S.t('tracking')}: ${f.trackingNumbers.join(', ')}',
                             if (f.shippedAt != null) dateTime(f.shippedAt),
                           ].join('\n')),
+                          trailing: f.trackingNumbers.isNotEmpty
+                              ? TextButton.icon(
+                                  onPressed: () => showTrackingSheet(context, order.id),
+                                  icon: const Icon(Icons.route_outlined, size: 18),
+                                  label: Text(S.t('track')),
+                                )
+                              : null,
                         )),
                   const SizedBox(height: 32),
                 ],

@@ -397,4 +397,35 @@ class MedusaClient {
     final p = res['payment_plan'];
     return p == null ? null : PaymentPlan.fromJson(p as Map<String, dynamic>);
   }
+
+  // ---------- warranty / anti-counterfeit ----------
+
+  /// Public check of a scanned QR (URL or bare code). Works before login too.
+  Future<WarrantyCheck> verifyWarranty(String raw) async {
+    final res = await get('/store/warranty/verify/${Uri.encodeComponent(raw.trim())}');
+    return WarrantyCheck.fromJson(res);
+  }
+
+  Future<WarrantyUnit> registerWarranty(String code, {String? farmLocation}) async {
+    final res = await post('/store/warranty/register', {
+      'code': code,
+      if (farmLocation != null && farmLocation.isNotEmpty) 'farm_location': farmLocation,
+    });
+    return WarrantyUnit.fromJson(res['unit'] as Map<String, dynamic>);
+  }
+
+  Future<List<WarrantyUnit>> myWarrantyUnits() async {
+    final res = await get('/store/warranty/units');
+    return (res['units'] as List).map((e) => WarrantyUnit.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// Carrier tracking for every shipment of an order (Biteship when enabled).
+  Future<List<TrackingInfo>> tracking(String orderId) async {
+    final res = await get('/store/orders/$orderId/tracking');
+    return [
+      for (final s in (res['shipments'] as List? ?? []))
+        for (final l in ((s as Map<String, dynamic>)['labels'] as List? ?? []))
+          TrackingInfo.fromJson(l as Map<String, dynamic>),
+    ];
+  }
 }

@@ -8,6 +8,7 @@ import 'cart_screen.dart';
 import 'orders_hub_screen.dart';
 import 'products_screen.dart';
 import 'addresses_screen.dart';
+import 'warranty_screen.dart';
 
 class HomeShell extends StatefulWidget {
   final Map<String, dynamic> customer;
@@ -84,6 +85,13 @@ class _AccountScreen extends StatelessWidget {
               title: Text(S.t('addresses')),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AddressesScreen())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.verified_outlined),
+              title: Text(S.t('warranty')),
+              subtitle: Text(S.t('scan_qr')),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WarrantyScreen())),
             ),
             ListTile(
               leading: const Icon(Icons.language),

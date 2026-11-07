@@ -16,6 +16,11 @@ export const storePaymentPlansMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: "ALL",
+    matcher: "/store/orders/:id/tracking",
+    middlewares: [authenticate("customer", ["session", "bearer"])],
+  },
+  {
+    method: "ALL",
     matcher: "/store/orders/:id/invoice-link",
     middlewares: [authenticate("customer", ["session", "bearer"])],
   },

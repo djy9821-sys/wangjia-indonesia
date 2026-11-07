@@ -60,7 +60,21 @@ const WarehousePage = () => {
                     </div>
                   </Table.Cell>
                   <Table.Cell>
-                    {[order.shipping_address?.city, order.shipping_address?.province].filter(Boolean).join(", ") || "-"}
+                    <div className="flex flex-col txt-small">
+                      <span>{[order.shipping_address?.city, order.shipping_address?.province].filter(Boolean).join(", ") || "-"}</span>
+                      {order.shipping_address?.metadata?.lat != null && order.shipping_address?.metadata?.lng != null ? (
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${order.shipping_address.metadata.lat},${order.shipping_address.metadata.lng}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-ui-fg-interactive underline"
+                        >
+                          {t("地图定位（客户已打点）")}
+                        </a>
+                      ) : (
+                        <span className="text-ui-fg-subtle">{t("未打点")}</span>
+                      )}
+                    </div>
                   </Table.Cell>
                   <Table.Cell>{formatMoney(order.total, order.currency_code)}</Table.Cell>
                   <Table.Cell>{formatDate(plan.released_at)}</Table.Cell>

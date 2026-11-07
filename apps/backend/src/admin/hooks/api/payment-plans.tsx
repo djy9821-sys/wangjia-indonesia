@@ -41,7 +41,14 @@ export type WarehouseRow = {
     created_at: string;
     company?: { name?: string } | null;
     customer?: { first_name?: string; last_name?: string; phone?: string } | null;
-    shipping_address?: { city?: string; province?: string } | null;
+    shipping_address?: {
+      address_1?: string;
+      address_2?: string;
+      city?: string;
+      province?: string;
+      phone?: string;
+      metadata?: { lat?: number; lng?: number } | null;
+    } | null;
     items: { id: string; title: string; quantity: number }[];
   };
   progress: {

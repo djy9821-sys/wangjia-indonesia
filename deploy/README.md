@@ -20,3 +20,11 @@ Midtrans 后台的通知地址填 `https://api.<域名>/webhooks/midtrans`；App
 3. `docker compose -f deploy/docker-compose.chatwoot.yml --env-file deploy/.env.chatwoot up -d`，打开域名创建管理员账号。
 4. 在 Chatwoot 里新建 WhatsApp 收件箱（WhatsApp Cloud），用和后端 `WHATSAPP_PHONE_NUMBER_ID` 同一个号码，这样客户看到的是同一个 WANGJIA 号码：系统通知由后端发，人工回复在 Chatwoot 里做。Meta 后台的 Webhook 指向 Chatwoot 给出的地址。
 5. 网页商城想加在线聊天气泡，把 Chatwoot 收件箱里的网站 Widget 脚本贴进 `apps/storefront/src/app/[countryCode]/(main)/layout.tsx`。
+
+## GlitchTip 错误监控（可与 Chatwoot 同一台机器）
+
+`docker-compose.glitchtip.yml` 是开源的 Sentry 兼容错误平台，域名如 `errors.wangjia.co.id`：
+
+1. `cp deploy/.env.glitchtip.example deploy/.env.glitchtip`，填域名、数据库密码、`SECRET_KEY`（`openssl rand -hex 32`）和告警邮箱 SMTP。
+2. `docker compose -f deploy/docker-compose.glitchtip.yml --env-file deploy/.env.glitchtip up -d`，打开域名注册第一个账号（之后注册已关闭）。
+3. 建三个项目：backend、storefront、app，把各自的 DSN 填到后端 `.env.production` 的 `SENTRY_DSN`、App 打包的 `--dart-define=SENTRY_DSN=…`。后端只上报 5xx 和未处理异常，4xx 业务错误不报。

@@ -128,6 +128,10 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 | POST | `/store/payment-installments/:id/midtrans` | 生成 Midtrans Snap `token` / `redirect_url` |
 | POST | `/store/payment-installments/:id/proofs` | 上传转账凭证：`{ file: { name, mime_type, content(base64) }, bank_name, sender_name, amount, transferred_at, note }` |
 | GET | `/store/orders/:id/shipments` | 发货记录与货运单号 |
+| GET | `/store/orders/:id/tracking` | 物流轨迹（配置 `BITESHIP_API_KEY` 后有历史节点；否则只有单号和链接） |
+| GET | `/store/warranty/verify/:code` | 扫码验真（只需 publishable key；`code` 可以是二维码里的完整链接） |
+| POST | `/store/warranty/register` | 登记保修 `{ code, farm_location }`，同一客户重复登记幂等，他人已登记返回 400 |
+| GET | `/store/warranty/units` | 我登记过的设备与保修到期日 |
 | GET | `/store/wilayah` · `/store/wilayah/:provinceCode` · `/store/wilayah/:regencyCode` | 省 → 市县 → 区 三级联动（只需 publishable key） |
 
 后台接口（管理员登录）：
@@ -143,11 +147,38 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 | POST | `/admin/payment-plans/:id/cancel` | 取消计划与订单 `{ reason, cancel_order }`（finance、sales） |
 | GET | `/admin/team` | 管理员列表与角色 |
 | POST | `/admin/team/:userId/role` | 分配角色 `{ role }`（owner） |
-| GET | `/admin/warehouse/orders` | 仓库待发货 |
+| GET | `/admin/warehouse/orders` | 仓库待发货（含客户地图打点坐标） |
+| GET/POST | `/admin/warranty/units` | 序列号列表 / 批量生成 `{ product_id, variant_id, quantity, batch, warranty_months }`（warehouse、sales） |
+| GET | `/admin/warranty/units/export?batch=` | 标签打印用 CSV（序列号、二维码内容） |
+| POST | `/admin/warranty/units/:id` | 关联订单 / 作废 / 备注 `{ order_id, status, notes }` |
+
+## 防伪与保修（扫码）
+
+每台设备出厂前在后台「防伪保修」页按批次生成序列号（`WJ-26-000123`）和随机二维码（`https://商城域名/id/garansi/<12位码>`），下载 CSV 交给标签打印，贴在机身铭牌旁。
+
+- 任何人用手机相机扫码会打开商城的验真页：正品显示产品、序列号、保修状态；仿品或已作废标签显示「无法验证」并提示举报。
+- App 里「账户 → Garansi & Keaslian」用相机扫码（或手动输码）后可一键登记保修：绑定客户、记录塘口位置、算出到期日，并通过 WhatsApp / 邮件 / 推送发送保修凭证。同一台机只能被一个客户登记。
+- 后台能看每个序列号的扫码次数：同一标签被扫很多次是仿品复制标签的信号。
+
+## 收货地图打点
+
+App 填地址时可以在地图（OpenStreetMap，免密钥）上把图钉拖到塘口或仓库门口，坐标存在地址 `metadata.lat/lng`。仓库页对应订单会出现「地图定位」链接（Google Maps），直接发给货车司机。
+
+## 错误监控
+
+后端和 App 都接了 Sentry 协议的错误上报，推荐自建开源 [GlitchTip](https://glitchtip.com)（`deploy/docker-compose.glitchtip.yml`）。后端填 `SENTRY_DSN`；App 打包时 `--dart-define=SENTRY_DSN=…`。不填则完全关闭。App 端用纯 Dart 的 `sentry` 包（没有原生依赖，离线 SwiftPM 构建不受影响），能抓到所有 Dart/Flutter 异常。
+
+## 物流轨迹
+
+仓库在订单「Mark as shipped」填单号时写成 `承运商代码:单号`（如 `jne:JP0123456789`、`sicepat:000123456789`、`lion:1234567890`），后端配置 `BITESHIP_API_KEY`（Biteship 免费跟踪接口）后，App 的订单详情「Lacak」会显示承运商的节点历史，10 分钟缓存。没配置时只显示单号和链接。
+
+## 发布 App（Fastlane）
+
+`apps/mobile/fastlane/` 有 TestFlight / App Store / Play 内测 / Play 正式四条发布通道，见 [apps/mobile/README.md](apps/mobile/README.md)。
 
 ## 部署
 
-`deploy/` 里有一台 VPS 跑全套的方案：Postgres、Redis、后端、网页商城、Caddy（自动 HTTPS）、Uptime Kuma（监控告警）、Umami（访问统计）、每日数据库备份。步骤见 [deploy/README.md](deploy/README.md)。
+`deploy/` 里有一台 VPS 跑全套的方案：Postgres、Redis、后端、网页商城、Caddy（自动 HTTPS）、Uptime Kuma（监控告警）、Umami（访问统计）、每日数据库备份；另有 Chatwoot 客服台和 GlitchTip 错误监控的独立 compose。步骤见 [deploy/README.md](deploy/README.md)。
 
 ## 上线前要办的事（代码之外）
 
@@ -156,4 +187,6 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 3. 用公司主体注册 Google Play 开发者账号。
 5. 申请 WhatsApp Business Cloud API 与 Resend，填入 `WHATSAPP_*`、`RESEND_API_KEY`；WhatsApp 24 小时会话外的消息需要先在 Meta 后台审核模板。
 6. 开通 Cloudflare R2（或 S3）并填入 `S3_*`，开一台 Redis 并填入 `REDIS_URL`。
+8. 物流：在 [biteship.com](https://biteship.com) 注册拿 API key 填 `BITESHIP_API_KEY`（跟踪接口免费）；和货运公司确认承运商代码。
+9. 标签：拿第一批序列号 CSV 去印二维码标签（建议铝质或 PET 防水标签，贴铭牌旁）；商城域名定下来后再生成正式批次，二维码里带的是 `STOREFRONT_URL`。
 7. 推送：在 Firebase 控制台建项目，加 iOS 应用（Bundle ID `id.co.wangjia.wangjiaApp`）和 Android 应用（包名 `id.co.wangjia.wangjia_app`），把 `GoogleService-Info.plist` 放到 `apps/mobile/ios/Runner/`、`google-services.json` 放到 `apps/mobile/android/app/`（两个文件都已在 .gitignore 外，建议不要提交）；iOS 还要在 Apple 开发者后台生成 APNs 密钥并上传到 Firebase。后端在"项目设置 → 服务账号"生成私钥 JSON，路径或内容填到 `FIREBASE_SERVICE_ACCOUNT`。没配置时推送只写日志。

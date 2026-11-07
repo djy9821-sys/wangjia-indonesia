@@ -70,6 +70,10 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Kamera dipakai untuk memindai QR di mesin WANGJIA (cek keaslian dan daftar garansi).</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Lokasi dipakai untuk menandai titik pengiriman tambak Anda di peta.</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<true/>
 </dict>

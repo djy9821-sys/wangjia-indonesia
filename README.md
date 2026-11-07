@@ -12,8 +12,8 @@ confirms the money, and only then the warehouse ships. 中文说明见 [README.z
 |---|---|---|
 | `apps/backend` | API, admin dashboard, workflows, jobs | [Medusa v2](https://medusajs.com) (B2B starter) + custom modules |
 | `apps/storefront` | Web store (Indonesian) with the same payment-plan page | Next.js 15 |
-| `apps/mobile` | Customer app: catalogue, cart, quotes, instalments, receipts, tracking, push | Flutter |
-| `deploy/` | One-VPS production stack: Postgres, Redis, Caddy HTTPS, Uptime Kuma, Umami, backups | Docker Compose |
+| `apps/mobile` | Customer app: catalogue, cart, quotes, instalments, receipts, tracking, push, QR warranty check, map pin for delivery | Flutter |
+| `deploy/` | One-VPS production stack: Postgres, Redis, Caddy HTTPS, Uptime Kuma, Umami, backups; separate Chatwoot and GlitchTip stacks | Docker Compose |
 | `brand/` | Placeholder logo assets until the official files arrive | SVG/PNG |
 | `infra/` | Local Postgres without Docker/Homebrew (embedded‑postgres) | Node |
 
@@ -36,6 +36,9 @@ Key backend pieces (all under `apps/backend/src`):
 - **Jobs** — expire unpaid plans, daily payment reminders.
 - **Invoices** — proforma / invoice PDF with PPN, signed 24h download links.
 - **Indonesian regions** — 38 provinces / 514 regencies / 7,285 districts served from `data/wilayah.json`.
+- **`modules/warranty`** — serial numbers + QR codes per unit; public genuine check, in‑app warranty registration, scan counts as a counterfeit signal, CSV for label printing.
+- **Tracking** — `/store/orders/:id/tracking` with carrier history through Biteship when `BITESHIP_API_KEY` is set.
+- **Error reporting** — Sentry‑compatible (`SENTRY_DSN`), self‑hosted GlitchTip compose in `deploy/`.
 
 ## Quick start (local)
 

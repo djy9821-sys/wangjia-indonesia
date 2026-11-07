@@ -7,6 +7,7 @@ import '../l10n/strings.dart';
 import '../models.dart';
 import '../widgets/common.dart';
 import '../widgets/region_picker.dart';
+import 'map_picker_screen.dart';
 import 'order_detail_screen.dart';
 
 /// One-product checkout: address -> shipping method -> place order.
@@ -33,6 +34,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Key _regionKey = UniqueKey();
   List<Address> _saved = [];
   Address? _picked;
+  double? _lat;
+  double? _lng;
   bool _saveAddress = true;
 
   String? _cartId;
@@ -72,6 +75,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       _postal.text = a.postalCode;
       _region = RegionSelection();
       _regionKey = UniqueKey(); // rebuild picker with the saved codes
+      _lat = a.lat;
+      _lng = a.lng;
       _saveAddress = false;
     });
   }
@@ -89,6 +94,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         provinceCode: _region.province?.code ?? _picked?.provinceCode,
         regencyCode: _region.regency?.code ?? _picked?.regencyCode,
         districtCode: _region.district?.code ?? _picked?.districtCode,
+        lat: _lat,
+        lng: _lng,
       );
 
   Map<String, dynamic> get _addressJson => _currentAddress.toJson();
@@ -210,6 +217,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
             const SizedBox(height: 12),
             TextFormField(controller: _postal, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: S.t('postal_code'))),
+            MapPinTile(
+              lat: _lat,
+              lng: _lng,
+              addressHint: [
+                _region.district?.name ?? _picked?.district ?? '',
+                _region.regency?.name ?? _picked?.city ?? '',
+                _region.province?.name ?? _picked?.province ?? '',
+              ].where((e) => e.isNotEmpty).join(', '),
+              onChanged: (p) => setState(() {
+                _lat = p?.latitude;
+                _lng = p?.longitude;
+              }),
+            ),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
               controlAffinity: ListTileControlAffinity.leading,

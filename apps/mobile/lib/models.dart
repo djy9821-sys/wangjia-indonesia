@@ -358,6 +358,8 @@ class Address {
   final String? provinceCode;
   final String? regencyCode;
   final String? districtCode;
+  final double? lat; // pond / farm pin, stored in metadata
+  final double? lng;
   final bool isDefaultShipping;
   const Address({
     this.id,
@@ -373,6 +375,8 @@ class Address {
     this.provinceCode,
     this.regencyCode,
     this.districtCode,
+    this.lat,
+    this.lng,
     this.isDefaultShipping = false,
   });
 
@@ -392,6 +396,8 @@ class Address {
       provinceCode: meta['province_code'] as String?,
       regencyCode: meta['regency_code'] as String?,
       districtCode: meta['district_code'] as String?,
+      lat: (meta['lat'] as num?)?.toDouble(),
+      lng: (meta['lng'] as num?)?.toDouble(),
       isDefaultShipping: j['is_default_shipping'] == true,
     );
   }
@@ -411,9 +417,126 @@ class Address {
           'province_code': provinceCode,
           'regency_code': regencyCode,
           'district_code': districtCode,
+          if (lat != null && lng != null) 'lat': lat,
+          if (lat != null && lng != null) 'lng': lng,
         },
       };
 
+  String get mapsUrl => 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+
   String get oneLine => [address1, district, city, province, postalCode].where((e) => e.isNotEmpty).join(', ');
   String get fullName => [firstName, lastName].where((e) => e.isNotEmpty).join(' ');
+}
+
+/// One registered aerator / spare part with its warranty window.
+class WarrantyUnit {
+  final String id;
+  final String serial;
+  final String productTitle;
+  final String? variantTitle;
+  final String status;
+  final String? registeredAt;
+  final String? warrantyExpiresAt;
+  final String? farmLocation;
+  WarrantyUnit({
+    required this.id,
+    required this.serial,
+    required this.productTitle,
+    this.variantTitle,
+    required this.status,
+    this.registeredAt,
+    this.warrantyExpiresAt,
+    this.farmLocation,
+  });
+  factory WarrantyUnit.fromJson(Map<String, dynamic> j) => WarrantyUnit(
+        id: (j['id'] ?? '') as String,
+        serial: j['serial'] as String,
+        productTitle: (j['product_title'] ?? '') as String,
+        variantTitle: j['variant_title'] as String?,
+        status: (j['status'] ?? 'registered') as String,
+        registeredAt: j['registered_at'] as String?,
+        warrantyExpiresAt: j['warranty_expires_at'] as String?,
+        farmLocation: j['farm_location'] as String?,
+      );
+  String get title => [productTitle, if ((variantTitle ?? '').isNotEmpty) variantTitle!].join(' · ');
+  bool get expired =>
+      warrantyExpiresAt != null && DateTime.tryParse(warrantyExpiresAt!)?.isBefore(DateTime.now()) == true;
+}
+
+/// Result of scanning a QR label.
+class WarrantyCheck {
+  final bool genuine;
+  final String? reason; // invalid_code | unknown | void
+  final String? serial;
+  final String? code;
+  final String? productTitle;
+  final String? variantTitle;
+  final int warrantyMonths;
+  final bool registered;
+  final bool registeredToMe;
+  final String? warrantyExpiresAt;
+  final int scanCount;
+  WarrantyCheck({
+    required this.genuine,
+    this.reason,
+    this.serial,
+    this.code,
+    this.productTitle,
+    this.variantTitle,
+    this.warrantyMonths = 12,
+    this.registered = false,
+    this.registeredToMe = false,
+    this.warrantyExpiresAt,
+    this.scanCount = 0,
+  });
+  factory WarrantyCheck.fromJson(Map<String, dynamic> j) {
+    final u = j['unit'] as Map<String, dynamic>?;
+    return WarrantyCheck(
+      genuine: j['genuine'] == true,
+      reason: j['reason'] as String?,
+      serial: u?['serial'] as String?,
+      code: u?['code'] as String?,
+      productTitle: u?['product_title'] as String?,
+      variantTitle: u?['variant_title'] as String?,
+      warrantyMonths: (u?['warranty_months'] as num?)?.toInt() ?? 12,
+      registered: u?['registered'] == true,
+      registeredToMe: u?['registered_to_me'] == true,
+      warrantyExpiresAt: u?['warranty_expires_at'] as String?,
+      scanCount: (u?['scan_count'] as num?)?.toInt() ?? 0,
+    );
+  }
+  String get title => [productTitle ?? '', if ((variantTitle ?? '').isNotEmpty) variantTitle!].join(' · ');
+}
+
+class TrackingEvent {
+  final String? time;
+  final String? status;
+  final String? note;
+  TrackingEvent(this.time, this.status, this.note);
+  factory TrackingEvent.fromJson(Map<String, dynamic> j) =>
+      TrackingEvent(j['time'] as String?, j['status'] as String?, j['note'] as String?);
+}
+
+class TrackingInfo {
+  final String trackingNumber;
+  final String? courier;
+  final String? trackingUrl;
+  final String? status;
+  final List<TrackingEvent> history;
+  TrackingInfo({
+    required this.trackingNumber,
+    this.courier,
+    this.trackingUrl,
+    this.status,
+    this.history = const [],
+  });
+  factory TrackingInfo.fromJson(Map<String, dynamic> j) => TrackingInfo(
+        trackingNumber: j['tracking_number'] as String,
+        courier: j['courier'] as String?,
+        trackingUrl: j['tracking_url'] as String?,
+        status: j['status'] as String?,
+        history: ((j['history'] as List?) ?? [])
+            .map((e) => TrackingEvent.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
 }

@@ -5,6 +5,7 @@ import '../l10n/strings.dart';
 import '../models.dart';
 import '../widgets/common.dart';
 import '../widgets/region_picker.dart';
+import 'map_picker_screen.dart';
 
 class AddressesScreen extends StatefulWidget {
   const AddressesScreen({super.key});
@@ -86,6 +87,8 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
   late final _address = TextEditingController(text: a.address1);
   late final _postal = TextEditingController(text: a.postalCode);
   late bool _default = a.isDefaultShipping;
+  late double? _lat = a.lat;
+  late double? _lng = a.lng;
   final _region = RegionSelection();
   bool _busy = false;
 
@@ -109,6 +112,8 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
         provinceCode: _region.province?.code ?? a.provinceCode,
         regencyCode: _region.regency?.code ?? a.regencyCode,
         districtCode: _region.district?.code ?? a.districtCode,
+        lat: _lat,
+        lng: _lng,
         isDefaultShipping: _default,
       ));
       if (mounted) Navigator.of(context).pop(true);
@@ -167,6 +172,19 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
               ),
               const SizedBox(height: 12),
               TextFormField(controller: _postal, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: S.t('postal_code'))),
+              MapPinTile(
+                lat: _lat,
+                lng: _lng,
+                addressHint: [
+                  _region.district?.name ?? a.district,
+                  _region.regency?.name ?? a.city,
+                  _region.province?.name ?? a.province,
+                ].where((e) => e.isNotEmpty).join(', '),
+                onChanged: (p) => setState(() {
+                  _lat = p?.latitude;
+                  _lng = p?.longitude;
+                }),
+              ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(S.t('set_default')),

@@ -1,5 +1,5 @@
 import { MedusaRequest } from "@medusajs/framework";
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 
 /*
   Brute-force / abuse protection for the public endpoints.
@@ -9,8 +9,12 @@ import rateLimit from "express-rate-limit";
 */
 const disabled = () => process.env.RATE_LIMIT_DISABLED === "true";
 
-const keyByIp = (req: MedusaRequest) =>
-  (req.headers["x-forwarded-for"] as string | undefined)?.split(",")[0]?.trim() || req.ip || "unknown";
+/* First hop of X-Forwarded-For (Caddy sets it); IPv6 is bucketed by /56 via the helper. */
+const keyByIp = (req: MedusaRequest) => {
+  const ip =
+    (req.headers["x-forwarded-for"] as string | undefined)?.split(",")[0]?.trim() || req.ip || "unknown";
+  return ipKeyGenerator(ip, 56);
+};
 
 const make = (windowMs: number, limit: number, message: string) =>
   rateLimit({
@@ -31,3 +35,5 @@ export const otpRateLimit = make(15 * 60 * 1000, 10, "Terlalu banyak permintaan 
 export const signupRateLimit = make(60 * 60 * 1000, 10, "Terlalu banyak pendaftaran dari jaringan ini. Coba lagi nanti.");
 /* Receipt uploads: 30 per hour per IP */
 export const uploadRateLimit = make(60 * 60 * 1000, 30, "Terlalu banyak unggahan. Coba lagi nanti.");
+/* Public genuine-product check: generous, but stops bulk code guessing. */
+export const verifyRateLimit = make(15 * 60 * 1000, 120, "Terlalu banyak pemeriksaan. Coba lagi nanti.");

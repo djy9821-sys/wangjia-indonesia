@@ -113,30 +113,30 @@ function customerTargets(ctx: PlanContext) {
 */
 async function pushCustomer(
   container: MedusaContainer,
-  ctx: PlanContext,
+  customerId: string | null | undefined,
   template: string,
   title: string,
   body: string,
   extra: Record<string, unknown> = {}
 ) {
-  if (!ctx.order.customer_id) return;
+  if (!customerId) return;
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
   const devices = container.resolve<PushDeviceModuleService>(PUSH_DEVICE_MODULE);
   const notification = container.resolve(Modules.NOTIFICATION);
-  const tokens = await devices.listPushDeviceTokens({ customer_id: ctx.order.customer_id });
+  const tokens = await devices.listPushDeviceTokens({ customer_id: customerId });
   for (const t of tokens) {
     try {
       await notification.createNotifications({
         to: t.token,
         channel: "push",
         template,
-        data: { title, body, data: { order_id: ctx.order.id, type: template, ...extra } },
+        data: { title, body, data: { type: template, ...extra } },
       });
     } catch (e) {
       const msg = (e as Error).message ?? "";
       if (/UNREGISTERED|NOT_FOUND|INVALID_ARGUMENT/i.test(msg)) {
         await devices.deletePushDeviceTokens(t.id);
-        logger.info(`[push] removed dead token for customer ${ctx.order.customer_id}`);
+        logger.info(`[push] removed dead token for customer ${customerId}`);
       } else {
         logger.error(`[push] failed: ${msg}`);
       }
@@ -151,7 +151,28 @@ async function sendCustomer(container: MedusaContainer, ctx: PlanContext, templa
   if (email) list.push({ to: email, channel: "email", template, data: { subject, text } });
   await notify(container, list);
   // Push: subject is short enough for the notification title, text for the body.
-  await pushCustomer(container, ctx, template, subject, text.split("\n")[0].slice(0, 180));
+  await pushCustomer(container, ctx.order.customer_id, template, subject, text.split("\n")[0].slice(0, 180), {
+    order_id: ctx.order.id,
+  });
+}
+
+/*
+  Generic customer message outside the payment flow (e.g. warranty
+  registration): WhatsApp + email + push, same fallbacks as above.
+*/
+export async function sendCustomerMessage(
+  container: MedusaContainer,
+  target: { customer_id?: string | null; phone?: string | null; email?: string | null },
+  template: string,
+  text: string,
+  subject: string,
+  extra: Record<string, unknown> = {}
+) {
+  const list: Parameters<typeof notify>[1] = [];
+  if (target.phone) list.push({ to: target.phone, channel: "whatsapp", template, data: { text } });
+  if (target.email) list.push({ to: target.email, channel: "email", template, data: { subject, text } });
+  await notify(container, list);
+  await pushCustomer(container, target.customer_id, template, subject, text.split("\n")[0].slice(0, 180), extra);
 }
 
 async function sendStaff(container: MedusaContainer, role: "finance" | "warehouse", template: string, subject: string, text: string) {

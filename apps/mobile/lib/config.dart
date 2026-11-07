@@ -28,4 +28,12 @@ class AppConfig {
     'MIDTRANS_FINISH_URL',
     defaultValue: 'http://localhost:8000/id/account/orders',
   );
+
+  /// Error reporting (GlitchTip / Sentry DSN of the "app" project). Empty = off.
+  static const sentryDsn = String.fromEnvironment('SENTRY_DSN', defaultValue: '');
+  static const environment = String.fromEnvironment('APP_ENV', defaultValue: 'development');
+  static const appVersion = String.fromEnvironment('APP_VERSION', defaultValue: '0.1.0');
+
+  /// Dev only: "host:port" of an HTTP proxy for all non-local requests.
+  static const devProxy = String.fromEnvironment('DEV_PROXY', defaultValue: '');
 }

@@ -3,6 +3,8 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'api/medusa_client.dart';
 import 'cart.dart';
+import 'dev_proxy.dart';
+import 'monitoring.dart';
 import 'push.dart';
 import 'screens/order_detail_screen.dart';
 import 'l10n/strings.dart';
@@ -11,11 +13,12 @@ import 'screens/login_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  installDevProxy();
   await initializeDateFormatting('id_ID');
   await MedusaClient.instance.init();
   await CartStore.instance.load();
   await PushService.instance.init();
-  runApp(const TrukAirApp());
+  await runMonitored(() => runApp(const TrukAirApp()));
 }
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -81,6 +84,7 @@ class _AuthGateState extends State<AuthGate> {
           }
           // Logged in: make sure this device receives order notifications.
           PushService.instance.registerForCurrentUser();
+          setMonitoredUser(snap.data!['id'] as String?);
           return HomeShell(customer: snap.data!, onLoggedOut: _refresh);
         },
       );

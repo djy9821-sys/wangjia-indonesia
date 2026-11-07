@@ -1,0 +1,73 @@
+# GlitchTip: open-source, Sentry-compatible error tracking for the backend, the
+# storefront and the app. Light enough (~500 MB RAM) to run next to Chatwoot on
+# the small second VPS, or on the main one.
+#   cp .env.glitchtip.example .env.glitchtip && edit
+#   docker compose -f docker-compose.glitchtip.yml --env-file .env.glitchtip up -d
+# Then open https://<GLITCHTIP_DOMAIN>, create the organisation and three projects
+# (backend / storefront / app); paste each DSN into SENTRY_DSN of that app.
+name: wangjia-glitchtip
+
+x-glitchtip: &glitchtip
+  image: glitchtip/glitchtip:v5.1
+  restart: unless-stopped
+  env_file: .env.glitchtip
+  environment:
+    DATABASE_URL: postgres://glitchtip:${GLITCHTIP_DB_PASSWORD:?set GLITCHTIP_DB_PASSWORD}@postgres:5432/glitchtip
+    REDIS_URL: redis://redis:6379/0
+    GLITCHTIP_DOMAIN: https://${GLITCHTIP_DOMAIN:?set GLITCHTIP_DOMAIN}
+    DEFAULT_FROM_EMAIL: ${GLITCHTIP_FROM_EMAIL:-glitchtip@example.com}
+    ENABLE_USER_REGISTRATION: "False"
+    ENABLE_ORGANIZATION_CREATION: "False"
+    GLITCHTIP_MAX_EVENT_LIFE_DAYS: "90"
+  depends_on:
+    postgres: { condition: service_healthy }
+    redis: { condition: service_started }
+  volumes:
+    - glitchtip-uploads:/code/uploads
+
+services:
+  web:
+    <<: *glitchtip
+    expose: ["8000"]
+
+  worker:
+    <<: *glitchtip
+    command: ./bin/run-celery-with-beat.sh
+
+  migrate:
+    <<: *glitchtip
+    restart: "no"
+    command: ./bin/run-migrate.sh
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: glitchtip
+      POSTGRES_USER: glitchtip
+      POSTGRES_PASSWORD: ${GLITCHTIP_DB_PASSWORD}
+    volumes:
+      - glitchtip-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U glitchtip"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    command: ["caddy", "reverse-proxy", "--from", "${GLITCHTIP_DOMAIN}", "--to", "web:8000"]
+    volumes:
+      - glitchtip-caddy:/data
+    depends_on: [web]
+
+volumes:
+  glitchtip-pg:
+  glitchtip-uploads:
+  glitchtip-caddy:

@@ -3,9 +3,12 @@ import { APPROVAL_MODULE } from "./src/modules/approval";
 import { COMPANY_MODULE } from "./src/modules/company";
 import { PAYMENT_PLAN_MODULE } from "./src/modules/payment-plan";
 import { PUSH_DEVICE_MODULE } from "./src/modules/push-device";
+import { WARRANTY_MODULE } from "./src/modules/warranty";
 import { loadEnv, defineConfig, Modules } from "@medusajs/framework/utils";
+import { initSentry } from "./src/utils/sentry";
 
 loadEnv(process.env.NODE_ENV || "development", process.cwd());
+initSentry();
 
 const redisUrl = process.env.REDIS_URL;
 const s3Configured = Boolean(process.env.S3_BUCKET && process.env.S3_ACCESS_KEY_ID);
@@ -93,6 +96,9 @@ const modules: Record<string, any> = {
   },
   [PUSH_DEVICE_MODULE]: {
     resolve: "./modules/push-device",
+  },
+  [WARRANTY_MODULE]: {
+    resolve: "./modules/warranty",
   },
   [Modules.NOTIFICATION]: {
     resolve: "@medusajs/medusa/notification",

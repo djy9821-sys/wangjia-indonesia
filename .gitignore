@@ -69,3 +69,4 @@ apps/mobile/android/app/google-services.json
 /deploy/.env
 apps/backend/.env.production
 /deploy/.env.chatwoot
+/deploy/.env.glitchtip

@@ -1,0 +1,4 @@
+app_identifier("id.co.wangjia.wangjiaApp")
+package_name("id.co.wangjia.wangjia_app")
+apple_id(ENV["APPLE_ID"])          # Apple developer account email
+team_id(ENV["APPLE_TEAM_ID"])      # Developer Portal team id

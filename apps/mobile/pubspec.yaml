@@ -19,6 +19,10 @@ dependencies:
   webview_flutter: ^4.14.1
   firebase_core: ^5.1.0
   firebase_messaging: ^17.0.1
+  mobile_scanner: ^7.5.0
+  flutter_map: ^8.3.2
+  latlong2: ^0.10.1
+  sentry: ^10.3.0
 
 dev_dependencies:
   flutter_test:
