@@ -92,3 +92,11 @@ export const submitPaymentProof = async (
     .then(({ payment_plan }) => payment_plan)
     .catch((err) => medusaError(err))
 }
+
+export const retrieveInvoiceLink = async (orderId: string) => {
+  const headers = { ...(await getAuthHeaders()) }
+  return sdk.client
+    .fetch<{ url: string }>(`/store/orders/${orderId}/invoice-link`, { method: "GET", headers, cache: "no-store" })
+    .then((r) => r.url)
+    .catch(() => null)
+}

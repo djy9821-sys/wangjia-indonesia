@@ -1,5 +1,5 @@
 import { retrieveOrder } from "@/lib/data/orders"
-import { retrievePaymentPlan } from "@/lib/data/payment-plan"
+import { retrieveInvoiceLink, retrievePaymentPlan } from "@/lib/data/payment-plan"
 import OrderDetailsTemplate from "@/modules/order/templates/order-details-template"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
@@ -30,7 +30,10 @@ export default async function OrderDetailPage(props: Props) {
     notFound()
   }
 
-  const paymentPlan = await retrievePaymentPlan(order.id)
+  const [paymentPlan, invoiceUrl] = await Promise.all([
+    retrievePaymentPlan(order.id),
+    retrieveInvoiceLink(order.id),
+  ])
 
-  return <OrderDetailsTemplate order={order} paymentPlan={paymentPlan} />
+  return <OrderDetailsTemplate order={order} paymentPlan={paymentPlan} invoiceUrl={invoiceUrl} />
 }

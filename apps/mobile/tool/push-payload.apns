@@ -1,0 +1,13 @@
+{
+  "Simulator Target Bundle": "id.co.wangjia.wangjiaApp",
+  "aps": {
+    "alert": {
+      "title": "Pembayaran dikonfirmasi - Pesanan #1",
+      "body": "Halo Budi Santoso, pembayaran Uang muka 30% sudah dikonfirmasi. Pesanan Anda sekarang disiapkan untuk pengiriman."
+    },
+    "sound": "default",
+    "badge": 1
+  },
+  "order_id": "order_01M6TAMY0WVTF0XZQV8B4T9JXJ",
+  "type": "payment-confirmed"
+}

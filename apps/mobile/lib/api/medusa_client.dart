@@ -167,6 +167,16 @@ class MedusaClient {
     return res['verification_token'] as String;
   }
 
+  // ---------- push tokens ----------
+
+  Future<void> registerPushToken(String token, String platform) =>
+      post('/store/push-tokens', {'token': token, 'platform': platform});
+
+  Future<void> deletePushToken(String token) async {
+    final res = await _http.delete(_uri('/store/push-tokens/${Uri.encodeComponent(token)}'), headers: _headers);
+    _decode(res);
+  }
+
   // ---------- saved addresses ----------
 
   Future<List<Address>> addresses() async {
@@ -343,6 +353,11 @@ class MedusaClient {
     final json = Map<String, dynamic>.from(results[0]['order'] as Map);
     json['fulfillments'] = results[1]['shipments'] ?? [];
     return Order.fromJson(json);
+  }
+
+  Future<String> invoiceLink(String orderId) async {
+    final res = await get('/store/orders/$orderId/invoice-link');
+    return res['url'] as String;
   }
 
   // ---------- payment plan (custom routes) ----------

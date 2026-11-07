@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../api/medusa_client.dart';
 import '../l10n/strings.dart';
 import '../cart.dart';
+import '../push.dart';
 import 'cart_screen.dart';
 import 'orders_hub_screen.dart';
 import 'products_screen.dart';
@@ -100,6 +101,7 @@ class _AccountScreen extends StatelessWidget {
               leading: const Icon(Icons.logout),
               title: Text(S.t('logout')),
               onTap: () async {
+                await PushService.instance.unregister();
                 await MedusaClient.instance.logout();
                 onLoggedOut();
               },

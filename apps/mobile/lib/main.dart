@@ -3,6 +3,8 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'api/medusa_client.dart';
 import 'cart.dart';
+import 'push.dart';
+import 'screens/order_detail_screen.dart';
 import 'l10n/strings.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
@@ -12,8 +14,11 @@ Future<void> main() async {
   await initializeDateFormatting('id_ID');
   await MedusaClient.instance.init();
   await CartStore.instance.load();
+  await PushService.instance.init();
   runApp(const TrukAirApp());
 }
+
+final navigatorKey = GlobalKey<NavigatorState>();
 
 class TrukAirApp extends StatelessWidget {
   const TrukAirApp({super.key});
@@ -22,6 +27,13 @@ class TrukAirApp extends StatelessWidget {
   Widget build(BuildContext context) => ValueListenableBuilder<String>(
         valueListenable: S.locale,
         builder: (context, _, __) => MaterialApp(
+          navigatorKey: navigatorKey,
+          builder: (context, child) => PushListener(
+            onOpenOrder: (id) => navigatorKey.currentState?.push(
+              MaterialPageRoute(builder: (_) => OrderDetailScreen(orderId: id)),
+            ),
+            child: child ?? const SizedBox.shrink(),
+          ),
           title: S.t('app_title'),
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
@@ -67,6 +79,8 @@ class _AuthGateState extends State<AuthGate> {
           if (snap.data == null) {
             return LoginScreen(onLoggedIn: _refresh);
           }
+          // Logged in: make sure this device receives order notifications.
+          PushService.instance.registerForCurrentUser();
           return HomeShell(customer: snap.data!, onLoggedOut: _refresh);
         },
       );

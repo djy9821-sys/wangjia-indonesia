@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../api/medusa_client.dart';
 import '../format.dart';
@@ -107,7 +108,23 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> with WidgetsBindi
                     ],
                   ),
                   Text(dateTime(order.createdAt), style: Theme.of(context).textTheme.bodySmall),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        try {
+                          final url = await MedusaClient.instance.invoiceLink(order.id);
+                          await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                        } catch (e) {
+                          if (context.mounted) showSnack(context, '$e');
+                        }
+                      },
+                      icon: const Icon(Icons.picture_as_pdf_outlined),
+                      label: Text(S.t('invoice')),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   _section(context, S.t('items')),
                   ...order.items.map((i) => ListTile(
                         dense: true,

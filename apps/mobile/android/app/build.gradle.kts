@@ -1,5 +1,7 @@
 plugins {
     id("com.android.application")
+    // Applied below only when google-services.json is present.
+    id("com.google.gms.google-services") version "4.4.2" apply false
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -46,4 +48,9 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+// Firebase: activate only once the config file from the Firebase console is dropped in.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
 }

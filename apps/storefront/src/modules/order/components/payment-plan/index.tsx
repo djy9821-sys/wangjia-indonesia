@@ -203,7 +203,14 @@ const InstallmentCard = ({
   )
 }
 
-const PaymentPlan = ({ plan, orderId }: { plan: StorePaymentPlan | null; orderId: string }) => {
+const InvoiceButton = ({ url }: { url: string | null }) =>
+  url ? (
+    <a href={url} target="_blank" rel="noreferrer">
+      <Button size="small" variant="secondary">Unduh Invoice (PDF)</Button>
+    </a>
+  ) : null
+
+const PaymentPlan = ({ plan, orderId, invoiceUrl = null }: { plan: StorePaymentPlan | null; orderId: string; invoiceUrl?: string | null }) => {
   if (!plan) {
     return (
       <div className="flex flex-col gap-y-2">
@@ -224,10 +231,13 @@ const PaymentPlan = ({ plan, orderId }: { plan: StorePaymentPlan | null; orderId
     <div className="flex flex-col gap-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Heading level="h2" className="text-xl-semi">Rencana Pembayaran</Heading>
-        <Text className="txt-small text-ui-fg-subtle">
-          {convertToLocale({ amount: paid, currency_code: plan.currency_code })} /{" "}
-          {convertToLocale({ amount: Number(plan.total_amount), currency_code: plan.currency_code })}
-        </Text>
+        <div className="flex items-center gap-3">
+          <Text className="txt-small text-ui-fg-subtle">
+            {convertToLocale({ amount: paid, currency_code: plan.currency_code })} /{" "}
+            {convertToLocale({ amount: Number(plan.total_amount), currency_code: plan.currency_code })}
+          </Text>
+          <InvoiceButton url={invoiceUrl} />
+        </div>
       </div>
       <div className={`rounded-lg p-3 txt-small ${released ? "bg-ui-tag-green-bg text-ui-tag-green-text" : "bg-ui-tag-orange-bg text-ui-tag-orange-text"}`}>
         {plan.status === "cancelled"

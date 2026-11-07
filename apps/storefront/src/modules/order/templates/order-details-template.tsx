@@ -16,11 +16,13 @@ import { StorePaymentPlan } from "@/lib/data/payment-plan"
 type OrderDetailsTemplateProps = {
   order: HttpTypes.StoreOrder
   paymentPlan?: StorePaymentPlan | null
+  invoiceUrl?: string | null
 }
 
 const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
   order,
   paymentPlan = null,
+  invoiceUrl = null,
 }) => {
   return (
     <div className="flex flex-col justify-center gap-y-2">
@@ -53,7 +55,7 @@ const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
           </Container>
 
           <Container>
-            <PaymentPlan plan={paymentPlan} orderId={order.id} />
+            <PaymentPlan plan={paymentPlan} orderId={order.id} invoiceUrl={invoiceUrl} />
           </Container>
         </div>
 

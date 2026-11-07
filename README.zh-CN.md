@@ -25,6 +25,7 @@
 - **App 内支付**：Midtrans 支付页在 App 内打开，付完自动回到订单并刷新；GoPay、ShopeePay、DANA 的深链接会交给对应 App。
 - **账户功能**：忘记密码（App/网页发邮件，链接到网页 `/id/reset-password` 设新密码，需要 `STOREFRONT_URL`）；地址簿（App 的“Alamat Saya”，下单时可选常用地址并勾选保存）；注册时 WhatsApp OTP（`POST /store/otp/request`、`/store/otp/verify`，`OTP_REQUIRED=true` 时没验证过手机不能注册，本地可用 `OTP_DEV_CODE`）。
 - **推送通知**：客户通知除 WhatsApp/邮件外同时推送到 App（Firebase Cloud Messaging）。设备令牌在登录后自动注册到 `/store/push-tokens`，退出时删除；FCM 报无效的令牌会自动清理。点击通知直接打开对应订单。
+- **发票 PDF**：订单的 Proforma Invoice / Invoice（印尼语，含 PPN 11%、已付与剩余、付款计划状态）。后台 `GET /admin/orders/:id/invoice`；客户在网页订单页和 App 订单页点“Unduh Invoice”拿到 24 小时有效的签名链接。抬头信息在 `.env` 的 `COMPANY_*`（公司名、地址、NPWP、电话、邮箱、收款账户），`BACKEND_PUBLIC_URL` 填后端公网地址。正式税务发票（e-Faktur）仍需会计在 DJP Coretax 开具。
 - **财务导出**：后台“财务到款”页底部按到账日期导出 CSV（到款与退款，含订单号、客户、金额、方式、确认人），UTF-8 带 BOM，Excel 直接打开，给会计做对账和 PPN 申报。
 - **网页端付款**：网页商城"账户 → 订单详情"里有与 App 一致的"Rencana Pembayaran"：看分期、在线付款（Midtrans）、上传转账凭证、看退款。
 - **后台双语**：付款计划面板、财务到款、仓库发货、团队角色四个页面右上角有"中文 / ID"开关，默认跟随 Medusa 后台语言（中文界面显示中文，其他显示印尼语），选择保存在浏览器里。文案字典在 `src/admin/utils/i18n.ts`。
