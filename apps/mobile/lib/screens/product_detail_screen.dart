@@ -46,11 +46,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
+  /// Farmers recommend equipment to each other on WhatsApp: share the
+  /// product page link with the price in one tap.
+  Future<void> _share() async {
+    final p = widget.product;
+    final link = p.handle == null ? AppConfig.storefrontUrl : '${AppConfig.storefrontUrl}/id/products/${p.handle}';
+    final price = p.minPrice == null ? '' : ' ${S.t('from')} ${money(p.minPrice)}.';
+    final text = Uri.encodeComponent('${p.title} - WANGJIA Kincir Air.$price $link');
+    await launchUrl(Uri.parse('https://wa.me/?text=$text'), mode: LaunchMode.externalApplication);
+  }
+
   @override
   Widget build(BuildContext context) {
     final p = widget.product;
     return Scaffold(
-      appBar: AppBar(title: Text(p.title)),
+      appBar: AppBar(
+        title: Text(p.title),
+        actions: [IconButton(onPressed: _share, icon: const Icon(Icons.share_outlined), tooltip: S.t('share'))],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

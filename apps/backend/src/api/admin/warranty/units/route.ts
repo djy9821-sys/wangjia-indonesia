@@ -16,11 +16,13 @@ export const GET = async (
   res: MedusaResponse
 ) => {
   const service = req.scope.resolve<WarrantyModuleService>(WARRANTY_MODULE);
-  const { q, status, batch, limit, offset } = req.validatedQuery;
+  const { q, status, batch, customer_id, order_id, limit, offset } = req.validatedQuery;
 
   const filters: Record<string, unknown> = {};
   if (status) filters.status = status;
   if (batch) filters.batch = batch;
+  if (customer_id) filters.customer_id = customer_id;
+  if (order_id) filters.order_id = order_id;
   if (q) {
     const like = `%${q.trim()}%`;
     filters.$or = [

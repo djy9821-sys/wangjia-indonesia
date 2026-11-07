@@ -211,13 +211,30 @@ class MedusaClient {
     return _region = Region.fromJson(idn);
   }
 
+  /// True when the last catalogue came from the on-device cache (offline).
+  bool productsFromCache = false;
+  static const _productsCacheKey = 'cache_products_v1';
+
+  /// Pond owners often have patchy signal: the last catalogue is kept on the
+  /// device and shown (with an offline banner) when the network fails.
   Future<List<Product>> products() async {
-    final r = await region();
-    final res = await get('/store/products', query: {
-      'region_id': r.id,
-      'fields': '*variants.calculated_price,+variants.inventory_quantity,*images,*categories,+metadata,+subtitle',
-      'limit': '50',
-    });
+    final prefs = await SharedPreferences.getInstance();
+    Map<String, dynamic> res;
+    try {
+      final r = await region();
+      res = await get('/store/products', query: {
+        'region_id': r.id,
+        'fields': '*variants.calculated_price,+variants.inventory_quantity,*images,*categories,+metadata,+subtitle',
+        'limit': '50',
+      });
+      productsFromCache = false;
+      prefs.setString(_productsCacheKey, jsonEncode(res)).catchError((_) => false);
+    } catch (e) {
+      final cached = prefs.getString(_productsCacheKey);
+      if (cached == null) rethrow;
+      res = jsonDecode(cached) as Map<String, dynamic>;
+      productsFromCache = true;
+    }
     final products = (res['products'] as List)
         .map((e) => Product.fromJson(e as Map<String, dynamic>))
         .toList();

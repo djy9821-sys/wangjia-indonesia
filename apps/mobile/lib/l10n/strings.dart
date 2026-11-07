@@ -190,6 +190,9 @@ class S {
     'order_units_none': 'Nomor seri akan muncul di sini setelah gudang mengirim pesanan Anda.',
     'register_now': 'Daftarkan garansi',
     'request_service': 'Minta servis',
+    'offline_catalog': 'Offline: menampilkan katalog tersimpan terakhir. Harga bisa berubah.',
+    'share': 'Bagikan',
+    'from': 'Mulai',
   };
 
   static const _en = <String, String>{
@@ -373,5 +376,8 @@ class S {
     'order_units_none': 'Serial numbers appear here once the warehouse ships your order.',
     'register_now': 'Register warranty',
     'request_service': 'Request service',
+    'offline_catalog': 'Offline: showing the last saved catalogue. Prices may have changed.',
+    'share': 'Share',
+    'from': 'From',
   };
 }

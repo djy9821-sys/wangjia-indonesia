@@ -106,6 +106,19 @@ const AccountNav = ({
                     <ChevronDown className="transform -rotate-90" />
                   </LocalizedClientLink>
                 </li>
+                <li>
+                  <LocalizedClientLink
+                    href="/account/garansi"
+                    className="flex items-center justify-between py-4 border-b border-gray-200 px-8"
+                    data-testid="warranty-link"
+                  >
+                    <div className="flex items-center gap-x-2">
+                      <Package size={20} />
+                      <span>Garansi</span>
+                    </div>
+                    <ChevronDown className="transform -rotate-90" />
+                  </LocalizedClientLink>
+                </li>
                 {customer?.employee?.is_admin && (
                   <li>
                     <LocalizedClientLink
@@ -199,6 +212,15 @@ const AccountNav = ({
                 data-testid="orders-link"
               >
                 Orders
+              </AccountNavLink>
+            </li>
+              <li>
+              <AccountNavLink
+                href="/account/garansi"
+                route={route!}
+                data-testid="warranty-link"
+              >
+                Garansi
               </AccountNavLink>
             </li>
             {customer?.employee?.is_admin && (

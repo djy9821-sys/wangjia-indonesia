@@ -229,4 +229,11 @@ const ID: Record<string, string> = {
   "还没有关联序列号。": "Belum ada nomor seri.",
   "移除": "Hapus",
   "打开防伪保修页": "Buka halaman Garansi",
+  "客户的机器": "Mesin pelanggan",
+  "还没有登记保修的机器。": "Belum ada mesin dengan garansi terdaftar.",
+  "保修已过期": "Garansi habis",
+  "保修至": "Garansi s/d",
+  "标签 PDF": "PDF label",
+  "生成并下载标签": "Buat & unduh label",
+  "出厂前按批次生成。自动下载 A4 标签 PDF（3×8，70×37 mm 不干胶）可直接打印，另有 CSV 给专业标签机。二维码贴在机身铭牌旁，客户扫码即可验真并登记保修。": "Buat per batch sebelum keluar pabrik. PDF label A4 (3×8, stiker 70×37 mm) terunduh otomatis dan siap cetak; CSV tersedia untuk printer label. Tempel QR di dekat pelat nama; pelanggan scan untuk cek keaslian & daftar garansi.",
 };

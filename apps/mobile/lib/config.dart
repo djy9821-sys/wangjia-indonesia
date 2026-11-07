@@ -42,4 +42,10 @@ class AppConfig {
     'PRIVACY_URL',
     defaultValue: 'http://localhost:8000/id/privacy',
   );
+
+  /// Public web store, used for share links (product pages, warranty check).
+  static const storefrontUrl = String.fromEnvironment(
+    'STOREFRONT_URL',
+    defaultValue: 'http://localhost:8000',
+  );
 }

@@ -41,6 +41,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 : all.where((p) => p.categoryIds.contains(_categoryId)).toList();
             return Column(
               children: [
+                if (MedusaClient.instance.productsFromCache)
+                  MaterialBanner(
+                    content: Text(S.t('offline_catalog')),
+                    leading: const Icon(Icons.cloud_off),
+                    actions: [TextButton(onPressed: _reload, child: Text(S.t('retry')))],
+                  ),
                 FutureBuilder<List<Category>>(
                   future: _categories,
                   builder: (context, cs) {

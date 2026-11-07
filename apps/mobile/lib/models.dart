@@ -29,6 +29,7 @@ class Variant {
 class Product {
   final String id;
   final String title;
+  final String? handle;
   final String? subtitle;
   final String? description;
   final String? thumbnail;
@@ -40,6 +41,7 @@ class Product {
   Product({
     required this.id,
     required this.title,
+    this.handle,
     this.subtitle,
     this.description,
     this.thumbnail,
@@ -58,6 +60,7 @@ class Product {
     return Product(
       id: j['id'] as String,
       title: (j['title'] ?? '') as String,
+      handle: j['handle'] as String?,
       subtitle: j['subtitle'] as String?,
       description: j['description'] as String?,
       thumbnail: j['thumbnail'] as String?,

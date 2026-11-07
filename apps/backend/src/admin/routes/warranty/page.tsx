@@ -89,10 +89,9 @@ const GenerateForm = ({ onDone }: { onDone: () => void }) => {
     onSuccess: async (data) => {
       toast.success(`${t("已生成")} ${data.count} ${t("个序列号")}`);
       onDone();
-      await download(
-        `/admin/warranty/units/export?ids=${data.units.map((u) => u.id).join(",")}`,
-        `wangjia-serial-${batch || "batch"}.csv`
-      );
+      const ids = data.units.map((u) => u.id).join(",");
+      await download(`/admin/warranty/units/labels?ids=${ids}`, `wangjia-label-${batch || "batch"}.pdf`);
+      await download(`/admin/warranty/units/export?ids=${ids}`, `wangjia-serial-${batch || "batch"}.csv`);
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -105,7 +104,7 @@ const GenerateForm = ({ onDone }: { onDone: () => void }) => {
       <div>
         <Text size="small" weight="plus">{t("生成序列号与二维码标签")}</Text>
         <Text size="xsmall" className="text-ui-fg-subtle">
-          {t("出厂前按批次生成，下载 CSV 交给标签打印（每行一台：序列号、二维码内容）。二维码贴在机身铭牌旁，客户扫码即可验真并登记保修。")}
+          {t("出厂前按批次生成。自动下载 A4 标签 PDF（3×8，70×37 mm 不干胶）可直接打印，另有 CSV 给专业标签机。二维码贴在机身铭牌旁，客户扫码即可验真并登记保修。")}
         </Text>
       </div>
       <div className="flex flex-wrap items-end gap-3">
@@ -149,7 +148,7 @@ const GenerateForm = ({ onDone }: { onDone: () => void }) => {
           isLoading={generate.isPending}
           disabled={!productId || !Number(quantity)}
         >
-          {t("生成并下载 CSV")}
+          {t("生成并下载标签")}
         </Button>
       </div>
     </Container>
@@ -230,9 +229,14 @@ const WarrantyPage = () => {
             </Select.Content>
           </Select>
           {batches.map((b) => (
-            <Button key={b} size="small" variant="secondary" onClick={() => download(`/admin/warranty/units/export?batch=${encodeURIComponent(b)}`, `wangjia-serial-${b}.csv`)}>
-              {t("下载批次")} {b}
-            </Button>
+            <div key={b} className="flex gap-1">
+              <Button size="small" variant="secondary" onClick={() => download(`/admin/warranty/units/labels?batch=${encodeURIComponent(b)}`, `wangjia-label-${b}.pdf`)}>
+                {t("标签 PDF")} {b}
+              </Button>
+              <Button size="small" variant="transparent" onClick={() => download(`/admin/warranty/units/export?batch=${encodeURIComponent(b)}`, `wangjia-serial-${b}.csv`)}>
+                CSV
+              </Button>
+            </div>
           ))}
         </div>
         {list.isLoading && <Text className="px-6 pb-4">{t("加载中…")}</Text>}

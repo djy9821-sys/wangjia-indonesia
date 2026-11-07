@@ -6,7 +6,7 @@
 4. 首次启动：`docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --build`。后端启动时自动跑迁移和种子数据。
 5. 建管理员：`docker compose -f deploy/docker-compose.yml exec backend sh -c "cd .medusa/server && npx medusa user -e boss@example.com -p '强密码'"`，登录 `https://api.<域名>/app`，在 Settings → Publishable API keys 拿到 key 填进 `deploy/.env` 的 `PUBLISHABLE_KEY`，再 `up -d --build storefront`。
 6. 打开 `https://status.<域名>` 配 Uptime Kuma（监控 `https://api.<域名>/health` 和首页，告警发到 WhatsApp/Telegram）；`https://analytics.<域名>` 配 Umami，把它给的脚本加到商城 `layout.tsx`。
-7. 备份：`backup` 容器每天 dump 一次到 `backups` 卷，保留 14 天。用 rclone 把 `/var/lib/docker/volumes/wangjia_backups` 同步到 R2 或网盘。
+7. 备份：`backup` 容器每天 dump 一次到 `backups` 卷，保留 14 天。异地副本：先 `docker run --rm -it -v wangjia_rclone:/config/rclone rclone/rclone config` 配好 R2/S3/网盘远端，在 `deploy/.env` 填 `RCLONE_REMOTE=r2:wangjia-backups`，然后 `docker compose -f deploy/docker-compose.yml --env-file deploy/.env --profile offsite up -d`，每天自动同步。
 8. 更新：`git pull && docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --build`。
 
 Midtrans 后台的通知地址填 `https://api.<域名>/webhooks/midtrans`；App 的 `--dart-define=MEDUSA_URL=https://api.<域名>`。

@@ -32,6 +32,11 @@ export const adminWarrantyMiddlewares: MiddlewareRoute[] = [
     middlewares: [validateAndTransformQuery(AdminExportWarrantyUnits, {})],
   },
   {
+    method: ["GET"],
+    matcher: "/admin/warranty/units/labels",
+    middlewares: [validateAndTransformQuery(AdminExportWarrantyUnits, {})],
+  },
+  {
     method: ["POST"],
     matcher: "/admin/warranty/units/:id",
     middlewares: [

@@ -105,7 +105,20 @@ services:
       - ./scripts/backup.sh:/backup.sh:ro
     entrypoint: ["sh", "-c", "while true; do sh /backup.sh ${DB_USER:-wangjia} ${DB_NAME:-wangjia}; sleep 86400; done"]
 
+  # Off-site copy of the dumps (Cloudflare R2 / S3 / Google Drive …) via rclone.
+  # Enable with:  docker compose --profile offsite up -d
+  # Config: docker run --rm -it -v wangjia_rclone:/config/rclone rclone/rclone config
+  offsite-backup:
+    image: rclone/rclone:1
+    restart: unless-stopped
+    profiles: ["offsite"]
+    volumes:
+      - backups:/backups:ro
+      - rclone:/config/rclone
+    entrypoint: ["sh", "-c", "while true; do rclone sync /backups ${RCLONE_REMOTE:?set RCLONE_REMOTE, e.g. r2:wangjia-backups} --min-age 10m && echo offsite ok $(date); sleep 86400; done"]
+
 volumes:
+  rclone:
   pgdata:
   redisdata:
   backend-static:

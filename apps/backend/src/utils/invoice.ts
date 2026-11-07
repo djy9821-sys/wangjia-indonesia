@@ -76,11 +76,19 @@ export async function loadInvoiceData(container: MedusaContainer, orderId: strin
     filters: { order_id: orderId },
   });
   const plan = plans.find((p: any) => p.status !== "cancelled") ?? plans[0] ?? null;
-  return { order, plan };
+
+  // Machines packed for this order (for the after-sales record on the invoice).
+  const { data: units } = await query.graph({
+    entity: "warranty_unit",
+    fields: ["id", "serial", "product_title", "variant_title", "warranty_months", "status"],
+    filters: { order_id: orderId },
+  });
+  const serials = (units as any[]).filter((u) => u.status !== "void");
+  return { order, plan, serials };
 }
 
 export function renderInvoicePdf(data: Awaited<ReturnType<typeof loadInvoiceData>>): PDFKit.PDFDocument {
-  const { order, plan } = data;
+  const { order, plan, serials } = data;
   const c = company();
   const doc = new PDFDocument({ size: "A4", margin: 48, info: { Title: `Invoice #${order.display_id}`, Author: c.name } });
   const W = doc.page.width - 96;
@@ -136,6 +144,16 @@ export function renderInvoicePdf(data: Awaited<ReturnType<typeof loadInvoiceData
     y += h + 6;
     doc.moveTo(48, y - 2).lineTo(48 + W, y - 2).strokeColor("#eee").stroke();
   });
+  if (serials?.length) {
+    const line = latin(
+      "Nomor seri: " +
+        serials.map((u: any) => `${u.serial} (garansi ${u.warranty_months} bln)`).join(", ")
+    );
+    const h = doc.heightOfString(line, { width: W - 22 });
+    doc.fillColor("#444").fontSize(8).text(line, cols.desc, y, { width: W - 22 });
+    doc.fillColor("#111").fontSize(9);
+    y += h + 6;
+  }
 
   // Totals
   const right = (label: string, value: string, bold = false) => {

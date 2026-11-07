@@ -152,18 +152,21 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 | GET | `/admin/warehouse/orders` | 仓库待发货（含客户地图打点坐标） |
 | GET/POST | `/admin/warranty/units` | 序列号列表 / 批量生成 `{ product_id, variant_id, quantity, batch, warranty_months }`（warehouse、sales） |
 | GET | `/admin/warranty/units/export?batch=` | 标签打印用 CSV（序列号、二维码内容） |
+| GET | `/admin/warranty/units/labels?batch=` | A4 二维码标签 PDF（3×8 格） |
 | POST | `/admin/warranty/units/:id` | 关联订单 / 作废 / 备注 `{ order_id, status, notes }` |
 | GET/POST/DELETE | `/admin/orders/:id/warranty-units(/:unitId)` | 订单页「机身序列号」面板：装箱时扫码/输入序列号关联到订单、移除（warehouse、sales） |
 
 ## 防伪与保修（扫码）
 
-每台设备出厂前在后台「防伪保修」页按批次生成序列号（`WJ-26-000123`）和随机二维码（`https://商城域名/id/garansi/<12位码>`），下载 CSV 交给标签打印，贴在机身铭牌旁。
+每台设备出厂前在后台「防伪保修」页按批次生成序列号（`WJ-26-000123`）和随机二维码（`https://商城域名/id/garansi/<12位码>`）。生成后自动下载 A4 标签 PDF（3×8 格、70×37 mm 不干胶，普通打印机即可）和 CSV（给专业标签机），贴在机身铭牌旁。
 
 - 任何人用手机相机扫码会打开商城的验真页：正品显示产品、序列号、保修状态；仿品或已作废标签显示「无法验证」并提示举报。
 - App 里「账户 → Garansi & Keaslian」用相机扫码（或手动输码）后可一键登记保修：绑定客户、记录塘口位置、算出到期日，并通过 WhatsApp / 邮件 / 推送发送保修凭证。同一台机只能被一个客户登记。
 - 后台能看每个序列号的扫码次数：同一标签被扫很多次是仿品复制标签的信号。
+- 网页商城的「账户 → Garansi」也能输码登记和查看自己的机器（没装 App 的客户用）。App 商品页右上角可一键把商品链接分享到 WhatsApp。
 - 仓库装箱时在订单页「机身序列号」面板输入/扫描序列号，客户在 App 订单详情就能看到自己那台机器，一键登记保修（不用扫码）；「我的机器」点一下就能 WhatsApp 报修，消息里自带序列号。
-- 总览页多了「已登记保修」卡片（本月新增、可疑扫码数）。
+- 总览页多了「已登记保修」卡片（本月新增、可疑扫码数）；客户详情页右侧有「客户的机器」面板；发票 PDF 底部列出该订单的机身序列号。
+- 保修到期前 30 天（`WARRANTY_REMINDER_DAYS`）自动给客户发 WhatsApp/邮件/推送，提醒检修和备件，带动配件销售。
 
 ## 收货地图打点
 
