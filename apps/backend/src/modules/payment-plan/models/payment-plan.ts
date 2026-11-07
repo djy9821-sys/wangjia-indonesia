@@ -23,6 +23,6 @@ export const PaymentPlan = model
     {
       on: ["order_id"],
       unique: true,
-      where: "deleted_at IS NULL",
+      where: "deleted_at IS NULL AND status <> 'cancelled'",
     },
   ]);

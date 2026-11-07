@@ -3,8 +3,10 @@ import {
   MedusaResponse,
 } from "@medusajs/framework";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import { signProofUrlsIn } from "../../../../../utils/proof-files";
 import { createPaymentPlanWorkflow } from "../../../../../workflows/payment-plan/workflows";
 import { AdminCreatePaymentPlanType } from "../../../payment-plans/validators";
+import { pickCurrentPlan } from "../../../payment-plans/utils";
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -17,7 +19,8 @@ export const GET = async (
     filters: { order_id: req.params.id },
   });
 
-  res.json({ payment_plan: plans[0] ?? null });
+  const current = pickCurrentPlan(plans as any[]);
+  res.json({ payment_plan: current ? await signProofUrlsIn(req.scope, current) : null });
 };
 
 export const POST = async (
@@ -45,5 +48,5 @@ export const POST = async (
     { throwIfKeyNotFound: true }
   );
 
-  res.status(201).json({ payment_plan: plan });
+  res.status(201).json({ payment_plan: await signProofUrlsIn(req.scope, plan) });
 };

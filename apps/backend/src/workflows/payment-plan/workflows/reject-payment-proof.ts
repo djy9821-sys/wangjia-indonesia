@@ -73,12 +73,13 @@ export const rejectPaymentProofWorkflow = createWorkflow(
     });
     updateInstallmentsStep(installmentUpdates);
 
-    const event = transform({ proof }, ({ proof }) => ({
+    const event = transform({ proof, input }, ({ proof, input }) => ({
       eventName: PaymentPlanEvents.PROOF_REJECTED,
       data: {
         proof_id: proof.id,
         installment_id: proof.installment_id,
         plan_id: proof.installment?.plan_id,
+        review_note: input.review_note ?? null,
       },
     }));
     emitEventStep(event);

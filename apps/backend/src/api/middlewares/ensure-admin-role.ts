@@ -3,18 +3,16 @@ import {
   MedusaNextFunction,
   MedusaResponse,
 } from "@medusajs/framework";
-import { Modules } from "@medusajs/framework/utils";
-import { IUserModuleService } from "@medusajs/framework/types";
 import {
   AdminRole,
   ADMIN_ROLE_LABELS,
-  roleFromMetadata,
+  resolveUserRole,
 } from "../../utils/admin-roles";
 
 /*
   Restricts an admin route to users whose `metadata.role` is one of the
-  allowed roles. "owner" always passes. Users without a role fall back to
-  ADMIN_DEFAULT_ROLE (owner in development) so the first admin can set things up.
+  allowed roles. "owner" always passes. See utils/admin-roles for the
+  bootstrap rule that applies before any role has been assigned.
 */
 export const ensureAdminRole = (...allowed: AdminRole[]) => {
   return async (
@@ -27,10 +25,7 @@ export const ensureAdminRole = (...allowed: AdminRole[]) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const userService = req.scope.resolve<IUserModuleService>(Modules.USER);
-    const user = await userService.retrieveUser(actorId).catch(() => null);
-    const role = roleFromMetadata(user?.metadata ?? null);
-
+    const { role } = await resolveUserRole(req.scope, actorId);
     if (role === "owner" || allowed.includes(role)) {
       return next();
     }
@@ -38,7 +33,7 @@ export const ensureAdminRole = (...allowed: AdminRole[]) => {
     return res.status(403).json({
       message: `此操作需要角色：${allowed
         .map((r) => ADMIN_ROLE_LABELS[r])
-        .join(" / ")}`,
+        .join(" / ")}（当前：${ADMIN_ROLE_LABELS[role]}）`,
     });
   };
 };

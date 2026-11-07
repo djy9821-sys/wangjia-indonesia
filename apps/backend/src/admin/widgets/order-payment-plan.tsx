@@ -352,12 +352,16 @@ const PlanView = ({ plan, orderId, role }: { plan: ModulePaymentPlan; orderId: s
   const [manualNote, setManualNote] = useState<Record<string, string>>({});
   const canCancel = (role === "owner" || role === "finance" || role === "sales") && plan.status !== "cancelled";
 
-  const onCancelPlan = async () => {
-    const reason = window.prompt("取消原因（客户可见）。未付款的期数会取消，订单一并取消；已到账的款项需另行退款。") ;
+  const onCancelPlan = async (cancelOrder: boolean) => {
+    const reason = window.prompt(
+      cancelOrder
+        ? "取消原因（客户可见）。未付款的期数会取消，订单一并取消；已到账的款项需另行退款。"
+        : "仅取消付款计划、保留订单（用于改单加运费后重新建计划）。原因："
+    );
     if (reason === null) return;
     try {
-      await cancelPlan.mutateAsync({ id: plan.id, reason: reason || null, cancel_order: true });
-      toast.success("付款计划与订单已取消");
+      await cancelPlan.mutateAsync({ id: plan.id, reason: reason || null, cancel_order: cancelOrder });
+      toast.success(cancelOrder ? "付款计划与订单已取消" : "付款计划已取消，现在可以改单，改完请重新创建付款计划");
     } catch (e) {
       toast.error(errMsg(e));
     }
@@ -458,9 +462,14 @@ const PlanView = ({ plan, orderId, role }: { plan: ModulePaymentPlan; orderId: s
 
       <div className="flex items-center justify-end gap-2">
         {canCancel && (
-          <Button size="small" variant="secondary" onClick={onCancelPlan} isLoading={cancelPlan.isPending}>
-            取消付款计划与订单
-          </Button>
+          <>
+            <Button size="small" variant="secondary" onClick={() => onCancelPlan(false)} isLoading={cancelPlan.isPending}>
+              仅取消计划（改单用）
+            </Button>
+            <Button size="small" variant="secondary" onClick={() => onCancelPlan(true)} isLoading={cancelPlan.isPending}>
+              取消付款计划与订单
+            </Button>
+          </>
         )}
         {isOwner && !plan.released_at && plan.status !== "cancelled" && (
           <Button size="small" variant="danger" onClick={forceRelease} isLoading={release.isPending}>
@@ -477,7 +486,7 @@ const PlanView = ({ plan, orderId, role }: { plan: ModulePaymentPlan; orderId: s
 const OrderPaymentPlanWidget = ({ data: order }: DetailWidgetProps<AdminOrder>) => {
   const { data, isLoading, error } = useOrderPaymentPlan(order.id);
   const me = useMyRole();
-  const role = me.data?.role ?? "owner";
+  const role = me.data?.role ?? "none";
   const canCreate = role === "owner" || role === "sales" || role === "finance";
 
   return (

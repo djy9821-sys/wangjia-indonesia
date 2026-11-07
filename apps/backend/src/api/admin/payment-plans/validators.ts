@@ -80,5 +80,10 @@ export const AdminCancelPaymentPlan = z
   })
   .strict();
 
+export type AdminSetTeamRoleType = z.infer<typeof AdminSetTeamRole>;
+export const AdminSetTeamRole = z
+  .object({ role: z.enum(["owner", "sales", "finance", "warehouse", "none"]) })
+  .strict();
+
 export type AdminReleasePlanType = z.infer<typeof AdminReleasePlan>;
 export const AdminReleasePlan = z.object({}).strict();

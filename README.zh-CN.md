@@ -18,7 +18,11 @@
 - **退款**：财务在订单页对已到账的期数点"退款"，可部分或全额。Midtrans 支付的通过网关原路退回；银行转账的由财务线下转回后登记。定金退完且尚未发货时，放行自动撤销，仓库重新看不到这单。
 - **取消**：销售或财务可"取消付款计划与订单"，未付的期数作废、订单取消，已到账的款项留待退款。每小时跑一次的任务会自动取消"定金逾期未付"的计划（`PAYMENT_PLAN_EXPIRE_DAYS`，默认 7 天，或第一期的到期日）。
 - **印尼地址**：内置 38 省、514 市县、7,285 区的行政区划数据（来源 cahyadsn/wilayah，MIT），App 下单时三级下拉选择。
-- **角色**：owner（负责人，全部权限）、sales（销售：报价、建付款计划）、finance（财务：确认到款、拒绝凭证）、warehouse（仓库：发货）。角色存在管理员用户的 `metadata.role`。
+- **角色**：owner（负责人，全部权限）、sales（销售：报价、建/取消付款计划）、finance（财务：确认到款、拒绝凭证、退款、取消）、warehouse（仓库：发货）、none（只读）。在后台"团队角色"页分配，只有负责人能改，且系统至少保留一个负责人。没分配任何角色之前所有管理员按负责人处理（首次引导），分配第一个角色后即按实际角色生效；未分配的人默认 `ADMIN_DEFAULT_ROLE`（默认 none）。
+- **改单锁定**：订单一旦有付款计划，后台的 Order Edit 会被拒绝。要加运费或改数量：订单页点"仅取消计划（改单用）"→ 改单并确认 → 重新创建付款计划。取消过的计划保留作记录。
+- **通知**：客户上传凭证（通知财务 + 客户回执）、到账确认（客户）、放行（仓库）、凭证被拒（客户）、退款（客户）、取消（客户）、发货含货运单号（客户）。客户走 WhatsApp Business Cloud API，兜底邮件；员工走邮件（Resend），收件人取自 `FINANCE_NOTIFY_EMAILS` / `WAREHOUSE_NOTIFY_EMAILS`，未设置则发给对应角色的管理员。未配置密钥时只打印日志（`[whatsapp:dry-run]` / `[email:dry-run]`），不影响流程。
+- **凭证存储**：配置 `S3_*`（Cloudflare R2 / S3 / MinIO）后，转账凭证以私有方式上传，接口返回 15 分钟有效的签名链接；不配置则落在本地 `static/`（仅限开发）。
+- **生产基础设施**：设置 `REDIS_URL` 后自动启用 Redis 事件总线、工作流引擎、缓存和锁；不设则用内存版（重启丢状态，仅限开发）。
 
 ## 目录
 
@@ -122,6 +126,8 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 | POST | `/admin/payment-plans/:id/release` | 负责人强制放行（owner） |
 | POST | `/admin/payment-installments/:id/refund` | 退款 `{ amount, reason, method, bank_account }`（finance） |
 | POST | `/admin/payment-plans/:id/cancel` | 取消计划与订单 `{ reason, cancel_order }`（finance、sales） |
+| GET | `/admin/team` | 管理员列表与角色 |
+| POST | `/admin/team/:userId/role` | 分配角色 `{ role }`（owner） |
 | GET | `/admin/warehouse/orders` | 仓库待发货 |
 
 ## 上线前要办的事（代码之外）
@@ -129,5 +135,5 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 1. 用印尼公司主体申请 Midtrans / Xendit 商户（公司文件、NPWP、法人身份证、公司银行账户）。
 2. Kominfo/Komdigi PSE 电子系统备案。
 3. 用公司主体注册 Google Play 开发者账号。
-4. 把文件存储从本地 `static/` 换成 S3 兼容对象存储，转账凭证改为私有访问。
-5. 配置通知渠道（WhatsApp Business API / 邮件），替换 `src/subscribers/payment-plan-events.ts` 里的日志占位。
+5. 申请 WhatsApp Business Cloud API 与 Resend，填入 `WHATSAPP_*`、`RESEND_API_KEY`；WhatsApp 24 小时会话外的消息需要先在 Meta 后台审核模板。
+6. 开通 Cloudflare R2（或 S3）并填入 `S3_*`，开一台 Redis 并填入 `REDIS_URL`。

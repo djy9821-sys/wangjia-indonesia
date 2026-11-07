@@ -9,6 +9,7 @@ import {
   retrieveStorePaymentPlan,
 } from "../../../payment-plans/utils";
 import { StoreSubmitPaymentProofType } from "../../../payment-plans/validators";
+import { receiptsArePrivate } from "../../../../../utils/proof-files";
 
 /*
   Customer uploads a bank transfer receipt for an installment.
@@ -36,7 +37,7 @@ export const POST = async (
           filename: `${installment.id}-${Date.now()}-${file.name}`,
           mimeType: file.mime_type,
           content: binary,
-          access: "public",
+          access: receiptsArePrivate() ? "private" : "public",
         },
       ],
     },

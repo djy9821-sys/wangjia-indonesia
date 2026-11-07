@@ -3,6 +3,7 @@ import {
   MedusaResponse,
 } from "@medusajs/framework";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import { signProofUrlsIn } from "../../../../../utils/proof-files";
 import { rejectPaymentProofWorkflow } from "../../../../../workflows/payment-plan/workflows";
 import { paymentPlanFields } from "../../../payment-plans/query-config";
 import { AdminRejectProofType } from "../../../payment-plans/validators";
@@ -32,5 +33,5 @@ export const POST = async (
     { throwIfKeyNotFound: true }
   );
 
-  res.json({ payment_plan: plan });
+  res.json({ payment_plan: await signProofUrlsIn(req.scope, plan) });
 };

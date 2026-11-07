@@ -353,6 +353,58 @@ medusaIntegrationTestRunner({
         expect(again.status).toEqual(400);
       });
 
+      it("locks order edits while a plan is active and allows a new plan after cancelling it", async () => {
+        const { orderId } = await createOrderViaQuote();
+        await api.post(
+          `/admin/orders/${orderId}/payment-plan`,
+          { installments: [{ label: "Full", amount: 100 }] },
+          adminHeaders
+        );
+
+        const locked = await api
+          .post(`/admin/order-edits`, { order_id: orderId }, adminHeaders)
+          .catch((e) => e.response);
+        expect(locked.status).toEqual(400);
+        expect(locked.data.message).toContain("金额已锁定");
+
+        const plans = await api.get(`/admin/orders/${orderId}/payment-plan`, adminHeaders);
+        const cancelled = await api.post(
+          `/admin/payment-plans/${plans.data.payment_plan.id}/cancel`,
+          { reason: "tambah ongkir", cancel_order: false },
+          adminHeaders
+        );
+        expect(cancelled.data.payment_plan.status).toEqual("cancelled");
+
+        // a fresh plan can now be created on the same order
+        const again = await api.post(
+          `/admin/orders/${orderId}/payment-plan`,
+          { installments: [{ label: "Full", amount: 100 }] },
+          adminHeaders
+        );
+        expect(again.status).toEqual(201);
+        expect(again.data.payment_plan.status).toEqual("active");
+      });
+
+      it("manages team roles with a bootstrap owner", async () => {
+        const team = await api.get(`/admin/team`, adminHeaders);
+        expect(team.status).toEqual(200);
+        expect(team.data.bootstrap).toEqual(true);
+        expect(team.data.me.role).toEqual("owner");
+        const me = team.data.users.find((u) => u.id === team.data.me.id);
+
+        const set = await api.post(`/admin/team/${me.id}/role`, { role: "owner" }, adminHeaders);
+        expect(set.status).toEqual(200);
+
+        const after = await api.get(`/admin/team`, adminHeaders);
+        expect(after.data.bootstrap).toEqual(false);
+
+        // the last owner cannot demote themselves
+        const demote = await api
+          .post(`/admin/team/${me.id}/role`, { role: "finance" }, adminHeaders)
+          .catch((e) => e.response);
+        expect(demote.status).toEqual(400);
+      });
+
       it("serves Indonesian regions for address pickers", async () => {
         const pub = { headers: { "x-publishable-api-key": storeHeaders.headers["x-publishable-api-key"] } };
         const provinces = await api.get(`/store/wilayah`, pub);

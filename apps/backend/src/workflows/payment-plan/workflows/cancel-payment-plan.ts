@@ -4,7 +4,9 @@ import {
   when,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk";
-import { cancelOrderWorkflow, emitEventStep } from "@medusajs/medusa/core-flows";
+import { cancelOrderWorkflow, dismissRemoteLinkStep, emitEventStep } from "@medusajs/medusa/core-flows";
+import { Modules } from "@medusajs/framework/utils";
+import { PAYMENT_PLAN_MODULE } from "../../../modules/payment-plan";
 import { PaymentPlanEvents } from "../../../utils/payment-plan-events";
 import { cancelPaymentPlanStep } from "../steps/cancel-payment-plan";
 
@@ -28,6 +30,15 @@ export const cancelPaymentPlanWorkflow = createWorkflow(
       reason: input.reason,
       actor_id: input.actor_id,
     });
+
+    // Detach the plan from the order so a replacement plan can be created.
+    const links = transform({ result }, ({ result }) => [
+      {
+        [Modules.ORDER]: { order_id: result.order_id },
+        [PAYMENT_PLAN_MODULE]: { payment_plan_id: result.plan_id },
+      },
+    ]);
+    dismissRemoteLinkStep(links);
 
     when({ input }, ({ input }) => input.cancel_order !== false).then(() => {
       const cancelInput = transform({ result, input }, ({ result, input }) => ({

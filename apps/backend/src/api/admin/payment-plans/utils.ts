@@ -67,3 +67,13 @@ export function fulfillmentProgress(order: Record<string, any> | undefined) {
     fully_shipped: ordered > 0 && shipped >= ordered,
   };
 }
+
+/* Prefer the live plan; fall back to the most recent cancelled one. */
+export function pickCurrentPlan<T extends { status?: string; created_at?: string | Date }>(plans: T[]): T | null {
+  if (!plans?.length) return null;
+  const active = plans.filter((p) => p.status !== "cancelled");
+  const pool = active.length ? active : plans;
+  return [...pool].sort(
+    (a, b) => new Date(b.created_at as any).getTime() - new Date(a.created_at as any).getTime()
+  )[0];
+}

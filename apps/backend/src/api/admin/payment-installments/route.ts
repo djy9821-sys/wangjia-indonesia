@@ -3,6 +3,7 @@ import {
   MedusaResponse,
 } from "@medusajs/framework";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import { signProofUrlsIn } from "../../../utils/proof-files";
 import { fetchOrdersById } from "../payment-plans/utils";
 import { AdminListInstallmentsParamsType } from "../payment-plans/validators";
 
@@ -39,10 +40,13 @@ export const GET = async (
   const orders = await fetchOrdersById(req.scope, orderIds);
 
   res.json({
-    installments: installments.map((i: any) => ({
-      ...i,
-      order: orders[i.plan?.order_id] ?? null,
-    })),
+    installments: await signProofUrlsIn(
+      req.scope,
+      installments.map((i: any) => ({
+        ...i,
+        order: orders[i.plan?.order_id] ?? null,
+      }))
+    ),
     count: metadata!.count,
     offset: metadata!.skip,
     limit: metadata!.take,

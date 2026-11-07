@@ -24,13 +24,13 @@ export const validateOrderForPaymentPlanStep = createStep(
     } = await query.graph(
       {
         entity: "order",
-        fields: ["id", "currency_code", "total", "payment_plan.id"],
+        fields: ["id", "currency_code", "total", "payment_plan.id", "payment_plan.status"],
         filters: { id: input.order_id },
       },
       { throwIfKeyNotFound: true }
     );
 
-    if (order.payment_plan?.id) {
+    if (order.payment_plan?.id && order.payment_plan.status !== "cancelled") {
       throw new MedusaError(
         MedusaError.Types.INVALID_DATA,
         "该订单已经有付款计划"

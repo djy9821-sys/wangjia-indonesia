@@ -166,8 +166,9 @@ export const useMyRole = () =>
   useQuery({
     queryKey: ["me", "role"],
     queryFn: async () => {
-      const { user } = await sdk.admin.user.me();
-      const role = (user?.metadata?.role as string | undefined) ?? "owner";
-      return { user, role };
+      const team = await sdk.client.fetch<{ me: { id: string; role: string; bootstrap: boolean } }>(
+        "/admin/team"
+      );
+      return { role: team.me.role, bootstrap: team.me.bootstrap };
     },
   });

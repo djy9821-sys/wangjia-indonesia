@@ -21,6 +21,7 @@ import {
   AdminListInstallmentsParams,
   AdminRejectProof,
   AdminReleasePlan,
+  AdminSetTeamRole,
 } from "./validators";
 
 /*
@@ -38,7 +39,7 @@ export const ensureOrderReleasedForFulfillment = async (
     fields: ["id", "released_at", "status"],
     filters: { order_id: req.params.id },
   });
-  const plan = plans[0];
+  const plan = plans.find((p: any) => p.status !== "cancelled") ?? plans[0];
 
   if (plan) {
     if (!plan.released_at) {
@@ -69,7 +70,54 @@ export const ensureOrderReleasedForFulfillment = async (
   return next();
 };
 
+/*
+  Order edit lock: once a payment plan exists, the order total must not move,
+  otherwise the installments no longer add up. Cancel the plan (keeping the
+  order) to edit, then create a new plan.
+*/
+export const ensureNoActivePaymentPlan = (orderIdFrom: (req: AuthenticatedMedusaRequest<any>) => string | undefined) =>
+  async (req: AuthenticatedMedusaRequest<any>, res: MedusaResponse, next: MedusaNextFunction) => {
+    const orderId = orderIdFrom(req);
+    if (!orderId) {
+      return next();
+    }
+    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+    const { data: plans } = await query.graph({
+      entity: "payment_plan",
+      fields: ["id", "status"],
+      filters: { order_id: orderId },
+    });
+    const active = plans.find((p: any) => p.status !== "cancelled");
+    if (active) {
+      return res.status(400).json({
+        type: "not_allowed",
+        message: "该订单已有付款计划，金额已锁定。要改单（加运费、改数量），请先在订单页“取消付款计划”（不取消订单），改完再重新创建付款计划。",
+      });
+    }
+    return next();
+  };
+
 export const adminPaymentPlansMiddlewares: MiddlewareRoute[] = [
+  {
+    method: ["POST"],
+    matcher: "/admin/order-edits",
+    middlewares: [ensureNoActivePaymentPlan((req) => req.body?.order_id)],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/draft-orders/:id/edit",
+    middlewares: [ensureNoActivePaymentPlan((req) => req.params.id)],
+  },
+  {
+    method: ["GET"],
+    matcher: "/admin/team",
+    middlewares: [],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/team/:id/role",
+    middlewares: [ensureAdminRole(), validateAndTransformBody(AdminSetTeamRole)],
+  },
   {
     method: ["GET"],
     matcher: "/admin/orders/:id/payment-plan",
