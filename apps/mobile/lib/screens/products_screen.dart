@@ -10,14 +10,24 @@ import 'product_detail_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
   final VoidCallback? onOpenCart;
-  const ProductsScreen({super.key, this.onOpenCart});
+  /// Pre-select the category whose name contains this text (e.g. spare parts
+  /// opened from a registered machine).
+  final String? initialCategoryName;
+  const ProductsScreen({super.key, this.onOpenCart, this.initialCategoryName});
   @override
   State<ProductsScreen> createState() => _ProductsScreenState();
 }
 
 class _ProductsScreenState extends State<ProductsScreen> {
   late Future<List<Product>> _future = MedusaClient.instance.products();
-  late final Future<List<Category>> _categories = MedusaClient.instance.categories();
+  late final Future<List<Category>> _categories = MedusaClient.instance.categories().then((cats) {
+    final want = widget.initialCategoryName?.toLowerCase();
+    if (want != null && _categoryId == null) {
+      final hit = cats.where((c) => c.name.toLowerCase().contains(want)).firstOrNull;
+      if (hit != null && mounted) setState(() => _categoryId = hit.id);
+    }
+    return cats;
+  });
   String? _categoryId;
 
   Future<void> _reload() async {

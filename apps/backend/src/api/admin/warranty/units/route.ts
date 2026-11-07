@@ -16,13 +16,15 @@ export const GET = async (
   res: MedusaResponse
 ) => {
   const service = req.scope.resolve<WarrantyModuleService>(WARRANTY_MODULE);
-  const { q, status, batch, customer_id, order_id, limit, offset } = req.validatedQuery;
+  const { q, status, batch, customer_id, order_id, suspicious, limit, offset } = req.validatedQuery;
 
   const filters: Record<string, unknown> = {};
   if (status) filters.status = status;
   if (batch) filters.batch = batch;
   if (customer_id) filters.customer_id = customer_id;
   if (order_id) filters.order_id = order_id;
+  // Many scans of one label = someone is copying it onto counterfeit units.
+  if (suspicious) filters.scan_count = { $gt: 5 };
   if (q) {
     const like = `%${q.trim()}%`;
     filters.$or = [

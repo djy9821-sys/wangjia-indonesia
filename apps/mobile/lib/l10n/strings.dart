@@ -193,6 +193,9 @@ class S {
     'offline_catalog': 'Offline: menampilkan katalog tersimpan terakhir. Harga bisa berubah.',
     'share': 'Bagikan',
     'from': 'Mulai',
+    'spare_parts': 'Suku cadang',
+    'spare_parts_hint': 'Impeller, gearbox, pelampung: suku cadang asli untuk mesin ini',
+    'tap_unit_hint': 'Ketuk mesin untuk minta servis atau pesan suku cadang.',
   };
 
   static const _en = <String, String>{
@@ -379,5 +382,8 @@ class S {
     'offline_catalog': 'Offline: showing the last saved catalogue. Prices may have changed.',
     'share': 'Share',
     'from': 'From',
+    'spare_parts': 'Spare parts',
+    'spare_parts_hint': 'Impeller, gearbox, float: genuine parts for this machine',
+    'tap_unit_hint': 'Tap a machine to request service or order spare parts.',
   };
 }

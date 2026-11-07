@@ -27,6 +27,7 @@ export const AdminListWarrantyUnits = z.object({
   batch: z.string().max(60).optional(),
   customer_id: z.string().max(60).optional(),
   order_id: z.string().max(60).optional(),
+  suspicious: z.coerce.boolean().optional(),
   limit: z.coerce.number().int().min(1).max(200).default(50),
   offset: z.coerce.number().int().min(0).default(0),
 });

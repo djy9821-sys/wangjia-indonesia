@@ -169,14 +169,15 @@ const WarrantyPage = () => {
   const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("");
+  const [suspicious, setSuspicious] = useState(false);
   const [offset, setOffset] = useState(0);
   const limit = 50;
 
   const list = useQuery({
-    queryKey: ["warranty", "units", q, status, offset],
+    queryKey: ["warranty", "units", q, status, suspicious, offset],
     queryFn: () =>
       sdk.client.fetch<ListResponse>("/admin/warranty/units", {
-        query: { q: q || undefined, status: status || undefined, limit, offset },
+        query: { q: q || undefined, status: status || undefined, suspicious: suspicious || undefined, limit, offset },
       }),
   });
   const refresh = () => qc.invalidateQueries({ queryKey: ["warranty", "units"] });
@@ -237,6 +238,9 @@ const WarrantyPage = () => {
               ))}
             </Select.Content>
           </Select>
+          <Button size="small" variant={suspicious ? "primary" : "secondary"} onClick={() => { setSuspicious(!suspicious); setOffset(0); }}>
+            {t("只看可疑扫码")}
+          </Button>
           {batches.map((b) => (
             <div key={b} className="flex gap-1">
               <Button size="small" variant="secondary" onClick={() => download(`/admin/warranty/units/labels?batch=${encodeURIComponent(b)}`, `wangjia-label-${b}.pdf`)}>

@@ -7,6 +7,7 @@ import '../format.dart';
 import '../l10n/strings.dart';
 import '../models.dart';
 import '../widgets/common.dart';
+import 'products_screen.dart';
 import 'warranty_scan_screen.dart';
 
 /// Garansi & Keaslian: scan a label, type a code, see registered machines.
@@ -34,6 +35,44 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
     );
     if (changed == true) _reload();
   }
+
+  /// Service request on WhatsApp (serial prefilled) or jump to spare parts.
+  Future<void> _unitActions(WarrantyUnit u) => showModalBottomSheet(
+        context: context,
+        showDragHandle: true,
+        builder: (ctx) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(title: Text(u.title), subtitle: Text('${S.t('serial')}: ${u.serial}')),
+              ListTile(
+                leading: const Icon(Icons.build_outlined),
+                title: Text(S.t('request_service')),
+                subtitle: Text(S.t('chat_whatsapp')),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  launchUrl(
+                    Uri.parse('https://wa.me/${AppConfig.whatsappNumber}?text=${Uri.encodeComponent('Halo WANGJIA, saya ingin minta servis untuk ${u.title} nomor seri ${u.serial}.')}'),
+                    mode: LaunchMode.externalApplication,
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.settings_suggest_outlined),
+                title: Text(S.t('spare_parts')),
+                subtitle: Text(S.t('spare_parts_hint')),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const ProductsScreen(initialCategoryName: 'suku cadang'),
+                  ));
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      );
 
   Future<void> _checkTyped() async {
     final raw = _code.text.trim();
@@ -89,7 +128,7 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
               ]),
               const SizedBox(height: 24),
               Text(S.t('my_units'), style: Theme.of(context).textTheme.titleMedium),
-              Text('${S.t('request_service')}: ${S.t('chat_whatsapp')}', style: Theme.of(context).textTheme.bodySmall),
+              Text(S.t('tap_unit_hint'), style: Theme.of(context).textTheme.bodySmall),
               const SizedBox(height: 8),
               FutureBuilder<List<WarrantyUnit>>(
                 future: _future,
@@ -117,10 +156,7 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
                               u.expired ? S.t('expired') : S.t('active'),
                               u.expired ? const Color(0xFF6B7280) : const Color(0xFF1B8A5A),
                             ),
-                            onTap: () => launchUrl(
-                              Uri.parse('https://wa.me/${AppConfig.whatsappNumber}?text=${Uri.encodeComponent('Halo WANGJIA, saya ingin minta servis untuk ${u.title} nomor seri ${u.serial}.')}'),
-                              mode: LaunchMode.externalApplication,
-                            ),
+                            onTap: () => _unitActions(u),
                           ),
                         ),
                     ],
