@@ -181,6 +181,10 @@ App 填地址时可以在地图（OpenStreetMap，免密钥）上把图钉拖到
 
 仓库在订单「Mark as shipped」填单号时写成 `承运商代码:单号`（如 `jne:JP0123456789`、`sicepat:000123456789`、`lion:1234567890`），后端配置 `BITESHIP_API_KEY`（Biteship 免费跟踪接口）后，App 的订单详情「Lacak」会显示承运商的节点历史，10 分钟缓存。没配置时只显示单号和链接。
 
+## 测试包（不用 Mac）
+
+每次推送到 `main`，GitHub Actions 会多跑一个「Android APK (test build)」任务，在该次运行的 Artifacts 里可以下载 `app-release.apk`（调试签名，可直接安装到安卓手机给 李总 的团队试用）。接口地址等参数来自仓库的 Actions Variables：`MEDUSA_URL`、`MEDUSA_PUBLISHABLE_KEY`、`STOREFRONT_URL`、`WHATSAPP_NUMBER`（没设就用默认值）。
+
 ## 发布 App（Fastlane）
 
 `apps/mobile/fastlane/` 有 TestFlight / App Store / Play 内测 / Play 正式四条发布通道，见 [apps/mobile/README.md](apps/mobile/README.md)。

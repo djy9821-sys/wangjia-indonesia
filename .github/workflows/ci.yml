@@ -91,3 +91,39 @@ jobs:
         working-directory: apps/mobile
       - run: flutter test
         working-directory: apps/mobile
+
+  # Installable Android build for testers (no Mac needed): download the APK from
+  # the run's Artifacts. Signed with the debug key until android/key.properties exists.
+  android-apk:
+    name: Android APK (test build)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs: [mobile]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.9
+          channel: stable
+          cache: true
+      - run: flutter pub get
+        working-directory: apps/mobile
+      - name: Build APK
+        run: >
+          flutter build apk --release
+          --dart-define=MEDUSA_URL=${{ vars.MEDUSA_URL || 'https://api.wangjia.co.id' }}
+          --dart-define=MEDUSA_PUBLISHABLE_KEY=${{ vars.MEDUSA_PUBLISHABLE_KEY || 'pk_test' }}
+          --dart-define=STOREFRONT_URL=${{ vars.STOREFRONT_URL || 'https://wangjia.co.id' }}
+          --dart-define=WHATSAPP_NUMBER=${{ vars.WHATSAPP_NUMBER || '6281200000000' }}
+          --dart-define=PRIVACY_URL=${{ vars.STOREFRONT_URL || 'https://wangjia.co.id' }}/id/privacy
+          --dart-define=APP_ENV=staging
+        working-directory: apps/mobile
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wangjia-app-${{ github.sha }}
+          path: apps/mobile/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
