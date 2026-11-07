@@ -212,7 +212,7 @@ App 填地址时可以在地图（OpenStreetMap，免密钥）上把图钉拖到
 1. 用印尼公司主体申请 Midtrans / Xendit 商户（公司文件、NPWP、法人身份证、公司银行账户）。
 2. Kominfo/Komdigi PSE 电子系统备案。
 3. 用公司主体注册 Google Play 开发者账号。
-5. 申请 WhatsApp Business Cloud API 与 Resend，填入 `WHATSAPP_*`、`RESEND_API_KEY`；WhatsApp 24 小时会话外的消息需要先在 Meta 后台审核模板。
+5. 申请 WhatsApp Business Cloud API 与 Resend，填入 `WHATSAPP_*`、`RESEND_API_KEY`。按 [docs/whatsapp-templates.md](docs/whatsapp-templates.md) 在 Meta 后台提交通用模板 `wangjia_notice`，审核通过后填 `WHATSAPP_TEMPLATE_NAME`：所有系统通知自动走模板，不再受 24 小时会话窗口限制。
 6. 开通 Cloudflare R2（或 S3）并填入 `S3_*`，开一台 Redis 并填入 `REDIS_URL`。
 8. 物流：在 [biteship.com](https://biteship.com) 注册拿 API key 填 `BITESHIP_API_KEY`（跟踪接口免费）；和货运公司确认承运商代码。
 9. 标签：拿第一批序列号 CSV 去印二维码标签（建议铝质或 PET 防水标签，贴铭牌旁）；商城域名定下来后再生成正式批次，二维码里带的是 `STOREFRONT_URL`。

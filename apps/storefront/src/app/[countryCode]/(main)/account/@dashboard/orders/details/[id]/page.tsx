@@ -1,5 +1,6 @@
 import { retrieveOrder } from "@/lib/data/orders"
 import { retrieveInvoiceLink, retrievePaymentPlan } from "@/lib/data/payment-plan"
+import { listOrderTracking, listOrderUnits } from "@/lib/data/order-extras"
 import OrderDetailsTemplate from "@/modules/order/templates/order-details-template"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
@@ -30,10 +31,20 @@ export default async function OrderDetailPage(props: Props) {
     notFound()
   }
 
-  const [paymentPlan, invoiceUrl] = await Promise.all([
+  const [paymentPlan, invoiceUrl, shipments, units] = await Promise.all([
     retrievePaymentPlan(order.id),
     retrieveInvoiceLink(order.id),
+    listOrderTracking(order.id),
+    listOrderUnits(order.id),
   ])
 
-  return <OrderDetailsTemplate order={order} paymentPlan={paymentPlan} invoiceUrl={invoiceUrl} />
+  return (
+    <OrderDetailsTemplate
+      order={order}
+      paymentPlan={paymentPlan}
+      invoiceUrl={invoiceUrl}
+      shipments={shipments}
+      units={units}
+    />
+  )
 }

@@ -12,17 +12,24 @@ import ShippingDetails from "@/modules/order/components/shipping-details"
 import BillingDetails from "@/modules/order/components/billing-details"
 import PaymentPlan from "@/modules/order/components/payment-plan"
 import { StorePaymentPlan } from "@/lib/data/payment-plan"
+import type { OrderUnit, Shipment } from "@/lib/data/order-extras"
+import OrderTracking from "@/modules/order/components/order-tracking"
+import OrderUnits from "@/modules/order/components/order-units"
 
 type OrderDetailsTemplateProps = {
   order: HttpTypes.StoreOrder
   paymentPlan?: StorePaymentPlan | null
   invoiceUrl?: string | null
+  shipments?: Shipment[]
+  units?: OrderUnit[]
 }
 
 const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
   order,
   paymentPlan = null,
   invoiceUrl = null,
+  shipments = [],
+  units = [],
 }) => {
   return (
     <div className="flex flex-col justify-center gap-y-2">
@@ -56,6 +63,16 @@ const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
 
           <Container>
             <PaymentPlan plan={paymentPlan} orderId={order.id} invoiceUrl={invoiceUrl} />
+          </Container>
+
+          {shipments.length > 0 && (
+            <Container>
+              <OrderTracking shipments={shipments} />
+            </Container>
+          )}
+
+          <Container>
+            <OrderUnits units={units} />
           </Container>
         </div>
 

@@ -13,6 +13,9 @@ type Options = {
   access_token?: string;
   phone_number_id?: string;
   api_version?: string;
+  /* Approved utility template with one body parameter ({{1}} = the message). */
+  template_name?: string;
+  template_lang?: string;
 };
 
 /*
@@ -20,6 +23,10 @@ type Options = {
     - a free-form text (allowed within 24h after the customer messaged us), or
     - an approved template when `data.template` is given:
         { template: { name, language: "id", components: [...] } }
+  Business-initiated messages (payment confirmed, shipped, reminders) are
+  usually outside the 24h window, so when WHATSAPP_TEMPLATE_NAME is set every
+  plain text is wrapped into that approved template as its single body
+  parameter (see docs/whatsapp-templates.md for the text to submit to Meta).
   Without credentials it logs the message instead of failing, so local
   development and tests keep working.
 */
@@ -47,6 +54,21 @@ export default class WhatsAppNotificationService extends AbstractNotificationPro
     return p;
   }
 
+  /* Meta rejects parameters with newlines, tabs or 4+ spaces and caps them at 1024 chars. */
+  static templateParam(text: string): string {
+    return text.replace(/\s*\n+\s*/g, " | ").replace(/\t/g, " ").replace(/ {4,}/g, "   ").trim().slice(0, 1024);
+  }
+
+  wrapInTemplate(text: string) {
+    const name = this.options_.template_name;
+    if (!name || !text) return null;
+    return {
+      name,
+      language: { code: this.options_.template_lang ?? "id" },
+      components: [{ type: "body", parameters: [{ type: "text", text: WhatsAppNotificationService.templateParam(text) }] }],
+    };
+  }
+
   async send(
     notification: ProviderSendNotificationDTO
   ): Promise<ProviderSendNotificationResultsDTO> {
@@ -59,8 +81,9 @@ export default class WhatsAppNotificationService extends AbstractNotificationPro
       return { id: `dry-run-${Date.now()}` };
     }
 
-    const body = data.template
-      ? { messaging_product: "whatsapp", to, type: "template", template: data.template }
+    const template = data.template ?? this.wrapInTemplate(text);
+    const body = template
+      ? { messaging_product: "whatsapp", to, type: "template", template }
       : { messaging_product: "whatsapp", to, type: "text", text: { body: text, preview_url: false } };
 
     const res = await fetch(

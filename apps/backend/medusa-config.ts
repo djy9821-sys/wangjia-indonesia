@@ -112,6 +112,8 @@ const modules: Record<string, any> = {
             access_token: process.env.WHATSAPP_ACCESS_TOKEN,
             phone_number_id: process.env.WHATSAPP_PHONE_NUMBER_ID,
             api_version: process.env.WHATSAPP_API_VERSION || "v21.0",
+            template_name: process.env.WHATSAPP_TEMPLATE_NAME || undefined,
+            template_lang: process.env.WHATSAPP_TEMPLATE_LANG || "id",
           },
         },
         {

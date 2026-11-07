@@ -44,6 +44,10 @@
 
 - 运维可靠性：数据库恢复脚本 `deploy/scripts/restore.sh` 与恢复演练说明；`/health/deep`（检查数据库 + 缓存，异常 503，给 Uptime Kuma）；Caddy 统一安全响应头（HSTS、nosniff、Referrer-Policy 等）；`apps/mobile/maestro/` 三条端到端测试脚本（登录浏览、输码验真、订单详情，供真机前验证，本机未执行）。（集成测试 31 个；CI 0fc409e 四项全绿）
 
+- `2c02f0f` 商城全站 WhatsApp 悬浮按钮；后台订单页「销售合同」面板（DocuSeal 签完自动出现，含文件和审计日志链接）。
+
+- WhatsApp 模板模式：Meta 规定会话窗口外只能发已审核模板，provider 现在在配置 `WHATSAPP_TEMPLATE_NAME` 后自动把每条通知包进通用模板（换行转 ` | `、1024 字截断）；提交审核的模板文案见 `docs/whatsapp-templates.md`。网页订单详情补齐：物流轨迹（Biteship）、订单内机器一键登记保修。
+
 ## 本机验证手段
 - 后端：`pnpm test:integration:http`（30 个用例）、tsc、medusa lint；curl 走接口；浏览器查后台页面。
 - 商城：tsc、lint；浏览器查页面；sitemap 检查。
