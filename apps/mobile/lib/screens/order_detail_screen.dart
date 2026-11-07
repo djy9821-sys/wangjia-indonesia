@@ -25,6 +25,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> with WidgetsBindi
   Future<(Order, PaymentPlan?)> _load() async {
     final api = MedusaClient.instance;
     final results = await Future.wait([api.order(widget.orderId), api.paymentPlan(widget.orderId)]);
+    // Small orders get their plan a moment after placement (event-driven);
+    // one short retry avoids showing "waiting for plan" right after checkout.
+    if (results[1] == null) {
+      await Future<void>.delayed(const Duration(milliseconds: 1500));
+      results[1] = await api.paymentPlan(widget.orderId);
+    }
     return (results[0] as Order, results[1] as PaymentPlan?);
   }
 
