@@ -40,6 +40,9 @@ Key backend pieces (all under `apps/backend/src`):
 - **Tracking** — `/store/orders/:id/tracking` with carrier history through Biteship when `BITESHIP_API_KEY` is set.
 - **Error reporting** — Sentry‑compatible (`SENTRY_DSN`), self‑hosted GlitchTip compose in `deploy/`.
 - **Account deletion** — `DELETE /store/account` anonymises the customer and revokes the login (store review requirement).
+- **Jobs** (in addition to payment reminders) — warranty expiry reminders 30 days ahead, and a daily Chinese owner digest by WhatsApp/email (`OWNER_WHATSAPP`, `OWNER_EMAILS`).
+- **Label printing** — `/admin/warranty/units/labels` renders an A4 QR sticker sheet (3×8, 70×37 mm); the invoice PDF lists the serials packed for the order.
+- **CI** — type checks, lint and 27 integration tests on every push, plus an installable Android APK artifact.
 
 ## Quick start (local)
 

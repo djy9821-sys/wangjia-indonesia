@@ -151,6 +151,14 @@ medusaIntegrationTestRunner({
         expect(csv.data).toContain(a.serial);
         expect(csv.data).toContain(b.code);
 
+        // printable label sheet and the suspicious-scan filter
+        const labels = await api.get("/admin/warranty/units/labels?batch=T-1", { ...adminHeaders, responseType: "arraybuffer" });
+        expect(labels.headers["content-type"]).toContain("application/pdf");
+        expect(Buffer.from(labels.data).subarray(0, 4).toString()).toEqual("%PDF");
+        for (let i = 0; i < 6; i++) await api.get(`/store/warranty/verify/${b.code}`, publicHeaders);
+        const sus = await api.get("/admin/warranty/units?suspicious=true", adminHeaders);
+        expect(sus.data.units.map((u: any) => u.id)).toEqual([b.id]);
+
         // a registered unit can only be voided, and a voided label fails verification
         const back = await api
           .post(`/admin/warranty/units/${a.id}`, { status: "in_stock" }, adminHeaders)
