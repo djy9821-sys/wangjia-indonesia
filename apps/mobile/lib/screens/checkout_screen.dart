@@ -6,6 +6,7 @@ import '../format.dart';
 import '../l10n/strings.dart';
 import '../models.dart';
 import '../widgets/common.dart';
+import '../widgets/region_picker.dart';
 import 'order_detail_screen.dart';
 
 /// One-product checkout: address -> shipping method -> place order.
@@ -28,13 +29,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _address = TextEditingController();
   final _postal = TextEditingController();
 
-  // Province / regency / district pickers (Indonesian admin regions)
-  List<Wilayah> _provinces = [];
-  List<Wilayah> _regencies = [];
-  List<Wilayah> _districts = [];
-  Wilayah? _province;
-  Wilayah? _regency;
-  Wilayah? _district;
+  RegionSelection _region = RegionSelection();
+  Key _regionKey = UniqueKey();
+  List<Address> _saved = [];
+  Address? _picked;
+  bool _saveAddress = true;
 
   String? _cartId;
   List<ShippingOption>? _options;
@@ -44,8 +43,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
-    MedusaClient.instance.provinces().then((p) {
-      if (mounted) setState(() => _provinces = p);
+    MedusaClient.instance.addresses().then((list) {
+      if (!mounted) return;
+      setState(() => _saved = list);
+      final def = list.where((a) => a.isDefaultShipping).firstOrNull ?? list.firstOrNull;
+      if (def != null) _applyAddress(def);
     }).catchError((_) {});
     MedusaClient.instance.me().then((c) {
       if (c == null || !mounted) return;
@@ -59,65 +61,37 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     });
   }
 
-  Map<String, dynamic> get _addressJson => {
-        'first_name': _first.text.trim(),
-        'last_name': _last.text.trim(),
-        'company': _company.text.trim(),
-        'phone': _phone.text.trim(),
-        'address_1': _address.text.trim(),
-        'address_2': _district?.name ?? '',
-        'city': _regency?.name ?? '',
-        'province': _province?.name ?? '',
-        'postal_code': _postal.text.trim(),
-        'country_code': 'id',
-        'metadata': {
-          'province_code': _province?.code,
-          'regency_code': _regency?.code,
-          'district_code': _district?.code,
-        },
-      };
-
-  Future<void> _pickProvince(Wilayah? p) async {
+  void _applyAddress(Address a) {
     setState(() {
-      _province = p;
-      _regency = null;
-      _district = null;
-      _regencies = [];
-      _districts = [];
+      _picked = a;
+      _first.text = a.firstName;
+      _last.text = a.lastName;
+      _company.text = a.company;
+      _phone.text = a.phone;
+      _address.text = a.address1;
+      _postal.text = a.postalCode;
+      _region = RegionSelection();
+      _regionKey = UniqueKey(); // rebuild picker with the saved codes
+      _saveAddress = false;
     });
-    if (p == null) return;
-    final r = await MedusaClient.instance.regencies(p.code);
-    if (mounted) setState(() => _regencies = r);
   }
 
-  Future<void> _pickRegency(Wilayah? r) async {
-    setState(() {
-      _regency = r;
-      _district = null;
-      _districts = [];
-    });
-    if (r == null) return;
-    final d = await MedusaClient.instance.districts(r.code);
-    if (mounted) setState(() => _districts = d);
-  }
-
-  Widget _regionDropdown({
-    required String label,
-    required List<Wilayah> items,
-    required Wilayah? value,
-    required ValueChanged<Wilayah?> onChanged,
-  }) =>
-      DropdownButtonFormField<Wilayah>(
-        key: ValueKey('$label-${items.length}-${value?.code}'),
-        initialValue: value,
-        isExpanded: true,
-        decoration: InputDecoration(labelText: label),
-        items: items
-            .map((w) => DropdownMenuItem(value: w, child: Text(w.name, overflow: TextOverflow.ellipsis)))
-            .toList(),
-        onChanged: items.isEmpty ? null : onChanged,
-        validator: (v) => v == null ? '*' : null,
+  Address get _currentAddress => Address(
+        firstName: _first.text.trim(),
+        lastName: _last.text.trim(),
+        company: _company.text.trim(),
+        phone: _phone.text.trim(),
+        address1: _address.text.trim(),
+        district: _region.district?.name ?? _picked?.district ?? '',
+        city: _region.regency?.name ?? _picked?.city ?? '',
+        province: _region.province?.name ?? _picked?.province ?? '',
+        postalCode: _postal.text.trim(),
+        provinceCode: _region.province?.code ?? _picked?.provinceCode,
+        regencyCode: _region.regency?.code ?? _picked?.regencyCode,
+        districtCode: _region.district?.code ?? _picked?.districtCode,
       );
+
+  Map<String, dynamic> get _addressJson => _currentAddress.toJson();
 
   Future<void> _loadShipping() async {
     if (!_form.currentState!.validate()) return;
@@ -145,6 +119,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       final api = MedusaClient.instance;
       await api.addShippingMethod(_cartId!, _optionId!);
       final order = await api.completeCart(_cartId!);
+      if (_saveAddress) {
+        // Best effort: keep the address for the next order.
+        await api.saveAddress(_currentAddress).catchError((_) {});
+      }
       CartStore.instance.clear();
       if (!mounted) return;
       showSnack(context, S.t('order_placed'));
@@ -191,6 +169,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
             const SizedBox(height: 16),
             Text(S.t('shipping_address'), style: Theme.of(context).textTheme.titleMedium),
+            if (_saved.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              DropdownButtonFormField<Address>(
+                key: ValueKey('saved-${_picked?.id}'),
+                initialValue: _picked,
+                isExpanded: true,
+                decoration: InputDecoration(labelText: S.t('saved_address')),
+                items: _saved
+                    .map((a) => DropdownMenuItem(
+                          value: a,
+                          child: Text('${a.fullName} · ${a.oneLine}', overflow: TextOverflow.ellipsis),
+                        ))
+                    .toList(),
+                onChanged: (a) => a == null ? null : _applyAddress(a),
+              ),
+            ],
             const SizedBox(height: 12),
             Row(children: [
               Expanded(child: TextFormField(controller: _first, validator: _required, decoration: InputDecoration(labelText: S.t('first_name')))),
@@ -206,14 +200,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             const SizedBox(height: 12),
             TextFormField(controller: _address, validator: _required, maxLines: 2, decoration: InputDecoration(labelText: S.t('address'))),
             const SizedBox(height: 12),
-            _regionDropdown(label: S.t('province'), items: _provinces, value: _province, onChanged: _pickProvince),
-            const SizedBox(height: 12),
-            _regionDropdown(label: S.t('city'), items: _regencies, value: _regency, onChanged: _pickRegency),
-            const SizedBox(height: 12),
-            _regionDropdown(label: S.t('district'), items: _districts, value: _district, onChanged: (d) => setState(() => _district = d)),
+            RegionPicker(
+              key: _regionKey,
+              selection: _region,
+              onChanged: (_) => setState(() {}),
+              provinceCode: _picked?.provinceCode,
+              regencyCode: _picked?.regencyCode,
+              districtCode: _picked?.districtCode,
+            ),
             const SizedBox(height: 12),
             TextFormField(controller: _postal, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: S.t('postal_code'))),
-            const SizedBox(height: 20),
+            CheckboxListTile(
+              contentPadding: EdgeInsets.zero,
+              controlAffinity: ListTileControlAffinity.leading,
+              title: Text(S.t('save_this_address')),
+              value: _saveAddress,
+              onChanged: (v) => setState(() => _saveAddress = v ?? false),
+            ),
+            const SizedBox(height: 8),
             if (_options == null)
               FilledButton(
                 onPressed: _busy ? null : _loadShipping,

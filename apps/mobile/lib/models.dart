@@ -342,3 +342,78 @@ class Category {
   factory Category.fromJson(Map<String, dynamic> j) =>
       Category(j['id'] as String, (j['name'] ?? '') as String);
 }
+
+/// Saved customer address (Medusa customer address).
+class Address {
+  final String? id;
+  final String firstName;
+  final String lastName;
+  final String company;
+  final String phone;
+  final String address1;
+  final String district; // stored in address_2
+  final String city;
+  final String province;
+  final String postalCode;
+  final String? provinceCode;
+  final String? regencyCode;
+  final String? districtCode;
+  final bool isDefaultShipping;
+  const Address({
+    this.id,
+    this.firstName = '',
+    this.lastName = '',
+    this.company = '',
+    this.phone = '',
+    this.address1 = '',
+    this.district = '',
+    this.city = '',
+    this.province = '',
+    this.postalCode = '',
+    this.provinceCode,
+    this.regencyCode,
+    this.districtCode,
+    this.isDefaultShipping = false,
+  });
+
+  factory Address.fromJson(Map<String, dynamic> j) {
+    final meta = (j['metadata'] as Map<String, dynamic>?) ?? {};
+    return Address(
+      id: j['id'] as String?,
+      firstName: (j['first_name'] ?? '') as String,
+      lastName: (j['last_name'] ?? '') as String,
+      company: (j['company'] ?? '') as String,
+      phone: (j['phone'] ?? '') as String,
+      address1: (j['address_1'] ?? '') as String,
+      district: (j['address_2'] ?? '') as String,
+      city: (j['city'] ?? '') as String,
+      province: (j['province'] ?? '') as String,
+      postalCode: (j['postal_code'] ?? '') as String,
+      provinceCode: meta['province_code'] as String?,
+      regencyCode: meta['regency_code'] as String?,
+      districtCode: meta['district_code'] as String?,
+      isDefaultShipping: j['is_default_shipping'] == true,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'first_name': firstName,
+        'last_name': lastName,
+        'company': company,
+        'phone': phone,
+        'address_1': address1,
+        'address_2': district,
+        'city': city,
+        'province': province,
+        'postal_code': postalCode,
+        'country_code': 'id',
+        'metadata': {
+          'province_code': provinceCode,
+          'regency_code': regencyCode,
+          'district_code': districtCode,
+        },
+      };
+
+  String get oneLine => [address1, district, city, province, postalCode].where((e) => e.isNotEmpty).join(', ');
+  String get fullName => [firstName, lastName].where((e) => e.isNotEmpty).join(' ');
+}

@@ -111,16 +111,30 @@ class MedusaClient {
     required String lastName,
     required String phone,
     String? company,
+    String? phoneVerificationToken,
   }) async {
     final reg = await post('/auth/customer/emailpass/register', {'email': email, 'password': password});
     _token = reg['token'] as String;
-    await post('/store/customers', {
-      'email': email,
-      'first_name': firstName,
-      'last_name': lastName,
-      'phone': phone,
-      if (company != null && company.isNotEmpty) 'company_name': company,
-    });
+    final res = await _http.post(
+      _uri('/store/customers'),
+      headers: {
+        ..._headers,
+        if (phoneVerificationToken != null) 'x-phone-verification': phoneVerificationToken,
+      },
+      body: jsonEncode({
+        'email': email,
+        'first_name': firstName,
+        'last_name': lastName,
+        'phone': phone,
+        if (company != null && company.isNotEmpty) 'company_name': company,
+      }),
+    );
+    try {
+      _decode(res);
+    } catch (e) {
+      _token = null;
+      rethrow;
+    }
     await login(email, password);
   }
 
@@ -136,6 +150,43 @@ class MedusaClient {
   }
 
   Future<void> logout() => _saveToken(null);
+
+  /// Sends the reset email (handled by the backend subscriber).
+  Future<void> requestPasswordReset(String email) =>
+      post('/auth/customer/emailpass/reset-password', {'identifier': email});
+
+  // ---------- phone verification (WhatsApp OTP) ----------
+
+  Future<int> requestOtp(String phone) async {
+    final res = await post('/store/otp/request', {'phone': phone});
+    return (res['expires_in'] as num?)?.toInt() ?? 300;
+  }
+
+  Future<String> verifyOtp(String phone, String code) async {
+    final res = await post('/store/otp/verify', {'phone': phone, 'code': code});
+    return res['verification_token'] as String;
+  }
+
+  // ---------- saved addresses ----------
+
+  Future<List<Address>> addresses() async {
+    final res = await get('/store/customers/me/addresses', query: {'limit': '50'});
+    return (res['addresses'] as List).map((e) => Address.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<void> saveAddress(Address a) async {
+    final body = {...a.toJson(), 'is_default_shipping': a.isDefaultShipping};
+    if (a.id == null) {
+      await post('/store/customers/me/addresses', body);
+    } else {
+      await post('/store/customers/me/addresses/${a.id}', body);
+    }
+  }
+
+  Future<void> deleteAddress(String id) async {
+    final res = await _http.delete(_uri('/store/customers/me/addresses/$id'), headers: _headers);
+    _decode(res);
+  }
 
   // ---------- catalog ----------
 

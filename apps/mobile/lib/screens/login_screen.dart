@@ -22,6 +22,75 @@ class _LoginScreenState extends State<LoginScreen> {
   final _last = TextEditingController();
   final _phone = TextEditingController();
   final _company = TextEditingController();
+  final _code = TextEditingController();
+  String? _verificationToken;
+  String? _verifiedPhone;
+  bool _codeSent = false;
+  int _resendIn = 0;
+
+  Future<void> _sendCode() async {
+    try {
+      await MedusaClient.instance.requestOtp(_phone.text.trim());
+      setState(() {
+        _codeSent = true;
+        _resendIn = 60;
+      });
+      _tick();
+      if (mounted) showSnack(context, S.t('code_sent'));
+    } catch (e) {
+      if (mounted) showSnack(context, '$e');
+    }
+  }
+
+  void _tick() {
+    Future.delayed(const Duration(seconds: 1), () {
+      if (!mounted || _resendIn <= 0) return;
+      setState(() => _resendIn--);
+      _tick();
+    });
+  }
+
+  Future<void> _verifyCode() async {
+    try {
+      final token = await MedusaClient.instance.verifyOtp(_phone.text.trim(), _code.text.trim());
+      setState(() {
+        _verificationToken = token;
+        _verifiedPhone = _phone.text.trim();
+      });
+      if (mounted) showSnack(context, S.t('phone_verified'));
+    } catch (e) {
+      if (mounted) showSnack(context, '$e');
+    }
+  }
+
+  Future<void> _forgotPassword() async {
+    final ctrl = TextEditingController(text: _email.text.trim());
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(S.t('reset_title')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(S.t('reset_hint')),
+            const SizedBox(height: 12),
+            TextField(controller: ctrl, keyboardType: TextInputType.emailAddress, decoration: InputDecoration(labelText: S.t('email'))),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(S.t('cancel'))),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(S.t('send_link'))),
+        ],
+      ),
+    );
+    if (ok != true || ctrl.text.trim().isEmpty) return;
+    try {
+      await MedusaClient.instance.requestPasswordReset(ctrl.text.trim());
+    } catch (_) {
+      // Always show the same message so emails cannot be enumerated.
+    }
+    if (mounted) showSnack(context, S.t('reset_sent'));
+  }
 
   Future<void> _submit() async {
     setState(() => _busy = true);
@@ -35,6 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
           lastName: _last.text.trim(),
           phone: _phone.text.trim(),
           company: _company.text.trim(),
+          phoneVerificationToken: _verifiedPhone == _phone.text.trim() ? _verificationToken : null,
         );
       } else {
         await api.login(_email.text.trim(), _password.text);
@@ -80,7 +150,36 @@ class _LoginScreenState extends State<LoginScreen> {
                         Expanded(child: TextField(controller: _last, decoration: InputDecoration(labelText: S.t('last_name')))),
                       ]),
                       const SizedBox(height: 12),
-                      TextField(controller: _phone, keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: S.t('phone'), hintText: '+62…')),
+                      TextField(
+                        controller: _phone,
+                        keyboardType: TextInputType.phone,
+                        onChanged: (_) => setState(() {}),
+                        decoration: InputDecoration(
+                          labelText: S.t('phone'),
+                          hintText: '+62…',
+                          suffixIcon: _verifiedPhone == _phone.text.trim() && _verificationToken != null
+                              ? const Icon(Icons.verified, color: Color(0xFF1B8A5A))
+                              : TextButton(
+                                  onPressed: _phone.text.trim().length >= 9 && _resendIn == 0 ? _sendCode : null,
+                                  child: Text(_resendIn > 0 ? '${S.t('resend_in')} ${_resendIn}s' : S.t('send_code')),
+                                ),
+                        ),
+                      ),
+                      if (_codeSent && _verificationToken == null) ...[
+                        const SizedBox(height: 12),
+                        Row(children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _code,
+                              keyboardType: TextInputType.number,
+                              maxLength: 6,
+                              decoration: InputDecoration(labelText: S.t('enter_code'), counterText: ''),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          FilledButton.tonal(onPressed: _verifyCode, child: Text(S.t('verify'))),
+                        ]),
+                      ],
                       const SizedBox(height: 12),
                       TextField(controller: _company, decoration: InputDecoration(labelText: S.t('company'))),
                       const SizedBox(height: 12),
@@ -95,7 +194,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
                           : Text(_register ? S.t('register') : S.t('login')),
                     ),
-                    const SizedBox(height: 16),
+                    if (!_register)
+                      TextButton(onPressed: _forgotPassword, child: Text(S.t('forgot_password'))),
+                    const SizedBox(height: 4),
                     TextButton(
                       onPressed: () => S.locale.value = S.locale.value == 'id' ? 'en' : 'id',
                       child: Text(S.locale.value == 'id' ? 'English' : 'Bahasa Indonesia'),

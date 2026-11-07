@@ -23,7 +23,7 @@ const PNG_BASE64 =
 
 medusaIntegrationTestRunner({
   inApp: true,
-  env: { ADMIN_DEFAULT_ROLE: "owner" },
+  env: { ADMIN_DEFAULT_ROLE: "owner", OTP_DEV_CODE: "000000" },
   testSuite: ({ api, getContainer }) => {
     let storeHeaders, region, salesChannel, product;
 
@@ -416,6 +416,28 @@ medusaIntegrationTestRunner({
         expect(regencies.data.regencies.length).toBeGreaterThan(4);
         const districts = await api.get(`/store/wilayah/31.71`, pub);
         expect(districts.data.districts.map((d) => d.name)).toContain("Gambir");
+      });
+
+      it("issues and verifies WhatsApp OTP codes for sign-up", async () => {
+        const pub = { headers: { "x-publishable-api-key": storeHeaders.headers["x-publishable-api-key"] } };
+        const sent = await api.post(`/store/otp/request`, { phone: "0812-3456-7890" }, pub);
+        expect(sent.status).toEqual(200);
+        expect(sent.data.phone).toEqual("6281234567890");
+
+        const wrong = await api
+          .post(`/store/otp/verify`, { phone: "081234567890", code: "123456" }, pub)
+          .catch((e) => e.response);
+        expect(wrong.status).toEqual(400);
+
+        // OTP_DEV_CODE is accepted outside production
+        const ok = await api.post(`/store/otp/verify`, { phone: "+6281234567890", code: "000000" }, pub);
+        expect(ok.status).toEqual(200);
+        expect(ok.data.verification_token).toEqual(expect.any(String));
+
+        const bad = await api
+          .post(`/store/otp/request`, { phone: "12" }, pub)
+          .catch((e) => e.response);
+        expect(bad.status).toEqual(400);
       });
 
       it("hides other customers' plans and rejects unauthenticated access", async () => {

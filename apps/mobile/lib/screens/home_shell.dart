@@ -6,6 +6,7 @@ import '../cart.dart';
 import 'cart_screen.dart';
 import 'orders_hub_screen.dart';
 import 'products_screen.dart';
+import 'addresses_screen.dart';
 
 class HomeShell extends StatefulWidget {
   final Map<String, dynamic> customer;
@@ -77,6 +78,12 @@ class _AccountScreen extends StatelessWidget {
             if ((customer['company_name'] ?? '').toString().isNotEmpty)
               ListTile(leading: const Icon(Icons.business), title: Text('${customer['company_name']}')),
             const Divider(),
+            ListTile(
+              leading: const Icon(Icons.location_on_outlined),
+              title: Text(S.t('addresses')),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AddressesScreen())),
+            ),
             ListTile(
               leading: const Icon(Icons.language),
               title: Text(S.t('language')),

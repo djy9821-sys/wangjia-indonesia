@@ -23,6 +23,7 @@
 - **App 购物车与报价**：App 有本地购物车（多商品、多数量一起下单，或整车询价）和“Penawaran”标签页（看销售报价、留言、接受后自动变成订单）。登录令牌存在 iOS Keychain / Android Keystore，令牌失效自动回到登录页。包名 `id.co.wangjia`，iOS 工程只用 Swift Package Manager，不需要 CocoaPods。
 - **产品规格参数**：在后台商品的 Metadata 面板里加 `spec:01 Daya motor` = `1 HP` 这样的键值（前面的两位数字只用来排序，不显示），App 产品页和网页产品页的“Spesifikasi”表会自动出现。商品图片用后台自带的上传，App 里自动变成可左右滑、可放大的图集。
 - **App 内支付**：Midtrans 支付页在 App 内打开，付完自动回到订单并刷新；GoPay、ShopeePay、DANA 的深链接会交给对应 App。
+- **账户功能**：忘记密码（App/网页发邮件，链接到网页 `/id/reset-password` 设新密码，需要 `STOREFRONT_URL`）；地址簿（App 的“Alamat Saya”，下单时可选常用地址并勾选保存）；注册时 WhatsApp OTP（`POST /store/otp/request`、`/store/otp/verify`，`OTP_REQUIRED=true` 时没验证过手机不能注册，本地可用 `OTP_DEV_CODE`）。
 - **网页端付款**：网页商城"账户 → 订单详情"里有与 App 一致的"Rencana Pembayaran"：看分期、在线付款（Midtrans）、上传转账凭证、看退款。
 - **后台双语**：付款计划面板、财务到款、仓库发货、团队角色四个页面右上角有"中文 / ID"开关，默认跟随 Medusa 后台语言（中文界面显示中文，其他显示印尼语），选择保存在浏览器里。文案字典在 `src/admin/utils/i18n.ts`。
 - **角色**：owner（负责人，全部权限）、sales（销售：报价、建/取消付款计划）、finance（财务：确认到款、拒绝凭证、退款、取消）、warehouse（仓库：发货）、none（只读）。在后台"团队角色"页分配，只有负责人能改，且系统至少保留一个负责人。没分配任何角色之前所有管理员按负责人处理（首次引导），分配第一个角色后即按实际角色生效；未分配的人默认 `ADMIN_DEFAULT_ROLE`（默认 none）。
