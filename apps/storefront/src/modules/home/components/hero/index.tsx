@@ -10,19 +10,21 @@ const Hero = () => {
       <div className="absolute inset-0 z-1 flex flex-col justify-center items-center text-center small:p-32 gap-6">
         <span>
           <p className="text-neutral-600 text-xs uppercase tracking-wide">
-            Truk tangki air untuk proyek, perkebunan & pemadam
+            Official store WANGJIA® Indonesia
           </p>
 
+          <img src="/wangjia-mark.svg" alt="" className="mx-auto h-20 w-20 mb-4" />
           <Heading
             level="h1"
             className="text-5xl small:text-6xl leading-tight text-ui-fg-base font-normal mt-8 mb-5"
           >
-            Truk Tangki Air 5.000 – 16.000 L
+            Kincir Air WANGJIA 1 HP & 2 HP
           </Heading>
 
           <p className="leading-8 text-ui-fg-subtle font-normal text-lg max-w-2xl mx-auto">
-            Pesan langsung, bayar bertahap dengan uang muka, pengiriman kargo ke
-            seluruh Indonesia. Garansi 1 tahun, suku cadang tersedia di Jakarta.
+            Aerator tambak udang & ikan: hemat listrik, oksigen merata, suku cadang
+            selalu tersedia. Pesan langsung dari pabrik, bayar bertahap, kirim ke
+            seluruh Indonesia. Garansi 1 tahun.
           </p>
         </span>
         <div className="flex gap-3">

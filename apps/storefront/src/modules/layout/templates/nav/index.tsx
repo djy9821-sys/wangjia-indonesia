@@ -22,8 +22,7 @@ export async function NavigationHeader({
               href="/"
             >
               <span className="small:text-base text-sm font-medium flex items-center">
-                <LogoIcon className="inline mr-2" />
-                Truk Tangki Air Indonesia
+                <img src="/wangjia-logo.svg" alt="WANGJIA" className="h-8 w-auto" />
               </span>
             </LocalizedClientLink>
 

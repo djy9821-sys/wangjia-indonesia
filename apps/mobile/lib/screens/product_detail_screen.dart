@@ -7,6 +7,7 @@ import '../format.dart';
 import '../l10n/strings.dart';
 import '../models.dart';
 import '../widgets/common.dart';
+import '../widgets/wangjia_logo.dart';
 import 'checkout_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
@@ -36,7 +37,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   Future<void> _whatsapp() async {
     final text = Uri.encodeComponent(
-      'Halo, saya tertarik dengan ${widget.product.title} (${_variant.title}) x$_qty. Mohon info harga dan pengiriman.',
+      'Halo WANGJIA, saya tertarik dengan ${widget.product.title} (${_variant.title}) x$_qty. Mohon info harga dan pengiriman.',
     );
     final uri = Uri.parse('https://wa.me/${AppConfig.whatsappNumber}?text=$text');
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication) && mounted) {
@@ -60,7 +61,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ? PageView(children: p.images.map((u) => Image.network(u, fit: BoxFit.cover)).toList())
                   : Container(
                       color: const Color(0xFFE3EEF5),
-                      child: const Icon(Icons.local_shipping, size: 96, color: Color(0xFF0E5A8A)),
+                      child: const Center(child: WangjiaLogo(size: 96, withText: false)),
                     ),
             ),
           ),

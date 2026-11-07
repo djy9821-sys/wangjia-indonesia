@@ -10,7 +10,7 @@ class S {
   }
 
   static const _id = <String, String>{
-    'app_title': 'Truk Tangki Air',
+    'app_title': 'WANGJIA Kincir Air',
     'login': 'Masuk',
     'register': 'Daftar',
     'email': 'Email',
@@ -28,7 +28,7 @@ class S {
     'request_quote': 'Minta Penawaran',
     'chat_whatsapp': 'Chat WhatsApp',
     'quantity': 'Jumlah',
-    'capacity': 'Pilih varian',
+    'capacity': 'Pilih tipe',
     'checkout': 'Pemesanan',
     'shipping_address': 'Alamat pengiriman',
     'address': 'Alamat',
@@ -92,7 +92,7 @@ class S {
   };
 
   static const _en = <String, String>{
-    'app_title': 'Water Tank Trucks',
+    'app_title': 'WANGJIA Aerators',
     'login': 'Sign in',
     'register': 'Register',
     'email': 'Email',
@@ -110,7 +110,7 @@ class S {
     'request_quote': 'Request a Quote',
     'chat_whatsapp': 'Chat on WhatsApp',
     'quantity': 'Quantity',
-    'capacity': 'Choose variant',
+    'capacity': 'Choose type',
     'checkout': 'Checkout',
     'shipping_address': 'Shipping address',
     'address': 'Address',

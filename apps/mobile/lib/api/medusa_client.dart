@@ -128,9 +128,12 @@ class MedusaClient {
       'fields': '*variants.calculated_price,+variants.inventory_quantity,*images',
       'limit': '50',
     });
-    return (res['products'] as List)
+    final products = (res['products'] as List)
         .map((e) => Product.fromJson(e as Map<String, dynamic>))
         .toList();
+    // Main machines first (highest price), spare parts after.
+    products.sort((a, b) => (b.minPrice ?? 0).compareTo(a.minPrice ?? 0));
+    return products;
   }
 
   // ---------- regions (province / regency / district) ----------

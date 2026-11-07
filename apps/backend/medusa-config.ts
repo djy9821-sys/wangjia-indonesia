@@ -110,7 +110,7 @@ const modules: Record<string, any> = {
           options: {
             channels: ["email"],
             api_key: process.env.RESEND_API_KEY,
-            from: process.env.NOTIFY_EMAIL_FROM || "Truk Tangki Air <no-reply@example.com>",
+            from: process.env.NOTIFY_EMAIL_FROM || "WANGJIA Indonesia <no-reply@example.com>",
           },
         },
       ],

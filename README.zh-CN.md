@@ -1,6 +1,8 @@
-# 印尼水车 B2B 电商平台
+# WANGJIA® 印尼官方商城
 
-基于 [Medusa B2B Starter](https://github.com/medusajs/b2b-starter) 改造，面向印尼客户销售水车（洒水车）等高单价工业设备。
+李总（PT Adhinusa Lestari Jaya，待确认）的 WANGJIA 品牌增氧水车（kincir air / paddle wheel aerator，虾塘鱼塘用）在印尼的官方商城与 App。基于 [Medusa B2B Starter](https://github.com/medusajs/b2b-starter) 改造。
+
+品牌素材在 `brand/`：目前是我们画的占位标识，拿到李总的正式 logo 文件后替换同名文件即可。
 
 ## 业务流程
 
@@ -39,7 +41,8 @@ apps/backend/     Medusa v2 后端 + 管理后台扩展
   src/admin/routes/finance/        财务待确认列表
   src/admin/routes/warehouse/      仓库待发货列表
   src/scripts/set-admin-role.ts    给管理员分配角色
-  src/migration-scripts/initial-data-seed.ts  印尼地区、PPN 11%、雅加达仓、货运方式、示例水车产品
+  src/migration-scripts/initial-data-seed.ts  印尼地区、PPN 11%、雅加达仓、货运方式、WANGJIA 增氧水车与配件目录（价格为占位，后台改）
+  src/scripts/rebrand-wangjia.ts   老数据库改品牌：改店名、下架示例商品、建 WANGJIA 目录（跑完后在后台随便保存一次商品，或重启后端，让网页搜索索引刷新）
 apps/storefront/  Next.js 15 网页商城（印尼地区）
 infra/            本地开发用的内嵌 PostgreSQL（不需要 Docker / Homebrew）
 ```

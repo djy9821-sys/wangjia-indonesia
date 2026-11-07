@@ -83,7 +83,7 @@ export default async function initial_data_seed({
     input: {
       stores: [
         {
-          name: "Truk Tangki Air Indonesia",
+          name: "WANGJIA Indonesia (PT Adhinusa Lestari Jaya)",
           supported_currencies: [
             { currency_code: IDR, is_default: true },
             { currency_code: "usd", is_default: false },
@@ -209,7 +209,7 @@ export default async function initial_data_seed({
   await createShippingOptionsWorkflow(container).run({
     input: [
       {
-        name: "Kargo / Freight (biaya dikonfirmasi terpisah)",
+        name: "Ekspedisi / Kargo (biaya dikonfirmasi terpisah)",
         price_type: "flat",
         provider_id: "manual_manual",
         service_zone_id: fulfillmentSet.service_zones[0].id,
@@ -217,7 +217,7 @@ export default async function initial_data_seed({
         type: {
           label: "Kargo",
           description:
-            "Pengiriman truk dengan ekspedisi kargo. Biaya dan jadwal dikonfirmasi oleh tim kami.",
+            "Pengiriman kincir dengan ekspedisi kargo ke seluruh Indonesia. Biaya dan jadwal dikonfirmasi oleh tim kami.",
           code: "freight",
         },
         prices: [
@@ -274,7 +274,7 @@ export default async function initial_data_seed({
   ).run({
     input: {
       product_categories: [
-        { name: "Truk Tangki Air", is_active: true },
+        { name: "Kincir Air (Aerator)", is_active: true },
         { name: "Suku Cadang", is_active: true },
       ],
     },
@@ -286,101 +286,98 @@ export default async function initial_data_seed({
 
   await createProductsWorkflow(container).run({
     input: {
-      products: [
-        {
-          title: "Truk Tangki Air (Water Tank Truck)",
-          handle: "truk-tangki-air",
-          collection_id: collection.id,
-          category_ids: [categoryId("Truk Tangki Air")],
-          description:
-            "Truk tangki air untuk penyiraman jalan, suplai air proyek, perkebunan dan pemadam kebakaran. Tangki baja karbon anti karat, pompa sentrifugal, nozzle depan dan belakang, selang semprot manual. Garansi 1 tahun, suku cadang tersedia di Jakarta.\n\n水车（洒水车），适用于道路洒水、工程供水、种植园与消防。碳钢防腐罐体，离心泵，前冲后洒，带手持喷枪。整车保修 1 年，雅加达备件库。",
-          weight: 6500000,
-          status: ProductStatus.PUBLISHED,
-          shipping_profile_id: shippingProfile.id,
-          options: [
-            {
-              title: "Kapasitas",
-              values: ["5.000 L", "8.000 L", "12.000 L", "16.000 L"],
-            },
-          ],
-          variants: [
-            {
-              title: "5.000 L",
-              sku: "WT-5000",
-              options: { Kapasitas: "5.000 L" },
-              manage_inventory: false,
-              prices: idr(385_000_000),
-            },
-            {
-              title: "8.000 L",
-              sku: "WT-8000",
-              options: { Kapasitas: "8.000 L" },
-              manage_inventory: false,
-              prices: idr(465_000_000),
-            },
-            {
-              title: "12.000 L",
-              sku: "WT-12000",
-              options: { Kapasitas: "12.000 L" },
-              manage_inventory: false,
-              prices: idr(585_000_000),
-            },
-            {
-              title: "16.000 L",
-              sku: "WT-16000",
-              options: { Kapasitas: "16.000 L" },
-              manage_inventory: false,
-              prices: idr(695_000_000),
-            },
-          ],
-          sales_channels: [{ id: defaultSalesChannel.id }],
-        },
-        {
-          title: "Pompa Air Sentrifugal 3 inci",
-          handle: "pompa-air-sentrifugal-3-inci",
-          category_ids: [categoryId("Suku Cadang")],
-          description:
-            "Pompa pengganti untuk truk tangki air, kapasitas 60 m³/jam.\n\n水车替换用离心泵，流量 60 m³/h。",
-          weight: 45000,
-          status: ProductStatus.PUBLISHED,
-          shipping_profile_id: shippingProfile.id,
-          options: [{ title: "Tipe", values: ["Standar"] }],
-          variants: [
-            {
-              title: "Standar",
-              sku: "PUMP-3IN",
-              options: { Tipe: "Standar" },
-              manage_inventory: false,
-              prices: idr(12_500_000),
-            },
-          ],
-          sales_channels: [{ id: defaultSalesChannel.id }],
-        },
-        {
-          title: "Selang Semprot 20 m + Nozzle",
-          handle: "selang-semprot-20m",
-          category_ids: [categoryId("Suku Cadang")],
-          description:
-            "Selang semprot manual 20 meter dengan nozzle kuningan.\n\n20 米手持喷洒软管，含铜喷头。",
-          weight: 12000,
-          status: ProductStatus.PUBLISHED,
-          shipping_profile_id: shippingProfile.id,
-          options: [{ title: "Tipe", values: ["Standar"] }],
-          variants: [
-            {
-              title: "Standar",
-              sku: "HOSE-20M",
-              options: { Tipe: "Standar" },
-              manage_inventory: false,
-              prices: idr(2_750_000),
-            },
-          ],
-          sales_channels: [{ id: defaultSalesChannel.id }],
-        },
-      ],
+      products: WANGJIA_PRODUCTS(collection.id, categoryId, shippingProfile.id, defaultSalesChannel.id, idr),
     },
   });
   logger.info("Finished seeding product data.");
 
   logger.info(`Publishable API key: ${publishableApiKey.token}`);
 }
+
+/*
+  WANGJIA® paddle wheel aerators (kincir air) for shrimp and fish ponds.
+  Prices are placeholders in IDR — set the real list prices in the admin.
+*/
+export const WANGJIA_PRODUCTS = (
+  collectionId: string,
+  categoryId: (name: string) => string,
+  shippingProfileId: string,
+  salesChannelId: string,
+  idr: (amount: number) => { currency_code: string; amount: number }[]
+) => [
+  {
+    title: "Kincir Air WANGJIA 1 HP",
+    handle: "kincir-air-wangjia-1-hp",
+    subtitle: "Aerator tambak 2 impeller · 1 HP",
+    collection_id: collectionId,
+    category_ids: [categoryId("Kincir Air (Aerator)")],
+    description:
+      "Kincir air (paddle wheel aerator) WANGJIA 1 HP untuk tambak udang dan ikan. Motor 1 HP hemat listrik, gearbox tahan air, impeller plastik anti pecah, pelampung HDPE. Tersedia 1 phase dan 3 phase. Garansi motor 1 tahun, suku cadang tersedia di Jakarta.\n\nWANGJIA 1HP 增氧水车，适用于虾塘、鱼塘。省电电机，防水齿轮箱，抗裂叶轮，HDPE 浮筒。单相/三相可选。电机保修 1 年，雅加达备件库。",
+    weight: 65000,
+    status: ProductStatus.PUBLISHED,
+    shipping_profile_id: shippingProfileId,
+    options: [{ title: "Listrik", values: ["1 Phase", "3 Phase"] }],
+    variants: [
+      { title: "1 Phase", sku: "WJ-KA-1HP-1P", options: { Listrik: "1 Phase" }, manage_inventory: false, prices: idr(5_250_000) },
+      { title: "3 Phase", sku: "WJ-KA-1HP-3P", options: { Listrik: "3 Phase" }, manage_inventory: false, prices: idr(5_450_000) },
+    ],
+    sales_channels: [{ id: salesChannelId }],
+  },
+  {
+    title: "Kincir Air WANGJIA 2 HP",
+    handle: "kincir-air-wangjia-2-hp",
+    subtitle: "Aerator tambak 4 impeller · 2 HP",
+    collection_id: collectionId,
+    category_ids: [categoryId("Kincir Air (Aerator)")],
+    description:
+      "Kincir air WANGJIA 2 HP dengan 4 impeller untuk tambak intensif. Oksigen terlarut lebih tinggi per kWh, rangka galvanis, cocok untuk kolam 2.000–4.000 m². Tersedia 1 phase dan 3 phase.\n\nWANGJIA 2HP 四叶轮增氧水车，适合高密度养殖，镀锌机架，2000–4000 m² 塘口。",
+    weight: 95000,
+    status: ProductStatus.PUBLISHED,
+    shipping_profile_id: shippingProfileId,
+    options: [{ title: "Listrik", values: ["1 Phase", "3 Phase"] }],
+    variants: [
+      { title: "1 Phase", sku: "WJ-KA-2HP-1P", options: { Listrik: "1 Phase" }, manage_inventory: false, prices: idr(8_900_000) },
+      { title: "3 Phase", sku: "WJ-KA-2HP-3P", options: { Listrik: "3 Phase" }, manage_inventory: false, prices: idr(9_100_000) },
+    ],
+    sales_channels: [{ id: salesChannelId }],
+  },
+  {
+    title: "Impeller Kincir WANGJIA",
+    handle: "impeller-kincir-wangjia",
+    category_ids: [categoryId("Suku Cadang")],
+    description: "Impeller (kipas dayung) pengganti, plastik PP anti pecah, cocok kincir WANGJIA 1 HP & 2 HP.\n\nWANGJIA 水车叶轮，PP 抗裂。",
+    weight: 3000,
+    status: ProductStatus.PUBLISHED,
+    shipping_profile_id: shippingProfileId,
+    options: [{ title: "Tipe", values: ["Standar"] }],
+    variants: [{ title: "Standar", sku: "WJ-IMP", options: { Tipe: "Standar" }, manage_inventory: false, prices: idr(185_000) }],
+    sales_channels: [{ id: salesChannelId }],
+  },
+  {
+    title: "Gearbox Kincir WANGJIA",
+    handle: "gearbox-kincir-wangjia",
+    category_ids: [categoryId("Suku Cadang")],
+    description: "Gearbox (reducer) tahan air untuk kincir WANGJIA 1 HP / 2 HP.\n\nWANGJIA 水车防水减速齿轮箱。",
+    weight: 12000,
+    status: ProductStatus.PUBLISHED,
+    shipping_profile_id: shippingProfileId,
+    options: [{ title: "Daya", values: ["1 HP", "2 HP"] }],
+    variants: [
+      { title: "1 HP", sku: "WJ-GB-1HP", options: { Daya: "1 HP" }, manage_inventory: false, prices: idr(1_650_000) },
+      { title: "2 HP", sku: "WJ-GB-2HP", options: { Daya: "2 HP" }, manage_inventory: false, prices: idr(2_250_000) },
+    ],
+    sales_channels: [{ id: salesChannelId }],
+  },
+  {
+    title: "Pelampung HDPE Kincir WANGJIA",
+    handle: "pelampung-kincir-wangjia",
+    category_ids: [categoryId("Suku Cadang")],
+    description: "Pelampung HDPE tebal, tidak bocor, per buah.\n\nWANGJIA 水车 HDPE 浮筒，单只。",
+    weight: 6000,
+    status: ProductStatus.PUBLISHED,
+    shipping_profile_id: shippingProfileId,
+    options: [{ title: "Tipe", values: ["Standar"] }],
+    variants: [{ title: "Standar", sku: "WJ-FLOAT", options: { Tipe: "Standar" }, manage_inventory: false, prices: idr(425_000) }],
+    sales_channels: [{ id: salesChannelId }],
+  },
+];

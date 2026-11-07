@@ -18,7 +18,7 @@ export async function generateMetadata(props: {
   const [origin, regions] = await Promise.all([getSiteOrigin(), listRegions()])
 
   return {
-    title: "Truk Tangki Air Indonesia",
+    title: "WANGJIA Kincir Air — Aerator Tambak Indonesia",
     description:
       "A performant frontend ecommerce starter template with Next.js 14 and Medusa.",
     alternates: {

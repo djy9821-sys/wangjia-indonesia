@@ -29,7 +29,7 @@ class _HomeShellState extends State<HomeShell> {
         selectedIndex: _tab,
         onDestinationSelected: (i) => setState(() => _tab = i),
         destinations: [
-          NavigationDestination(icon: const Icon(Icons.local_shipping_outlined), label: S.t('products')),
+          NavigationDestination(icon: const Icon(Icons.water_outlined), label: S.t('products')),
           NavigationDestination(icon: const Icon(Icons.receipt_long_outlined), label: S.t('orders')),
           NavigationDestination(icon: const Icon(Icons.person_outline), label: S.t('account')),
         ],

@@ -5,6 +5,7 @@ import '../format.dart';
 import '../l10n/strings.dart';
 import '../models.dart';
 import '../widgets/common.dart';
+import '../widgets/wangjia_logo.dart';
 import 'product_detail_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
@@ -70,7 +71,7 @@ class _ProductCard extends StatelessWidget {
                   ? Image.network(product.thumbnail!, fit: BoxFit.cover)
                   : Container(
                       color: const Color(0xFFE3EEF5),
-                      child: const Icon(Icons.local_shipping, size: 64, color: Color(0xFF0E5A8A)),
+                      child: const Center(child: WangjiaLogo(size: 64, withText: false)),
                     ),
             ),
             Padding(

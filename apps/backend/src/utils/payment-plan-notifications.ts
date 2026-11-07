@@ -135,7 +135,7 @@ export const PlanNotifications = {
     );
     await sendCustomer(
       container, ctx, "proof-received",
-      `Halo ${name(ctx)}, bukti transfer untuk pesanan #${ctx.order.display_id} (${i?.label ?? ""}) sudah kami terima. Tim keuangan akan memeriksanya dalam 1 hari kerja.`,
+      `Halo ${name(ctx)}, bukti transfer untuk pesanan WANGJIA #${ctx.order.display_id} (${i?.label ?? ""}) sudah kami terima. Tim keuangan akan memeriksanya dalam 1 hari kerja.`,
       `Bukti transfer diterima - Pesanan #${ctx.order.display_id}`
     );
   },
@@ -187,7 +187,7 @@ export const PlanNotifications = {
   async shipped(container: MedusaContainer, ctx: PlanContext, tracking: string[]) {
     await sendCustomer(
       container, ctx, "order-shipped",
-      `Halo ${name(ctx)}, pesanan #${ctx.order.display_id} sudah dikirim.${tracking.length ? ` No. resi / kendaraan: ${tracking.join(", ")}.` : ""} Pantau status di aplikasi.`,
+      `Halo ${name(ctx)}, pesanan WANGJIA #${ctx.order.display_id} sudah dikirim.${tracking.length ? ` No. resi: ${tracking.join(", ")}.` : ""} Pantau status di aplikasi WANGJIA. — PT Adhinusa Lestari Jaya`,
       `Pesanan dikirim - Pesanan #${ctx.order.display_id}`
     );
   },

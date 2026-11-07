@@ -4,6 +4,7 @@ import '../api/medusa_client.dart';
 import '../config.dart';
 import '../l10n/strings.dart';
 import '../widgets/common.dart';
+import '../widgets/wangjia_logo.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback onLoggedIn;
@@ -57,11 +58,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Icon(Icons.local_shipping, size: 64, color: Color(0xFF0E5A8A)),
-                    const SizedBox(height: 12),
+                    const WangjiaLogo(size: 72),
+                    const SizedBox(height: 4),
                     Text(S.t('app_title'),
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.headlineSmall),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54)),
                     const SizedBox(height: 24),
                     SegmentedButton<bool>(
                       segments: [
