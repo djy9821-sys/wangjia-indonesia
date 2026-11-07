@@ -5,8 +5,9 @@
 3. 克隆仓库，`cp deploy/.env.example deploy/.env` 填域名和数据库密码；`cp apps/backend/.env.template apps/backend/.env.production`，填 JWT/COOKIE 密钥、CORS（填 https 域名）、Midtrans、WhatsApp、Resend、S3、Firebase。
 4. 首次启动：`docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --build`。后端启动时自动跑迁移和种子数据。
 5. 建管理员：`docker compose -f deploy/docker-compose.yml exec backend sh -c "cd .medusa/server && npx medusa user -e boss@example.com -p '强密码'"`，登录 `https://api.<域名>/app`，在 Settings → Publishable API keys 拿到 key 填进 `deploy/.env` 的 `PUBLISHABLE_KEY`，再 `up -d --build storefront`。
-6. 打开 `https://status.<域名>` 配 Uptime Kuma（监控 `https://api.<域名>/health` 和首页，告警发到 WhatsApp/Telegram）；`https://analytics.<域名>` 配 Umami，把它给的脚本加到商城 `layout.tsx`。
+6. 打开 `https://status.<域名>` 配 Uptime Kuma（监控 `https://api.<域名>/health/deep`（检查数据库和缓存，异常返回 503）和首页，告警发到 WhatsApp/Telegram）；`https://analytics.<域名>` 配 Umami，把它给的脚本加到商城 `layout.tsx`。
 7. 备份：`backup` 容器每天 dump 一次到 `backups` 卷，保留 14 天。异地副本：先 `docker run --rm -it -v wangjia_rclone:/config/rclone rclone/rclone config` 配好 R2/S3/网盘远端，在 `deploy/.env` 填 `RCLONE_REMOTE=r2:wangjia-backups`，然后 `docker compose -f deploy/docker-compose.yml --env-file deploy/.env --profile offsite up -d`，每天自动同步。
+   **恢复演练**（上线前至少做一次，之后每季度一次）：`docker compose -f deploy/docker-compose.yml --env-file deploy/.env stop backend`，然后 `docker compose -f deploy/docker-compose.yml --env-file deploy/.env run --rm backup sh /restore.sh <DB_USER> <DB_NAME> /backups/<文件>.dump`，再 `up -d backend`。脚本会重建数据库并打印恢复后的订单数。
 8. 更新：`git pull && docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --build`。
 
 Midtrans 后台的通知地址填 `https://api.<域名>/webhooks/midtrans`；App 的 `--dart-define=MEDUSA_URL=https://api.<域名>`。

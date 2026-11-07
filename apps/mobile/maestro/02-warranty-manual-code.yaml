@@ -1,0 +1,18 @@
+# Checks a label code without the camera (simulators have none) and expects
+# the result sheet. CODE must exist in the backend (generate a batch first).
+appId: id.co.wangjia.wangjiaApp
+env:
+  CODE: NVPLAJ6QSGZD
+---
+- launchApp
+- tapOn: "Akun"
+- tapOn: "Garansi & Keaslian"
+- tapOn: "Kode di label"
+- inputText: ${CODE}
+- hideKeyboard
+- tapOn: "Periksa"
+- extendedWaitUntil:
+    visible:
+      text: "Produk WANGJIA asli|Tidak terverifikasi"
+    timeout: 15000
+- takeScreenshot: warranty-result

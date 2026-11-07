@@ -1,0 +1,29 @@
+# Maestro end-to-end flow (https://maestro.mobile.dev). Run against a device or
+# simulator with the app installed:
+#   maestro test maestro/ -e EMAIL=budi@contoh.id -e PASSWORD=rahasia123
+# Texts are the Indonesian UI strings (lib/l10n/strings.dart).
+appId: id.co.wangjia.wangjiaApp
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Masuk"
+- tapOn:
+    id: "email"
+    optional: true
+- tapOn: "Email"
+- inputText: ${EMAIL}
+- tapOn: "Kata sandi"
+- inputText: ${PASSWORD}
+- hideKeyboard
+- tapOn:
+    text: "Masuk"
+    index: 1
+- assertVisible: "Produk"
+- tapOn: "Suku Cadang"
+- assertVisible:
+    text: ".*WANGJIA.*"
+- tapOn: "Semua"
+- tapOn:
+    text: "Kincir Air WANGJIA 2 HP"
+- assertVisible: "Pesan Sekarang"
+- back

@@ -40,7 +40,9 @@
 - `29216f6` 商城 SEO 博客（4 篇印尼语文章，进 sitemap）；App 版本策略接口与更新门控（侧载 APK 也有效）；Typebot、DocuSeal compose 与文档；DocuSeal 签约回调写入订单；集成测试增至 30 个。（CI 四项含 APK 全绿：7a84b75；29216f6 运行中）
 
 - `7b6c4fc` 本工作日志。
-- （进行中）App 打磨：错误提示人话化（断网/超时/会话过期/服务器错误 → 印尼语提示，所有请求加 25 秒超时）；原生启动画面（flutter_native_splash，品牌蓝 + logo）；商品图片磁盘缓存（cached_network_image）；扫码直达 App（iOS Universal Links + Android App Links：entitlements、manifest、`onGenerateRoute`，商城提供 `/.well-known/apple-app-site-association` 与 `assetlinks.json`，需填 Apple Team ID 与安卓签名指纹）。
+- `0fc409e` App 打磨：错误提示人话化（断网/超时/会话过期/服务器错误 → 印尼语提示，所有请求加 25 秒超时）；原生启动画面（flutter_native_splash，品牌蓝 + logo）；商品图片磁盘缓存（cached_network_image）；扫码直达 App（iOS Universal Links + Android App Links：entitlements、manifest、`onGenerateRoute`，商城提供 `/.well-known/apple-app-site-association` 与 `assetlinks.json`，需填 Apple Team ID 与安卓签名指纹）。
+
+- 运维可靠性：数据库恢复脚本 `deploy/scripts/restore.sh` 与恢复演练说明；`/health/deep`（检查数据库 + 缓存，异常 503，给 Uptime Kuma）；Caddy 统一安全响应头（HSTS、nosniff、Referrer-Policy 等）；`apps/mobile/maestro/` 三条端到端测试脚本（登录浏览、输码验真、订单详情，供真机前验证，本机未执行）。（集成测试 31 个；CI 0fc409e 四项全绿）
 
 ## 本机验证手段
 - 后端：`pnpm test:integration:http`（30 个用例）、tsc、medusa lint；curl 走接口；浏览器查后台页面。

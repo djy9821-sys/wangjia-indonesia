@@ -1,0 +1,15 @@
+# Opens the first order and checks the payment plan and machines sections render.
+appId: id.co.wangjia.wangjiaApp
+---
+- launchApp
+- tapOn: "Pesanan"
+- tapOn:
+    text: "Pesanan #.*"
+    index: 0
+- assertVisible: "Rencana pembayaran|Pembayaran"
+- scrollUntilVisible:
+    element:
+      text: "Mesin dalam pesanan ini"
+    direction: DOWN
+    timeout: 20000
+- takeScreenshot: order-detail

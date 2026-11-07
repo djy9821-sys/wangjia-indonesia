@@ -59,3 +59,16 @@ xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Debug
   -skipPackageUpdates -derivedDataPath build/ios/DerivedData build
 xcrun simctl install booted build/ios/DerivedData/Build/Products/Debug-iphonesimulator/Runner.app
 ```
+
+## End-to-end tests (Maestro)
+
+`maestro/` holds three flows (login + browse, warranty code check, order detail) written against the
+Indonesian UI strings. Install Maestro (`curl -Ls https://get.maestro.mobile.dev | bash`), build and
+install the app on a simulator/emulator or a real phone, then:
+
+```bash
+maestro test maestro/ -e EMAIL=budi@contoh.id -e PASSWORD=rahasia123
+```
+
+The flows were written from the screens but not yet executed here (no Maestro on this machine): expect to
+adjust a selector or two on the first run. They are meant for a real device before each store release.

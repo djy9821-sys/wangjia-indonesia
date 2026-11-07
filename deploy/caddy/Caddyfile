@@ -1,10 +1,24 @@
+# Shared hardening headers (HSTS is added by Caddy's automatic HTTPS defaults + this block).
+(security_headers) {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(self)"
+		-Server
+	}
+}
+
 # Automatic HTTPS for every host below (Let's Encrypt).
 {$WEB_DOMAIN} {
+	import security_headers
 	encode zstd gzip
 	reverse_proxy storefront:8000
 }
 
 {$API_DOMAIN} {
+	import security_headers
 	encode zstd gzip
 	# Receipt uploads are a few MB; Midtrans webhooks are tiny.
 	request_body {
@@ -14,9 +28,11 @@
 }
 
 {$STATUS_DOMAIN} {
+	import security_headers
 	reverse_proxy uptime-kuma:3001
 }
 
 {$ANALYTICS_DOMAIN} {
+	import security_headers
 	reverse_proxy umami:3000
 }

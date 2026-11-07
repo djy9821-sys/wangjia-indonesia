@@ -103,6 +103,7 @@ services:
     volumes:
       - backups:/backups
       - ./scripts/backup.sh:/backup.sh:ro
+      - ./scripts/restore.sh:/restore.sh:ro
     entrypoint: ["sh", "-c", "while true; do sh /backup.sh ${DB_USER:-wangjia} ${DB_NAME:-wangjia}; sleep 86400; done"]
 
   # Off-site copy of the dumps (Cloudflare R2 / S3 / Google Drive …) via rclone.

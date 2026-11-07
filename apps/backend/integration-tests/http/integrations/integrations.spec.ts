@@ -33,6 +33,14 @@ medusaIntegrationTestRunner({
       await api.post(`/admin/api-keys/${publishableKey.id}/sales-channels`, { add: [salesChannel.id] }, adminHeaders);
     });
 
+    it("reports database and cache health", async () => {
+      const res = await api.get("/health/deep");
+      expect(res.status).toEqual(200);
+      expect(res.data.status).toEqual("ok");
+      expect(res.data.checks.database.ok).toBe(true);
+      expect(res.data.checks.cache.ok).toBe(true);
+    });
+
     it("serves the app version policy publicly", async () => {
       const res = await api.get("/store/app-version", publicHeaders);
       expect(res.data).toEqual(
