@@ -7,6 +7,7 @@ import {
   SessionFreeShippingNudge,
 } from "@/modules/layout/components/session-banners"
 import Footer from "@/modules/layout/templates/footer"
+import WhatsAppFab from "@/modules/layout/components/whatsapp-fab"
 import { NavigationHeader } from "@/modules/layout/templates/nav"
 import { Metadata } from "next"
 
@@ -38,6 +39,7 @@ export default async function PageLayout(props: {
 
       <Footer />
 
+      <WhatsAppFab />
       <SessionFreeShippingNudge />
     </SessionProvider>
   )

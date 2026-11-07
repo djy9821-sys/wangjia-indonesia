@@ -269,4 +269,9 @@ const ID: Record<string, string> = {
   "每天 07:30 会收到一条中文日报（新订单、到账、逾期、待报价、新登记保修），在服务器 .env 里配置 OWNER_WHATSAPP / OWNER_EMAILS。": "Setiap 07:30 pemilik menerima ringkasan harian (pesanan baru, dana masuk, terlambat, penawaran, garansi baru); atur OWNER_WHATSAPP / OWNER_EMAILS di .env server.",
   "订单列表上方的总览卡片是当天要处理的事项。": "Kartu ringkasan di atas daftar pesanan adalah hal yang perlu ditangani hari ini.",
   "操作指南": "Panduan",
+  "销售合同": "Kontrak penjualan",
+  "已签署": "Ditandatangani",
+  "签署时间": "Waktu tanda tangan",
+  "合同文件": "Dokumen kontrak",
+  "签署记录（审计日志）": "Riwayat tanda tangan (audit log)",
 };
