@@ -19,6 +19,7 @@ interface FormData {
   email: string
   first_name: string
   last_name: string
+  phone: string
   company_name: string
   password: string
   company_address: string
@@ -33,6 +34,7 @@ const initialFormData: FormData = {
   email: "",
   first_name: "",
   last_name: "",
+  phone: "",
   company_name: "",
   password: "",
   company_address: "",
@@ -142,6 +144,18 @@ const Register = ({ setCurrentView, regions }: Props) => {
             data-testid="last-name-input"
             className="bg-white"
             value={formData.last_name}
+            onChange={handleChange}
+          />
+          <Input
+            label="Nomor HP / WhatsApp"
+            name="phone"
+            required
+            type="tel"
+            autoComplete="tel"
+            placeholder="0812xxxxxxx"
+            data-testid="phone-input"
+            className="bg-white"
+            value={formData.phone}
             onChange={handleChange}
           />
           <Input
