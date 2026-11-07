@@ -4,7 +4,24 @@ export type InstallmentStatus =
   | "unpaid"
   | "awaiting_confirmation"
   | "paid"
+  | "refunded"
   | "cancelled";
+export type RefundStatus = "pending" | "completed" | "failed";
+
+export type ModulePaymentRefund = {
+  id: string;
+  installment_id: string;
+  amount: number;
+  method: InstallmentPaymentMethod;
+  status: RefundStatus;
+  reason: string | null;
+  gateway_reference: string | null;
+  bank_account: string | null;
+  note: string | null;
+  created_by: string | null;
+  completed_at: string | null;
+  created_at: string;
+};
 export type InstallmentPaymentMethod = "midtrans" | "bank_transfer" | "other";
 export type PaymentProofStatus = "pending" | "accepted" | "rejected";
 
@@ -42,7 +59,9 @@ export type ModuleInstallment = {
   confirmed_by: string | null;
   confirmed_at: string | null;
   note: string | null;
+  refunded_amount: number;
   proofs?: ModulePaymentProof[];
+  refunds?: ModulePaymentRefund[];
   created_at: string;
   updated_at: string;
 };
@@ -95,6 +114,19 @@ export type AdminConfirmInstallment = {
   payment_method?: InstallmentPaymentMethod;
   proof_id?: string | null;
   note?: string | null;
+};
+
+export type AdminRefundInstallment = {
+  amount: number;
+  reason?: string | null;
+  method?: InstallmentPaymentMethod;
+  bank_account?: string | null;
+  note?: string | null;
+};
+
+export type AdminCancelPaymentPlan = {
+  reason?: string | null;
+  cancel_order?: boolean;
 };
 
 export type AdminRejectProof = {

@@ -15,6 +15,9 @@
 - **Midtrans**：客户在 App 里为某一期生成 Snap 支付链接，支持 QRIS、GoPay、OVO、DANA、ShopeePay、各银行虚拟账户、便利店付款。Midtrans 回调 `POST /webhooks/midtrans`，结算成功自动记为已到账。
 - **银行转账**：客户上传转账凭证（bukti transfer），财务在后台核对银行流水后点"确认到账"或"拒绝凭证"。
 - **仓库闸门**：订单的付款计划未放行时，后台"Create Fulfillment"会被拒绝（HTTP 400）。
+- **退款**：财务在订单页对已到账的期数点"退款"，可部分或全额。Midtrans 支付的通过网关原路退回；银行转账的由财务线下转回后登记。定金退完且尚未发货时，放行自动撤销，仓库重新看不到这单。
+- **取消**：销售或财务可"取消付款计划与订单"，未付的期数作废、订单取消，已到账的款项留待退款。每小时跑一次的任务会自动取消"定金逾期未付"的计划（`PAYMENT_PLAN_EXPIRE_DAYS`，默认 7 天，或第一期的到期日）。
+- **印尼地址**：内置 38 省、514 市县、7,285 区的行政区划数据（来源 cahyadsn/wilayah，MIT），App 下单时三级下拉选择。
 - **角色**：owner（负责人，全部权限）、sales（销售：报价、建付款计划）、finance（财务：确认到款、拒绝凭证）、warehouse（仓库：发货）。角色存在管理员用户的 `metadata.role`。
 
 ## 目录
@@ -80,7 +83,7 @@ TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules \
 npx jest --config ./jest.config.js --rootDir . integration-tests/http/payment-plans --runInBand --forceExit
 ```
 
-`integration-tests/http/payment-plans/payment-plans.spec.ts` 覆盖：建计划、金额校验、客户查看、发货闸门拦截、上传凭证、财务待办、确认到款并放行、重复确认拒绝、仓库待办、拒绝凭证回退、全款策略与负责人强制放行、未登录 401。
+`integration-tests/http/payment-plans/payment-plans.spec.ts` 覆盖：建计划、金额校验、客户查看、发货闸门拦截、上传凭证、财务待办、确认到款并放行、重复确认拒绝、仓库待办、拒绝凭证回退、全款策略与负责人强制放行、部分/全额退款与放行撤销、取消计划、行政区划接口、未登录 401。
 
 ## Midtrans 配置
 
@@ -105,6 +108,8 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 | GET | `/store/payment-installments/:id` | 查看单期（付款后轮询） |
 | POST | `/store/payment-installments/:id/midtrans` | 生成 Midtrans Snap `token` / `redirect_url` |
 | POST | `/store/payment-installments/:id/proofs` | 上传转账凭证：`{ file: { name, mime_type, content(base64) }, bank_name, sender_name, amount, transferred_at, note }` |
+| GET | `/store/orders/:id/shipments` | 发货记录与货运单号 |
+| GET | `/store/wilayah` · `/store/wilayah/:provinceCode` · `/store/wilayah/:regencyCode` | 省 → 市县 → 区 三级联动（只需 publishable key） |
 
 后台接口（管理员登录）：
 
@@ -115,6 +120,8 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 | POST | `/admin/payment-installments/:id/confirm` | 确认到账（finance） |
 | POST | `/admin/payment-proofs/:id/reject` | 拒绝凭证（finance） |
 | POST | `/admin/payment-plans/:id/release` | 负责人强制放行（owner） |
+| POST | `/admin/payment-installments/:id/refund` | 退款 `{ amount, reason, method, bank_account }`（finance） |
+| POST | `/admin/payment-plans/:id/cancel` | 取消计划与订单 `{ reason, cancel_order }`（finance、sales） |
 | GET | `/admin/warehouse/orders` | 仓库待发货 |
 
 ## 上线前要办的事（代码之外）

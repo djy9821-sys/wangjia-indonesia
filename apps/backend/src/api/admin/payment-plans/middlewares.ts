@@ -13,8 +13,10 @@ import {
   retrievePaymentPlanTransformQueryConfig,
 } from "./query-config";
 import {
+  AdminCancelPaymentPlan,
   AdminConfirmInstallment,
   AdminCreatePaymentPlan,
+  AdminRefundInstallment,
   AdminGetPaymentPlanParams,
   AdminListInstallmentsParams,
   AdminRejectProof,
@@ -114,6 +116,22 @@ export const adminPaymentPlansMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       ensureAdminRole("finance"),
       validateAndTransformBody(AdminRejectProof),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/payment-installments/:id/refund",
+    middlewares: [
+      ensureAdminRole("finance"),
+      validateAndTransformBody(AdminRefundInstallment),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/payment-plans/:id/cancel",
+    middlewares: [
+      ensureAdminRole("finance", "sales"),
+      validateAndTransformBody(AdminCancelPaymentPlan),
     ],
   },
   {

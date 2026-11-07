@@ -238,6 +238,9 @@ class _InstallmentCard extends StatelessWidget {
               Text('${S.t('due')}: ${shortDate(inst.dueDate)}', style: Theme.of(context).textTheme.bodySmall),
             if (inst.paidAt != null)
               Text('${S.t('paid_at')}: ${dateTime(inst.paidAt)}', style: Theme.of(context).textTheme.bodySmall),
+            if (inst.refundedAmount > 0)
+              Text('${S.t('refunded')}: ${money(inst.refundedAmount, currency)}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFF7C3AED))),
             if (latestProof != null && inst.status != 'paid') ...[
               const SizedBox(height: 6),
               Text(

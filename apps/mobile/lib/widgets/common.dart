@@ -48,6 +48,7 @@ class StatusChip extends StatelessWidget {
 
 Color installmentColor(String status) => switch (status) {
       'paid' => const Color(0xFF1B8A5A),
+      'refunded' => const Color(0xFF7C3AED),
       'awaiting_confirmation' => const Color(0xFFD98E04),
       'cancelled' => const Color(0xFFB3261E),
       _ => const Color(0xFF6B7280),

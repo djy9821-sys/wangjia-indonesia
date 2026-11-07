@@ -3,4 +3,6 @@ export const PaymentPlanEvents = {
   RELEASED: "payment_plan.released",
   PROOF_SUBMITTED: "payment_plan.proof_submitted",
   PROOF_REJECTED: "payment_plan.proof_rejected",
+  INSTALLMENT_REFUNDED: "payment_plan.installment_refunded",
+  PLAN_CANCELLED: "payment_plan.cancelled",
 } as const;

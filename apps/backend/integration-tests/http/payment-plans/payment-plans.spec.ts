@@ -276,6 +276,96 @@ medusaIntegrationTestRunner({
         expect(forced.data.payment_plan.released_at).not.toBeNull();
       });
 
+      it("refunds a paid deposit, revokes the release, and cancels abandoned plans", async () => {
+        const { orderId } = await createOrderViaQuote();
+        const {
+          data: { payment_plan: plan },
+        } = await api.post(
+          `/admin/orders/${orderId}/payment-plan`,
+          {
+            installments: [
+              { label: "DP", amount: 40 },
+              { label: "Pelunasan", amount: 60 },
+            ],
+          },
+          adminHeaders
+        );
+        const [deposit] = [...plan.installments].sort((a, b) => a.sequence - b.sequence);
+
+        // refunding an unpaid installment is refused
+        const tooEarly = await api
+          .post(`/admin/payment-installments/${deposit.id}/refund`, { amount: 10 }, adminHeaders)
+          .catch((e) => e.response);
+        expect(tooEarly.status).toEqual(400);
+
+        await api.post(`/admin/payment-installments/${deposit.id}/confirm`, { payment_method: "bank_transfer" }, adminHeaders);
+
+        // partial refund keeps it paid, release stays
+        const partial = await api.post(
+          `/admin/payment-installments/${deposit.id}/refund`,
+          { amount: 15, reason: "Kelebihan transfer", method: "bank_transfer", bank_account: "BCA 999" },
+          adminHeaders
+        );
+        expect(partial.status).toEqual(200);
+        expect(partial.data.release_revoked).toEqual(false);
+        let dep = partial.data.payment_plan.installments.find((i) => i.id === deposit.id);
+        expect(dep.status).toEqual("paid");
+        expect(Number(dep.refunded_amount)).toEqual(15);
+        expect(dep.refunds).toHaveLength(1);
+
+        // over-refund refused
+        const tooMuch = await api
+          .post(`/admin/payment-installments/${deposit.id}/refund`, { amount: 30 }, adminHeaders)
+          .catch((e) => e.response);
+        expect(tooMuch.status).toEqual(400);
+
+        // full refund -> refunded, warehouse release revoked
+        const full = await api.post(
+          `/admin/payment-installments/${deposit.id}/refund`,
+          { amount: 25, reason: "Pesanan dibatalkan", method: "bank_transfer" },
+          adminHeaders
+        );
+        expect(full.data.release_revoked).toEqual(true);
+        expect(full.data.payment_plan.released_at).toBeNull();
+        dep = full.data.payment_plan.installments.find((i) => i.id === deposit.id);
+        expect(dep.status).toEqual("refunded");
+
+        // the customer sees the refund
+        const storePlan = await api.get(`/store/orders/${orderId}/payment-plan`, storeHeaders);
+        const storeDep = storePlan.data.payment_plan.installments.find((i) => i.id === deposit.id);
+        expect(storeDep.status).toEqual("refunded");
+        expect(storeDep.refunds).toHaveLength(2);
+
+        // cancel plan (and the order)
+        const cancelled = await api.post(
+          `/admin/payment-plans/${plan.id}/cancel`,
+          { reason: "Pelanggan membatalkan", cancel_order: false },
+          adminHeaders
+        );
+        expect(cancelled.status).toEqual(200);
+        expect(cancelled.data.payment_plan.status).toEqual("cancelled");
+        const statuses = cancelled.data.payment_plan.installments.map((i) => i.status).sort();
+        expect(statuses).toEqual(["cancelled", "refunded"]);
+
+        const again = await api
+          .post(`/admin/payment-plans/${plan.id}/cancel`, {}, adminHeaders)
+          .catch((e) => e.response);
+        expect(again.status).toEqual(400);
+      });
+
+      it("serves Indonesian regions for address pickers", async () => {
+        const pub = { headers: { "x-publishable-api-key": storeHeaders.headers["x-publishable-api-key"] } };
+        const provinces = await api.get(`/store/wilayah`, pub);
+        expect(provinces.status).toEqual(200);
+        expect(provinces.data.provinces.length).toBeGreaterThan(30);
+        const jakarta = provinces.data.provinces.find((p) => p.code === "31");
+        expect(jakarta.name).toMatch(/Jakarta/i);
+        const regencies = await api.get(`/store/wilayah/31`, pub);
+        expect(regencies.data.regencies.length).toBeGreaterThan(4);
+        const districts = await api.get(`/store/wilayah/31.71`, pub);
+        expect(districts.data.districts.map((d) => d.name)).toContain("Gambir");
+      });
+
       it("hides other customers' plans and rejects unauthenticated access", async () => {
         const { orderId } = await createOrderViaQuote();
         await api.post(

@@ -1,5 +1,5 @@
 import { MedusaService } from "@medusajs/framework/utils";
-import { Installment, PaymentPlan, PaymentProof } from "./models";
+import { Installment, PaymentPlan, PaymentProof, PaymentRefund } from "./models";
 
 /*
   Payment plan module.
@@ -22,6 +22,7 @@ class PaymentPlanModuleService extends MedusaService({
   PaymentPlan,
   PaymentInstallment: Installment,
   PaymentProof,
+  PaymentRefund,
 }) {}
 
 export default PaymentPlanModuleService;

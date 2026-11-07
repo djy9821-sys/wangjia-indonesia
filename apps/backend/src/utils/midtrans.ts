@@ -201,3 +201,48 @@ export function buildGatewayOrderId(installmentId: string): string {
 export function installmentIdFromGatewayOrderId(orderId: string): string {
   return orderId.split("-")[0];
 }
+
+/*
+  Refund a settled transaction (full or partial). Midtrans supports direct
+  refunds for cards, GoPay, ShopeePay, QRIS and some e-wallets; bank
+  transfer / VA payments cannot be refunded through the API.
+  https://docs.midtrans.com/reference/refund-transaction
+*/
+export async function refundTransaction(
+  orderId: string,
+  amount: number,
+  reason: string,
+  refundKey: string
+): Promise<Record<string, unknown>> {
+  if (!midtransConfigured()) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      "Midtrans 未配置：请在 .env 设置 MIDTRANS_SERVER_KEY"
+    );
+  }
+  const res = await fetch(
+    `${midtransApiBaseUrl()}/${encodeURIComponent(orderId)}/refund`,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: authHeader(),
+      },
+      body: JSON.stringify({
+        refund_key: refundKey,
+        amount: Math.round(amount),
+        reason: reason.slice(0, 255),
+      }),
+    }
+  );
+  const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+  const code = String(json.status_code ?? res.status);
+  if (!res.ok || !code.startsWith("2")) {
+    throw new MedusaError(
+      MedusaError.Types.UNEXPECTED_STATE,
+      `Midtrans 退款失败 (${code}): ${json.status_message ?? res.statusText}`
+    );
+  }
+  return json;
+}

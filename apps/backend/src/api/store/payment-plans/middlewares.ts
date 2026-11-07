@@ -3,6 +3,7 @@ import { MiddlewareRoute } from "@medusajs/medusa";
 import { StoreCreateMidtrans, StoreSubmitPaymentProof } from "./validators";
 
 export const storePaymentPlansMiddlewares: MiddlewareRoute[] = [
+  // Region lookups are public reference data (no customer login needed).
   {
     method: "ALL",
     matcher: "/store/orders/:id/payment-plan",

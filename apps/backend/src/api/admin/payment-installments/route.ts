@@ -21,7 +21,7 @@ export const GET = async (
   const { data: installments, metadata } = await query.graph({
     entity: "payment_installment",
     fields,
-    filters: status ? { status } : {},
+    filters: (status ? { status } : {}) as Record<string, unknown>,
     pagination: {
       ...pagination,
       skip: pagination.skip!,

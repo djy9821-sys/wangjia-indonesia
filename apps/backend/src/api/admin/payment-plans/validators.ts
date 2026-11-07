@@ -61,5 +61,24 @@ export const AdminRejectProof = z
   })
   .strict();
 
+export type AdminRefundInstallmentType = z.infer<typeof AdminRefundInstallment>;
+export const AdminRefundInstallment = z
+  .object({
+    amount: z.number().positive(),
+    reason: z.string().max(255).nullish(),
+    method: z.enum(["midtrans", "bank_transfer", "other"]).optional(),
+    bank_account: z.string().max(200).nullish(),
+    note: z.string().max(1000).nullish(),
+  })
+  .strict();
+
+export type AdminCancelPaymentPlanType = z.infer<typeof AdminCancelPaymentPlan>;
+export const AdminCancelPaymentPlan = z
+  .object({
+    reason: z.string().max(500).nullish(),
+    cancel_order: z.boolean().optional(),
+  })
+  .strict();
+
 export type AdminReleasePlanType = z.infer<typeof AdminReleasePlan>;
 export const AdminReleasePlan = z.object({}).strict();

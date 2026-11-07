@@ -27,9 +27,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _phone = TextEditingController();
   final _email = TextEditingController();
   final _address = TextEditingController();
-  final _city = TextEditingController();
-  final _province = TextEditingController();
   final _postal = TextEditingController();
+
+  // Province / regency / district pickers (Indonesian admin regions)
+  List<Wilayah> _provinces = [];
+  List<Wilayah> _regencies = [];
+  List<Wilayah> _districts = [];
+  Wilayah? _province;
+  Wilayah? _regency;
+  Wilayah? _district;
 
   String? _cartId;
   List<ShippingOption>? _options;
@@ -39,6 +45,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
+    MedusaClient.instance.provinces().then((p) {
+      if (mounted) setState(() => _provinces = p);
+    }).catchError((_) {});
     MedusaClient.instance.me().then((c) {
       if (c == null || !mounted) return;
       setState(() {
@@ -57,11 +66,59 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         'company': _company.text.trim(),
         'phone': _phone.text.trim(),
         'address_1': _address.text.trim(),
-        'city': _city.text.trim(),
-        'province': _province.text.trim(),
+        'address_2': _district?.name ?? '',
+        'city': _regency?.name ?? '',
+        'province': _province?.name ?? '',
         'postal_code': _postal.text.trim(),
         'country_code': 'id',
+        'metadata': {
+          'province_code': _province?.code,
+          'regency_code': _regency?.code,
+          'district_code': _district?.code,
+        },
       };
+
+  Future<void> _pickProvince(Wilayah? p) async {
+    setState(() {
+      _province = p;
+      _regency = null;
+      _district = null;
+      _regencies = [];
+      _districts = [];
+    });
+    if (p == null) return;
+    final r = await MedusaClient.instance.regencies(p.code);
+    if (mounted) setState(() => _regencies = r);
+  }
+
+  Future<void> _pickRegency(Wilayah? r) async {
+    setState(() {
+      _regency = r;
+      _district = null;
+      _districts = [];
+    });
+    if (r == null) return;
+    final d = await MedusaClient.instance.districts(r.code);
+    if (mounted) setState(() => _districts = d);
+  }
+
+  Widget _regionDropdown({
+    required String label,
+    required List<Wilayah> items,
+    required Wilayah? value,
+    required ValueChanged<Wilayah?> onChanged,
+  }) =>
+      DropdownButtonFormField<Wilayah>(
+        key: ValueKey('$label-${items.length}-${value?.code}'),
+        initialValue: value,
+        isExpanded: true,
+        decoration: InputDecoration(labelText: label),
+        items: items
+            .map((w) => DropdownMenuItem(value: w, child: Text(w.name, overflow: TextOverflow.ellipsis)))
+            .toList(),
+        onChanged: items.isEmpty ? null : onChanged,
+        validator: (v) => v == null ? '*' : null,
+      );
 
   Future<void> _loadShipping() async {
     if (!_form.currentState!.validate()) return;
@@ -140,11 +197,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             const SizedBox(height: 12),
             TextFormField(controller: _address, validator: _required, maxLines: 2, decoration: InputDecoration(labelText: S.t('address'))),
             const SizedBox(height: 12),
-            Row(children: [
-              Expanded(child: TextFormField(controller: _city, validator: _required, decoration: InputDecoration(labelText: S.t('city')))),
-              const SizedBox(width: 12),
-              Expanded(child: TextFormField(controller: _province, validator: _required, decoration: InputDecoration(labelText: S.t('province')))),
-            ]),
+            _regionDropdown(label: S.t('province'), items: _provinces, value: _province, onChanged: _pickProvince),
+            const SizedBox(height: 12),
+            _regionDropdown(label: S.t('city'), items: _regencies, value: _regency, onChanged: _pickRegency),
+            const SizedBox(height: 12),
+            _regionDropdown(label: S.t('district'), items: _districts, value: _district, onChanged: (d) => setState(() => _district = d)),
             const SizedBox(height: 12),
             TextFormField(controller: _postal, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: S.t('postal_code'))),
             const SizedBox(height: 20),

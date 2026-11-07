@@ -15,10 +15,12 @@ import {
 } from "@medusajs/ui";
 import { useState } from "react";
 import {
+  useCancelPlan,
   useConfirmInstallment,
   useCreatePaymentPlan,
   useMyRole,
   useOrderPaymentPlan,
+  useRefundInstallment,
   useRejectProof,
   useReleasePlan,
 } from "../hooks/api/payment-plans";
@@ -275,6 +277,70 @@ const ProofRow = ({
   );
 };
 
+/* ---------- refund form ---------- */
+
+const RefundForm = ({
+  inst,
+  plan,
+  orderId,
+}: {
+  inst: ModuleInstallment;
+  plan: ModulePaymentPlan;
+  orderId: string;
+}) => {
+  const refund = useRefundInstallment(orderId);
+  const [open, setOpen] = useState(false);
+  const remaining = Number(inst.amount) - Number(inst.refunded_amount ?? 0);
+  const [amount, setAmount] = useState(String(remaining));
+  const [reason, setReason] = useState("");
+  const [bank, setBank] = useState("");
+  const method = inst.payment_method === "midtrans" ? "midtrans" : "bank_transfer";
+
+  if (remaining <= 0) return null;
+  if (!open) {
+    return (
+      <div>
+        <Button size="small" variant="secondary" onClick={() => setOpen(true)}>
+          退款
+        </Button>
+      </div>
+    );
+  }
+  const submit = async () => {
+    try {
+      await refund.mutateAsync({
+        id: inst.id,
+        amount: Number(amount),
+        reason: reason || null,
+        method,
+        bank_account: method === "bank_transfer" ? bank || null : null,
+      });
+      toast.success("退款已记录");
+      setOpen(false);
+    } catch (e) {
+      toast.error(errMsg(e));
+    }
+  };
+  return (
+    <div className="rounded-md border border-ui-border-base p-3 flex flex-col gap-y-2">
+      <Text size="small" weight="plus">
+        退款（{method === "midtrans" ? "通过 Midtrans 原路退回" : "财务线下转回后登记"}），最多 {formatMoney(remaining, plan.currency_code)}
+      </Text>
+      <div className="grid gap-2 md:grid-cols-3">
+        <Input size="small" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="金额" />
+        <Input size="small" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="原因（客户可见）" />
+        {method === "bank_transfer" && (
+          <Input size="small" value={bank} onChange={(e) => setBank(e.target.value)} placeholder="退回账户 / 流水号" />
+        )}
+      </div>
+      <div className="flex gap-2">
+        <Button size="small" variant="danger" onClick={submit} isLoading={refund.isPending}>确认退款</Button>
+        <Button size="small" variant="transparent" onClick={() => setOpen(false)}>取消</Button>
+      </div>
+    </div>
+  );
+};
+
 /* ---------- plan view ---------- */
 
 const PlanView = ({ plan, orderId, role }: { plan: ModulePaymentPlan; orderId: string; role: string }) => {
@@ -282,7 +348,20 @@ const PlanView = ({ plan, orderId, role }: { plan: ModulePaymentPlan; orderId: s
   const isOwner = role === "owner";
   const confirm = useConfirmInstallment(orderId);
   const release = useReleasePlan(orderId);
+  const cancelPlan = useCancelPlan(orderId);
   const [manualNote, setManualNote] = useState<Record<string, string>>({});
+  const canCancel = (role === "owner" || role === "finance" || role === "sales") && plan.status !== "cancelled";
+
+  const onCancelPlan = async () => {
+    const reason = window.prompt("取消原因（客户可见）。未付款的期数会取消，订单一并取消；已到账的款项需另行退款。") ;
+    if (reason === null) return;
+    try {
+      await cancelPlan.mutateAsync({ id: plan.id, reason: reason || null, cancel_order: true });
+      toast.success("付款计划与订单已取消");
+    } catch (e) {
+      toast.error(errMsg(e));
+    }
+  };
 
   const installments = [...(plan.installments ?? [])].sort((a, b) => a.sequence - b.sequence);
   const paid = installments.filter((i) => i.status === "paid").reduce((s, i) => s + Number(i.amount), 0);
@@ -351,6 +430,15 @@ const PlanView = ({ plan, orderId, role }: { plan: ModulePaymentPlan; orderId: s
             {(inst.proofs ?? []).map((p) => (
               <ProofRow key={p.id} proof={p} installment={inst} plan={plan} canFinance={canFinance} orderId={orderId} />
             ))}
+            {(inst.refunds ?? []).map((r) => (
+              <Text key={r.id} size="xsmall" className="text-ui-fg-subtle">
+                已退款 {formatMoney(r.amount, plan.currency_code)} · {PAYMENT_METHOD_LABEL[r.method]} · {formatDate(r.completed_at ?? r.created_at)}
+                {r.reason ? ` · ${r.reason}` : ""}{r.bank_account ? ` · ${r.bank_account}` : ""}
+              </Text>
+            ))}
+            {canFinance && (inst.status === "paid" || inst.status === "refunded") && (
+              <RefundForm inst={inst} plan={plan} orderId={orderId} />
+            )}
             {canFinance && inst.status !== "paid" && inst.status !== "cancelled" && (
               <div className="flex flex-wrap items-center gap-2">
                 <Input
@@ -368,13 +456,18 @@ const PlanView = ({ plan, orderId, role }: { plan: ModulePaymentPlan; orderId: s
         ))}
       </div>
 
-      {isOwner && !plan.released_at && (
-        <div className="flex items-center justify-end">
+      <div className="flex items-center justify-end gap-2">
+        {canCancel && (
+          <Button size="small" variant="secondary" onClick={onCancelPlan} isLoading={cancelPlan.isPending}>
+            取消付款计划与订单
+          </Button>
+        )}
+        {isOwner && !plan.released_at && plan.status !== "cancelled" && (
           <Button size="small" variant="danger" onClick={forceRelease} isLoading={release.isPending}>
             负责人强制放行发货
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

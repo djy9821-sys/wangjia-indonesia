@@ -13,6 +13,7 @@ export const paymentPlanFields = [
   "updated_at",
   "installments.*",
   "installments.proofs.*",
+  "installments.refunds.*",
 ];
 
 export const retrievePaymentPlanTransformQueryConfig = {
@@ -37,6 +38,7 @@ export const installmentFields = [
   "created_at",
   "updated_at",
   "proofs.*",
+  "refunds.*",
   "plan.*",
 ];
 

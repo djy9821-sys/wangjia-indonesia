@@ -18,6 +18,7 @@ export const INSTALLMENT_STATUS_LABEL: Record<string, string> = {
   unpaid: "未付款",
   awaiting_confirmation: "待财务确认",
   paid: "已到账",
+  refunded: "已退款",
   cancelled: "已取消",
 };
 
@@ -28,6 +29,7 @@ export const INSTALLMENT_STATUS_COLOR: Record<
   unpaid: "grey",
   awaiting_confirmation: "orange",
   paid: "green",
+  refunded: "purple",
   cancelled: "red",
 };
 

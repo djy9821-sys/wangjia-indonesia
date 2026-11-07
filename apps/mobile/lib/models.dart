@@ -159,6 +159,7 @@ class Installment {
   final String status;
   final String? paymentMethod;
   final String? paidAt;
+  final num refundedAmount;
   final List<PaymentProof> proofs;
   Installment({
     required this.id,
@@ -169,6 +170,7 @@ class Installment {
     required this.status,
     this.paymentMethod,
     this.paidAt,
+    this.refundedAmount = 0,
     this.proofs = const [],
   });
   factory Installment.fromJson(Map<String, dynamic> j) => Installment(
@@ -180,6 +182,7 @@ class Installment {
         status: (j['status'] ?? 'unpaid') as String,
         paymentMethod: j['payment_method'] as String?,
         paidAt: j['paid_at'] as String?,
+        refundedAmount: _num(j['refunded_amount']),
         proofs: ((j['proofs'] as List?) ?? [])
             .map((e) => PaymentProof.fromJson(e as Map<String, dynamic>))
             .toList(),
@@ -225,8 +228,8 @@ class PaymentPlan {
   }
 
   num get paidAmount => installments
-      .where((i) => i.status == 'paid')
-      .fold<num>(0, (s, i) => s + i.amount);
+      .where((i) => i.status == 'paid' || i.status == 'refunded')
+      .fold<num>(0, (s, i) => s + i.amount - i.refundedAmount);
 }
 
 class ShippingOption {
@@ -239,4 +242,13 @@ class ShippingOption {
         (j['name'] ?? '') as String,
         _num(j['amount'] ?? j['calculated_price']?['calculated_amount']),
       );
+}
+
+/// Indonesian administrative region (province / regency / district).
+class Wilayah {
+  final String code;
+  final String name;
+  Wilayah(this.code, this.name);
+  factory Wilayah.fromJson(Map<String, dynamic> j) =>
+      Wilayah(j['code'] as String, j['name'] as String);
 }

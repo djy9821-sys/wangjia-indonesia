@@ -133,6 +133,23 @@ class MedusaClient {
         .toList();
   }
 
+  // ---------- regions (province / regency / district) ----------
+
+  Future<List<Wilayah>> provinces() async {
+    final res = await get('/store/wilayah');
+    return (res['provinces'] as List).map((e) => Wilayah.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<List<Wilayah>> regencies(String provinceCode) async {
+    final res = await get('/store/wilayah/$provinceCode');
+    return (res['regencies'] as List).map((e) => Wilayah.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<List<Wilayah>> districts(String regencyCode) async {
+    final res = await get('/store/wilayah/$regencyCode');
+    return (res['districts'] as List).map((e) => Wilayah.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
   // ---------- cart & checkout ----------
 
   Future<String> createCartWithItem(String variantId, int quantity) async {

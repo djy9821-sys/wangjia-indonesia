@@ -2,8 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { sdk } from "../../lib/client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 import type {
+  AdminCancelPaymentPlan,
   AdminConfirmInstallment,
   AdminCreatePaymentPlan,
+  AdminRefundInstallment,
   AdminRejectProof,
   ModuleInstallment,
   ModulePaymentPlan,
@@ -112,6 +114,30 @@ export const useReleasePlan = (orderId?: string) => {
       sdk.client.fetch<AdminPaymentPlanResponse>(
         `/admin/payment-plans/${planId}/release`,
         { method: "POST", body: {} }
+      ),
+    onSuccess: () => invalidateAll(qc, orderId),
+  });
+};
+
+export const useRefundInstallment = (orderId?: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...body }: AdminRefundInstallment & { id: string }) =>
+      sdk.client.fetch<AdminPaymentPlanResponse>(
+        `/admin/payment-installments/${id}/refund`,
+        { method: "POST", body }
+      ),
+    onSuccess: () => invalidateAll(qc, orderId),
+  });
+};
+
+export const useCancelPlan = (orderId?: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...body }: AdminCancelPaymentPlan & { id: string }) =>
+      sdk.client.fetch<AdminPaymentPlanResponse>(
+        `/admin/payment-plans/${id}/cancel`,
+        { method: "POST", body }
       ),
     onSuccess: () => invalidateAll(qc, orderId),
   });
