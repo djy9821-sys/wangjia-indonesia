@@ -152,7 +152,6 @@ const Register = ({ setCurrentView, regions }: Props) => {
             required
             type="tel"
             autoComplete="tel"
-            placeholder="0812xxxxxxx"
             data-testid="phone-input"
             className="bg-white"
             value={formData.phone}
