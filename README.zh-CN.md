@@ -198,4 +198,5 @@ App 填地址时可以在地图（OpenStreetMap，免密钥）上把图钉拖到
 6. 开通 Cloudflare R2（或 S3）并填入 `S3_*`，开一台 Redis 并填入 `REDIS_URL`。
 8. 物流：在 [biteship.com](https://biteship.com) 注册拿 API key 填 `BITESHIP_API_KEY`（跟踪接口免费）；和货运公司确认承运商代码。
 9. 标签：拿第一批序列号 CSV 去印二维码标签（建议铝质或 PET 防水标签，贴铭牌旁）；商城域名定下来后再生成正式批次，二维码里带的是 `STOREFRONT_URL`。
+10. 上架准备：Apple Developer（公司主体，需 D-U-N-S）和 Google Play 开发者账号；隐私政策公开链接（商城 `/id/privacy`，App 里「账户 → Kebijakan privasi」指向它，用 `--dart-define=PRIVACY_URL`）；App 内已有「Hapus akun」满足两家商店的账号删除要求；准备应用图标、6.7"/6.5"/5.5" 截图、简介（印尼语 + 英语）、支持邮箱；Android 发布需要 `android/key.properties` + keystore（不要提交）；iOS 用 Xcode 自动签名。发布命令见 [apps/mobile/README.md](apps/mobile/README.md)（Fastlane）。
 7. 推送：在 Firebase 控制台建项目，加 iOS 应用（Bundle ID `id.co.wangjia.wangjiaApp`）和 Android 应用（包名 `id.co.wangjia.wangjia_app`），把 `GoogleService-Info.plist` 放到 `apps/mobile/ios/Runner/`、`google-services.json` 放到 `apps/mobile/android/app/`（两个文件都已在 .gitignore 外，建议不要提交）；iOS 还要在 Apple 开发者后台生成 APNs 密钥并上传到 Firebase。后端在"项目设置 → 服务账号"生成私钥 JSON，路径或内容填到 `FIREBASE_SERVICE_ACCOUNT`。没配置时推送只写日志。
