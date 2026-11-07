@@ -40,9 +40,9 @@ export const listApprovals = async ({
     ...(await getCacheOptions("approvals")),
   }
 
-  const result = await sdk.client.fetch<StoreApprovalsResponse>(
-    `/store/approvals`,
-    {
+  // Customers who are not part of a company get 403 here; treat as no approvals.
+  const result = await sdk.client
+    .fetch<StoreApprovalsResponse>(`/store/approvals`, {
       query: {
         status,
         type,
@@ -54,8 +54,8 @@ export const listApprovals = async ({
       headers,
       next,
       credentials: "include",
-    }
-  )
+    })
+    .catch(() => ({ carts_with_approvals: [], count: 0, offset: 0, limit }) as unknown as StoreApprovalsResponse)
 
   return result
 }

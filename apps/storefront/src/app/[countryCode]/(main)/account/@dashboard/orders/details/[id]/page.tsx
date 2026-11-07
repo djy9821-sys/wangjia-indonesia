@@ -1,4 +1,5 @@
 import { retrieveOrder } from "@/lib/data/orders"
+import { retrievePaymentPlan } from "@/lib/data/payment-plan"
 import OrderDetailsTemplate from "@/modules/order/templates/order-details-template"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
@@ -29,5 +30,7 @@ export default async function OrderDetailPage(props: Props) {
     notFound()
   }
 
-  return <OrderDetailsTemplate order={order} />
+  const paymentPlan = await retrievePaymentPlan(order.id)
+
+  return <OrderDetailsTemplate order={order} paymentPlan={paymentPlan} />
 }

@@ -17,8 +17,11 @@ export default async function Orders() {
   const customer = await retrieveCustomer()
   const orders = await listOrders()
 
-  const { approval_settings } =
-    (await retrieveCompany(customer?.employee?.company_id!)) || {}
+  // Customers without a company (direct app/web sign-ups) have no approval settings.
+  const companyId = customer?.employee?.company_id
+  const { approval_settings } = companyId
+    ? (await retrieveCompany(companyId)) || {}
+    : ({} as { approval_settings?: any })
 
   const approval_required =
     approval_settings?.requires_admin_approval ||

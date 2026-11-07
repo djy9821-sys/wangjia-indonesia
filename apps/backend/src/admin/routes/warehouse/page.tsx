@@ -1,3 +1,5 @@
+import { t, useLang } from "../../utils/i18n";
+import { LangToggle } from "../../components/common/lang-toggle";
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { Buildings } from "@medusajs/icons";
 import { Badge, Container, Heading, Table, Text } from "@medusajs/ui";
@@ -6,33 +8,34 @@ import { useWarehouseOrders } from "../../hooks/api/payment-plans";
 import { formatDate, formatMoney } from "../../utils/payment-plan";
 
 const WarehousePage = () => {
+  useLang();
   const q = useWarehouseOrders();
 
   return (
     <>
       <Container className="flex flex-col p-0 overflow-hidden">
         <div className="px-6 py-4">
-          <Heading level="h2">仓库：待发货订单</Heading>
+          <div className="flex items-center justify-between"><Heading level="h2">{t("仓库：待发货订单")}</Heading><LangToggle /></div>
           <Text size="small" className="text-ui-fg-subtle">
-            只显示财务已确认到款并放行的订单。点开订单后用「Create Fulfillment」备货，再用「Mark as shipped」填写货运公司与单号。
+            {t("只显示财务已确认到款并放行的订单。点开订单后用「Create Fulfillment」备货，再用「Mark as shipped」填写货运公司与单号。")}
           </Text>
         </div>
-        {q.isLoading && <Text className="px-6 pb-4">加载中…</Text>}
+        {q.isLoading && <Text className="px-6 pb-4">{t("加载中…")}</Text>}
         {q.error && <Text className="px-6 pb-4 text-ui-fg-error">{(q.error as Error).message}</Text>}
         {q.data && q.data.orders.length === 0 && (
-          <Text className="px-6 pb-4 text-ui-fg-subtle">暂时没有可以发货的订单。</Text>
+          <Text className="px-6 pb-4 text-ui-fg-subtle">{t("暂时没有可以发货的订单。")}</Text>
         )}
         {q.data && q.data.orders.length > 0 && (
           <Table>
             <Table.Header>
               <Table.Row>
-                <Table.HeaderCell>订单</Table.HeaderCell>
-                <Table.HeaderCell>客户</Table.HeaderCell>
-                <Table.HeaderCell>货物</Table.HeaderCell>
-                <Table.HeaderCell>收货地</Table.HeaderCell>
-                <Table.HeaderCell>金额</Table.HeaderCell>
-                <Table.HeaderCell>放行时间</Table.HeaderCell>
-                <Table.HeaderCell>发货进度</Table.HeaderCell>
+                <Table.HeaderCell>{t("订单")}</Table.HeaderCell>
+                <Table.HeaderCell>{t("客户")}</Table.HeaderCell>
+                <Table.HeaderCell>{t("货物")}</Table.HeaderCell>
+                <Table.HeaderCell>{t("收货地")}</Table.HeaderCell>
+                <Table.HeaderCell>{t("金额")}</Table.HeaderCell>
+                <Table.HeaderCell>{t("放行时间")}</Table.HeaderCell>
+                <Table.HeaderCell>{t("发货进度")}</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -63,7 +66,7 @@ const WarehousePage = () => {
                   <Table.Cell>{formatDate(plan.released_at)}</Table.Cell>
                   <Table.Cell>
                     <Badge size="2xsmall" color={progress.fully_fulfilled ? "blue" : "orange"}>
-                      {progress.fully_fulfilled ? "已备货，待发运" : `待备货 ${progress.fulfilled}/${progress.ordered}`}
+                      {progress.fully_fulfilled ? t("已备货，待发运") : `${t("待备货 ")}${progress.fulfilled}/${progress.ordered}`}
                     </Badge>
                   </Table.Cell>
                 </Table.Row>
@@ -77,7 +80,7 @@ const WarehousePage = () => {
 };
 
 export const config = defineRouteConfig({
-  label: "仓库发货",
+  label: "仓库发货 / Gudang",
   icon: Buildings,
 });
 
