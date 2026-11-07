@@ -50,6 +50,8 @@
 
 - 后端单元测试（WhatsApp provider 号码归一化/模板参数/干跑、保修序列号与码解析），`pnpm test:unit` 进 CI。
 
+- 站内通知：所有发给客户的通知带 `receiver_id`，`GET /store/notifications` 返回去重后的历史，App「账户 → Notifikasi」可回看并跳转订单/保修；发货后 7 天自动回访（`FOLLOWUP_DAYS`，回复进 Chatwoot）；操作指南新增「经销商开子账号与信用额度」。优化大纲 `docs/ROADMAP.zh-CN.md`。
+
 ## 本机验证手段
 - 后端：`pnpm test:integration:http`（30 个用例）、tsc、medusa lint；curl 走接口；浏览器查后台页面。
 - 商城：tsc、lint；浏览器查页面；sitemap 检查。

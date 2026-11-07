@@ -13,6 +13,11 @@ export const StoreRegisterPushToken = z
 
 export const storePushTokensMiddlewares: MiddlewareRoute[] = [
   {
+    method: ["GET"],
+    matcher: "/store/notifications",
+    middlewares: [authenticate("customer", ["session", "bearer"])],
+  },
+  {
     method: "ALL",
     matcher: "/store/push-tokens*",
     middlewares: [authenticate("customer", ["session", "bearer"])],

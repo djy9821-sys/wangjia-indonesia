@@ -135,6 +135,7 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 | POST | `/store/warranty/register` | 登记保修 `{ code, farm_location }`，同一客户重复登记幂等，他人已登记返回 400 |
 | GET | `/store/warranty/units` | 我登记过的设备与保修到期日 |
 | GET | `/store/orders/:id/warranty-units` | 这个订单发出的机身序列号；配合 `POST /store/warranty/register { unit_id }` 一键登记，不用扫码 |
+| GET | `/store/notifications` | 客户的通知历史（WhatsApp/邮件副本去重），App「Notifikasi」页用 |
 | DELETE | `/store/account` | 客户自助注销（App Store / Play 审核要求）：联系方式匿名化、地址和推送设备删除、登录身份删除、旧 token 立即失效；订单与保修记录保留 |
 | GET | `/store/wilayah` · `/store/wilayah/:provinceCode` · `/store/wilayah/:regencyCode` | 省 → 市县 → 区 三级联动（只需 publishable key） |
 
@@ -173,6 +174,7 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 - 仓库装箱时在订单页「机身序列号」面板输入/扫描序列号，客户在 App 订单详情就能看到自己那台机器，一键登记保修（不用扫码）；「我的机器」点一下就能 WhatsApp 报修，消息里自带序列号。
 - 总览页多了「已登记保修」卡片（本月新增、可疑扫码数）；客户详情页右侧有「客户的机器」面板；发票 PDF 底部列出该订单的机身序列号。
 - 保修到期前 30 天（`WARRANTY_REMINDER_DAYS`）自动给客户发 WhatsApp/邮件/推送，提醒检修和备件，带动配件销售。
+- 发货后 7 天（`FOLLOWUP_DAYS`）自动 WhatsApp 回访一次，问机器是否正常运转并提醒登记保修；客户回复进 Chatwoot。
 - 每天 07:30（雅加达）给 李总 发一条中文日报（WhatsApp + 邮件）：新订单、昨日到账、待确认、逾期、待报价、新登记保修。填 `OWNER_WHATSAPP`（国际格式不带 +，多个用逗号）和 `OWNER_EMAILS` 即开启；本地试跑 `OWNER_WHATSAPP=62812… npx medusa exec ./src/scripts/run-owner-digest.ts`。
 
 ## 收货地图打点

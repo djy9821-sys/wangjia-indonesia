@@ -107,6 +107,17 @@ medusaIntegrationTestRunner({
         const registered = new Date(reg.data.unit.registered_at).getTime();
         expect(expires - registered).toBeGreaterThan(360 * 24 * 3600 * 1000);
 
+        // the confirmation is recorded in the customer's notification history
+        let history: any[] = [];
+        for (let i = 0; i < 20 && !history.length; i++) {
+          await new Promise((r) => setTimeout(r, 250));
+          history = (await api.get("/store/notifications", storeHeaders)).data.notifications;
+        }
+        expect(history[0]).toEqual(expect.objectContaining({ template: "warranty-registered" }));
+        expect(history[0].text).toContain(a.serial);
+        const strangerHistory = await api.get("/store/notifications", publicHeaders).catch((e) => e.response);
+        expect(strangerHistory.status).toEqual(401);
+
         // same customer again: idempotent, not "first time"
         const again = await api.post("/store/warranty/register", { code: a.code }, storeHeaders);
         expect(again.data.first_time).toBe(false);

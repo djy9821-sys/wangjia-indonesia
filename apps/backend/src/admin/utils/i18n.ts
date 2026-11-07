@@ -274,4 +274,9 @@ const ID: Record<string, string> = {
   "签署时间": "Waktu tanda tangan",
   "合同文件": "Dokumen kontrak",
   "签署记录（审计日志）": "Riwayat tanda tangan (audit log)",
+  "经销商：开子账号与信用额度": "Dealer: akun & limit kredit",
+  "在「Companies」新建经销商公司（如 Pusat Kincir），填地址、币种 IDR。": "Buat perusahaan dealer di 'Companies' (mis. Pusat Kincir), isi alamat dan mata uang IDR.",
+  "在公司页「Employees」邀请经销商的采购员邮箱；勾选 Admin 的员工可以审批同事下单，Spending limit 是每人下单额度。": "Di halaman perusahaan 'Employees' undang email pembeli dealer; karyawan Admin bisa menyetujui pesanan rekan, Spending limit adalah batas pesanan per orang.",
+  "经销商用 App 或网站登录后，下单会带上公司信息，询价和付款计划照常；需要赊销时在付款计划里把尾款到期日设到约定账期。": "Setelah dealer masuk lewat aplikasi/situs, pesanan membawa data perusahaan; penawaran dan rencana pembayaran seperti biasa. Untuk tempo, atur jatuh tempo pelunasan sesuai kesepakatan.",
+  "经销商卖出的机器同样由客户自己扫码登记保修，后台能看到是哪家经销商的订单。": "Mesin yang dijual dealer tetap didaftarkan garansinya oleh pembeli akhir lewat scan; admin melihat pesanan berasal dari dealer mana.",
 };

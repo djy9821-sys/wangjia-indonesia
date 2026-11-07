@@ -89,7 +89,7 @@ async function staffEmails(container: MedusaContainer, role: "finance" | "wareho
 
 async function notify(
   container: MedusaContainer,
-  list: { to: string; channel: "whatsapp" | "email"; template: string; data: Record<string, unknown> }[]
+  list: { to: string; channel: "whatsapp" | "email"; template: string; data: Record<string, unknown>; receiver_id?: string | null }[]
 ) {
   if (!list.length) return;
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
@@ -146,9 +146,10 @@ async function pushCustomer(
 
 async function sendCustomer(container: MedusaContainer, ctx: PlanContext, template: string, text: string, subject: string) {
   const { phone, email } = customerTargets(ctx);
+  const receiver_id = ctx.order.customer_id ?? null;
   const list: Parameters<typeof notify>[1] = [];
-  if (phone) list.push({ to: phone, channel: "whatsapp", template, data: { text } });
-  if (email) list.push({ to: email, channel: "email", template, data: { subject, text } });
+  if (phone) list.push({ to: phone, channel: "whatsapp", template, data: { text, subject, order_id: ctx.order.id }, receiver_id });
+  if (email) list.push({ to: email, channel: "email", template, data: { subject, text, order_id: ctx.order.id }, receiver_id });
   await notify(container, list);
   // Push: subject is short enough for the notification title, text for the body.
   await pushCustomer(container, ctx.order.customer_id, template, subject, text.split("\n")[0].slice(0, 180), {
@@ -169,8 +170,9 @@ export async function sendCustomerMessage(
   extra: Record<string, unknown> = {}
 ) {
   const list: Parameters<typeof notify>[1] = [];
-  if (target.phone) list.push({ to: target.phone, channel: "whatsapp", template, data: { text } });
-  if (target.email) list.push({ to: target.email, channel: "email", template, data: { subject, text } });
+  const receiver_id = target.customer_id ?? null;
+  if (target.phone) list.push({ to: target.phone, channel: "whatsapp", template, data: { text, subject, ...extra }, receiver_id });
+  if (target.email) list.push({ to: target.email, channel: "email", template, data: { subject, text, ...extra }, receiver_id });
   await notify(container, list);
   await pushCustomer(container, target.customer_id, template, subject, text.split("\n")[0].slice(0, 180), extra);
 }

@@ -208,6 +208,8 @@ class S {
     'err_too_many': 'Terlalu banyak percobaan. Tunggu sebentar.',
     'err_server': 'Server bermasalah. Tim kami sudah diberi tahu, coba lagi nanti.',
     'err_generic': 'Terjadi kesalahan. Silakan coba lagi.',
+    'notifications': 'Notifikasi',
+    'no_notifications': 'Belum ada pesan. Pembaruan pembayaran, pengiriman dan garansi akan muncul di sini.',
   };
 
   static const _en = <String, String>{
@@ -409,5 +411,7 @@ class S {
     'err_too_many': 'Too many attempts. Please wait a moment.',
     'err_server': 'Server problem. Our team has been notified, please try again later.',
     'err_generic': 'Something went wrong. Please try again.',
+    'notifications': 'Notifications',
+    'no_notifications': 'No messages yet. Payment, shipping and warranty updates will appear here.',
   };
 }

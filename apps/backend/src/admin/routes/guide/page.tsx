@@ -80,6 +80,16 @@ const GuidePage = () => {
         ]}
       />
       <Section
+        title={t("经销商：开子账号与信用额度")}
+        to="/companies"
+        steps={[
+          t("在「Companies」新建经销商公司（如 Pusat Kincir），填地址、币种 IDR。"),
+          t("在公司页「Employees」邀请经销商的采购员邮箱；勾选 Admin 的员工可以审批同事下单，Spending limit 是每人下单额度。"),
+          t("经销商用 App 或网站登录后，下单会带上公司信息，询价和付款计划照常；需要赊销时在付款计划里把尾款到期日设到约定账期。"),
+          t("经销商卖出的机器同样由客户自己扫码登记保修，后台能看到是哪家经销商的订单。"),
+        ]}
+      />
+      <Section
         title={t("负责人：角色与日报")}
         to="/team"
         steps={[
