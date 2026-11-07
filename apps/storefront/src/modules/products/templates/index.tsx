@@ -2,6 +2,7 @@ import { HttpTypes } from "@medusajs/types"
 import ImageGallery from "@/modules/products/components/image-gallery"
 import ProductActions from "@/modules/products/components/product-actions"
 import ProductTabs from "@/modules/products/components/product-tabs"
+import WarrantyTrust from "@/modules/products/components/warranty-trust"
 import RelatedProducts from "@/modules/products/components/related-products"
 import ProductInfo from "@/modules/products/templates/product-info"
 import SkeletonRelatedProducts from "@/modules/skeletons/templates/skeleton-related-products"
@@ -34,6 +35,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
         <div className="flex flex-col bg-neutral-100 w-full gap-6 items-start justify-center small:p-20 p-6 h-full">
           <ProductInfo product={product} />
           <ProductActions product={product} region={region} />
+          <WarrantyTrust />
           <ProductFacts product={product} />
         </div>
       </div>

@@ -167,6 +167,7 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 - 仓库装箱时在订单页「机身序列号」面板输入/扫描序列号，客户在 App 订单详情就能看到自己那台机器，一键登记保修（不用扫码）；「我的机器」点一下就能 WhatsApp 报修，消息里自带序列号。
 - 总览页多了「已登记保修」卡片（本月新增、可疑扫码数）；客户详情页右侧有「客户的机器」面板；发票 PDF 底部列出该订单的机身序列号。
 - 保修到期前 30 天（`WARRANTY_REMINDER_DAYS`）自动给客户发 WhatsApp/邮件/推送，提醒检修和备件，带动配件销售。
+- 每天 07:30（雅加达）给 李总 发一条中文日报（WhatsApp + 邮件）：新订单、昨日到账、待确认、逾期、待报价、新登记保修。填 `OWNER_WHATSAPP`（国际格式不带 +，多个用逗号）和 `OWNER_EMAILS` 即开启；本地试跑 `OWNER_WHATSAPP=62812… npx medusa exec ./src/scripts/run-owner-digest.ts`。
 
 ## 收货地图打点
 

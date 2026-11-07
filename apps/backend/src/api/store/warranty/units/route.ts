@@ -11,8 +11,9 @@ export const GET = async (
   res: MedusaResponse
 ) => {
   const service = req.scope.resolve<WarrantyModuleService>(WARRANTY_MODULE);
+  // Voided labels (lost / recalled) are hidden from the owner's list.
   const units = await service.listWarrantyUnits(
-    { customer_id: req.auth_context.actor_id },
+    { customer_id: req.auth_context.actor_id, status: ["registered", "sold", "in_stock"] } as any,
     { order: { registered_at: "DESC" }, take: 200 }
   );
   res.json({
