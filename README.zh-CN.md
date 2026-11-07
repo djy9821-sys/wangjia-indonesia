@@ -4,7 +4,7 @@
 
 品牌素材在 `brand/`：目前是我们画的占位标识，拿到李总的正式 logo 文件后替换同名文件即可。
 
-工作日志（每次提交做了什么、怎么验证、待办）：[docs/WORKLOG.zh-CN.md](docs/WORKLOG.zh-CN.md)。
+工作日志：[docs/WORKLOG.zh-CN.md](docs/WORKLOG.zh-CN.md)；优化大纲（阶段、优先级、验收标准）：[docs/ROADMAP.zh-CN.md](docs/ROADMAP.zh-CN.md)。
 
 ## 业务流程
 
