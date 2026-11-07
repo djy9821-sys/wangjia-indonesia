@@ -42,6 +42,9 @@ jobs:
       - name: Lint
         run: npx medusa lint
         working-directory: apps/backend
+      - name: Unit tests
+        run: pnpm test:unit
+        working-directory: apps/backend
       - name: Integration tests
         run: pnpm test:integration:http
         working-directory: apps/backend

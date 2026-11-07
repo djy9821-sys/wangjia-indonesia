@@ -48,6 +48,8 @@
 
 - WhatsApp 模板模式：Meta 规定会话窗口外只能发已审核模板，provider 现在在配置 `WHATSAPP_TEMPLATE_NAME` 后自动把每条通知包进通用模板（换行转 ` | `、1024 字截断）；提交审核的模板文案见 `docs/whatsapp-templates.md`。网页订单详情补齐：物流轨迹（Biteship）、订单内机器一键登记保修。
 
+- 后端单元测试（WhatsApp provider 号码归一化/模板参数/干跑、保修序列号与码解析），`pnpm test:unit` 进 CI。
+
 ## 本机验证手段
 - 后端：`pnpm test:integration:http`（30 个用例）、tsc、medusa lint；curl 走接口；浏览器查后台页面。
 - 商城：tsc、lint；浏览器查页面；sitemap 检查。
