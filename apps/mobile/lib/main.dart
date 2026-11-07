@@ -47,7 +47,27 @@ class TrukAirApp extends StatelessWidget {
           theme: ThemeData(
             colorSchemeSeed: const Color(0xFF0E5A8A),
             useMaterial3: true,
-            inputDecorationTheme: const InputDecorationTheme(border: OutlineInputBorder()),
+            scaffoldBackgroundColor: const Color(0xFFF4F8FB),
+            appBarTheme: const AppBarTheme(centerTitle: true, backgroundColor: Color(0xFFF4F8FB), elevation: 0, scrolledUnderElevation: 0),
+            cardTheme: CardThemeData(
+              elevation: 0,
+              color: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: const BorderSide(color: Color(0xFFE1EAF1))),
+              margin: EdgeInsets.zero,
+            ),
+            filledButtonTheme: FilledButtonThemeData(
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+            ),
+            outlinedButtonTheme: OutlinedButtonThemeData(
+              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+            ),
+            chipTheme: ChipThemeData(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)), side: const BorderSide(color: Color(0xFFD6E2EB))),
+            navigationBarTheme: const NavigationBarThemeData(backgroundColor: Colors.white, indicatorColor: Color(0xFFDCEBF5)),
+            inputDecorationTheme: InputDecorationTheme(
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
           ),
           home: const UpdateGate(child: AuthGate()),
           // Universal / App Links: https://<storefront>/id/garansi/<code> -> warranty check.

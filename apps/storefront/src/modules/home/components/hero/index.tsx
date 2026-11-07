@@ -6,17 +6,21 @@ import LocalizedClientLink from "@/modules/common/components/localized-client-li
 
 const Hero = () => {
   return (
-    <div className="h-[75vh] w-full border-b border-ui-border-base relative bg-gradient-to-b from-sky-50 to-neutral-100">
-      <div className="absolute inset-0 z-1 flex flex-col justify-center items-center text-center small:p-32 gap-6">
+    <div className="min-h-[75vh] w-full py-10 border-b border-ui-border-base relative bg-gradient-to-b from-sky-50 to-neutral-100">
+      <div className="flex flex-col justify-center items-center text-center px-6 small:px-32 gap-6">
         <span>
           <p className="text-neutral-600 text-xs uppercase tracking-wide">
             Official store WANGJIA® Indonesia
           </p>
 
-          <img src="/wangjia-mark.svg" alt="" className="mx-auto h-20 w-20 mb-4" />
+          <img
+            src="/products/aerator-2hp.png"
+            alt="Kincir air WANGJIA 2 HP"
+            className="mx-auto w-full max-w-xl rounded-2xl mb-2"
+          />
           <Heading
             level="h1"
-            className="text-5xl small:text-6xl leading-tight text-ui-fg-base font-normal mt-8 mb-5"
+            className="text-4xl small:text-6xl leading-tight text-ui-fg-base font-normal mt-4 mb-5"
           >
             Kincir Air WANGJIA 1 HP & 2 HP
           </Heading>

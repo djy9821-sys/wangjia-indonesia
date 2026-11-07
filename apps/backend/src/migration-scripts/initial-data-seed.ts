@@ -298,6 +298,10 @@ export default async function initial_data_seed({
   WANGJIA® paddle wheel aerators (kincir air) for shrimp and fish ponds.
   Prices are placeholders in IDR — set the real list prices in the admin.
 */
+/* Illustrations served from /static until real photos are uploaded in the admin. */
+const productImage = (name: string) =>
+  `${(process.env.BACKEND_PUBLIC_URL || "http://localhost:9000").replace(/\/$/, "")}/static/products/${name}.png`;
+
 export const WANGJIA_PRODUCTS = (
   collectionId: string,
   categoryId: (name: string) => string,
@@ -307,6 +311,8 @@ export const WANGJIA_PRODUCTS = (
 ) => [
   {
     title: "Kincir Air WANGJIA 1 HP",
+    thumbnail: productImage("aerator-1hp"),
+    images: [{ url: productImage("aerator-1hp") }],
     handle: "kincir-air-wangjia-1-hp",
     subtitle: "Aerator tambak 2 impeller · 1 HP",
     collection_id: collectionId,
@@ -338,6 +344,8 @@ export const WANGJIA_PRODUCTS = (
   },
   {
     title: "Kincir Air WANGJIA 2 HP",
+    thumbnail: productImage("aerator-2hp"),
+    images: [{ url: productImage("aerator-2hp") }],
     handle: "kincir-air-wangjia-2-hp",
     subtitle: "Aerator tambak 4 impeller · 2 HP",
     collection_id: collectionId,
@@ -369,6 +377,8 @@ export const WANGJIA_PRODUCTS = (
   },
   {
     title: "Impeller Kincir WANGJIA",
+    thumbnail: productImage("impeller"),
+    images: [{ url: productImage("impeller") }],
     handle: "impeller-kincir-wangjia",
     category_ids: [categoryId("Suku Cadang")],
     description: "Impeller (kipas dayung) pengganti, plastik PP anti pecah, cocok kincir WANGJIA 1 HP & 2 HP.\n\nWANGJIA 水车叶轮，PP 抗裂。",
@@ -381,6 +391,8 @@ export const WANGJIA_PRODUCTS = (
   },
   {
     title: "Gearbox Kincir WANGJIA",
+    thumbnail: productImage("gearbox"),
+    images: [{ url: productImage("gearbox") }],
     handle: "gearbox-kincir-wangjia",
     category_ids: [categoryId("Suku Cadang")],
     description: "Gearbox (reducer) tahan air untuk kincir WANGJIA 1 HP / 2 HP.\n\nWANGJIA 水车防水减速齿轮箱。",
@@ -396,6 +408,8 @@ export const WANGJIA_PRODUCTS = (
   },
   {
     title: "Pelampung HDPE Kincir WANGJIA",
+    thumbnail: productImage("float"),
+    images: [{ url: productImage("float") }],
     handle: "pelampung-kincir-wangjia",
     category_ids: [categoryId("Suku Cadang")],
     description: "Pelampung HDPE tebal, tidak bocor, per buah.\n\nWANGJIA 水车 HDPE 浮筒，单只。",

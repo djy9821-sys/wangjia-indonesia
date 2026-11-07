@@ -210,6 +210,14 @@ class S {
     'err_generic': 'Terjadi kesalahan. Silakan coba lagi.',
     'notifications': 'Notifikasi',
     'no_notifications': 'Belum ada pesan. Pembaruan pembayaran, pengiriman dan garansi akan muncul di sini.',
+    'hero_tagline': 'Kincir air untuk tambak udang & ikan. Toko resmi, suku cadang asli.',
+    'badge_warranty': 'Garansi 12 bln',
+    'badge_installment': 'Bayar bertahap',
+    'badge_shipping': 'Kirim se-Indonesia',
+    'badge_qr': 'QR keaslian',
+    'view': 'Lihat',
+    'price': 'Harga',
+    'price_note': 'Sudah termasuk PPN 11%. Ongkir dikonfirmasi tim kami.',
   };
 
   static const _en = <String, String>{
@@ -413,5 +421,13 @@ class S {
     'err_generic': 'Something went wrong. Please try again.',
     'notifications': 'Notifications',
     'no_notifications': 'No messages yet. Payment, shipping and warranty updates will appear here.',
+    'hero_tagline': 'Paddle wheel aerators for shrimp & fish ponds. Official store, genuine parts.',
+    'badge_warranty': 'Garansi 12 bln',
+    'badge_installment': 'Bayar bertahap',
+    'badge_shipping': 'Kirim se-Indonesia',
+    'badge_qr': 'QR keaslian',
+    'view': 'View',
+    'price': 'Price',
+    'price_note': 'Incl. PPN 11%. Freight quoted separately.',
   };
 }

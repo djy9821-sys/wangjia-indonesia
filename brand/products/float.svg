@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900">
+<rect width="1200" height="900" fill="#E6F0F6"/>
+<path d="M0 558.0 Q 144.0 522.0 300.0 558.0 T 600.0 558.0 T 900.0 558.0 T 1200 558.0 V900 H0Z" fill="#BFE0F0"/>
+<path d="M0 648.0 Q 144.0 612.0 300.0 648.0 T 600.0 648.0 T 900.0 648.0 T 1200 648.0" fill="none" stroke="#9FCDE5" stroke-width="6"/>
+<rect x="300" y="420" width="600" height="200" rx="34" fill="#F4F6F8" stroke="#8FA3B5" stroke-width="8"/>
+<rect x="318" y="434" width="564" height="14" rx="7" fill="#DDE4EA"/>
+<text x="600" y="800" font-family="Helvetica, Arial, sans-serif" font-size="40" font-weight="700" fill="#0E5A8A" text-anchor="middle" letter-spacing="3">PELAMPUNG HDPE</text>
+</svg>

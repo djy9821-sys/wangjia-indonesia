@@ -52,6 +52,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 : all.where((p) => p.categoryIds.contains(_categoryId)).toList();
             return Column(
               children: [
+                const _BrandHero(),
                 if (MedusaClient.instance.productsFromCache)
                   MaterialBanner(
                     content: Text(S.t('offline_catalog')),
@@ -110,6 +111,56 @@ class _ProductsScreenState extends State<ProductsScreen> {
       );
 }
 
+class _BrandHero extends StatelessWidget {
+  const _BrandHero();
+  @override
+  Widget build(BuildContext context) => Container(
+        margin: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+        padding: const EdgeInsets.fromLTRB(18, 16, 12, 16),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(colors: [Color(0xFF0E5A8A), Color(0xFF1B8A5A)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('WANGJIA\u00AE', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: 3)),
+                  const SizedBox(height: 4),
+                  Text(S.t('hero_tagline'), style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.3)),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      _HeroChip(S.t('badge_warranty')),
+                      _HeroChip(S.t('badge_installment')),
+                      _HeroChip(S.t('badge_shipping')),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            const WangjiaLogo(size: 64, withText: false),
+          ],
+        ),
+      );
+}
+
+class _HeroChip extends StatelessWidget {
+  final String label;
+  const _HeroChip(this.label);
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.18), borderRadius: BorderRadius.circular(999)),
+        child: Text(label, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+      );
+}
+
 class _ProductCard extends StatelessWidget {
   final Product product;
   final VoidCallback? onOpenCart;
@@ -119,6 +170,7 @@ class _ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final min = product.minPrice;
     final currency = product.variants.isNotEmpty ? product.variants.first.currency : 'idr';
+    final theme = Theme.of(context);
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -128,27 +180,54 @@ class _ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: product.thumbnail != null
-                  ? CachedNetworkImage(imageUrl: product.thumbnail!, fit: BoxFit.cover)
-                  : Container(
-                      color: const Color(0xFFE3EEF5),
-                      child: const Center(child: WangjiaLogo(size: 64, withText: false)),
-                    ),
+            Stack(
+              children: [
+                AspectRatio(
+                  aspectRatio: 4 / 3,
+                  child: Container(
+                    color: const Color(0xFFE6F0F6),
+                    child: product.thumbnail != null
+                        ? CachedNetworkImage(imageUrl: product.thumbnail!, fit: BoxFit.cover)
+                        : const Center(child: WangjiaLogo(size: 64, withText: false)),
+                  ),
+                ),
+                Positioned(
+                  left: 12,
+                  top: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(color: const Color(0xFF1B8A5A), borderRadius: BorderRadius.circular(999)),
+                    child: Text(S.t('badge_warranty'), style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+                  ),
+                ),
+              ],
             ),
             Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(product.title, style: Theme.of(context).textTheme.titleMedium),
+                  Text(product.title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
                   if (product.subtitle != null && product.subtitle!.isNotEmpty)
-                    Text(product.subtitle!, style: Theme.of(context).textTheme.bodySmall),
-                  const SizedBox(height: 6),
-                  Text(
-                    min == null ? S.t('ask_price') : '${product.variants.length > 1 ? 'Mulai ' : ''}${money(min, currency)}',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(color: const Color(0xFF0E5A8A)),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(product.subtitle!, style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                    ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          min == null ? S.t('ask_price') : '${product.variants.length > 1 ? '${S.t('from')} ' : ''}${money(min, currency)}',
+                          style: theme.textTheme.titleMedium?.copyWith(color: const Color(0xFF0E5A8A), fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(color: const Color(0xFFDCEBF5), borderRadius: BorderRadius.circular(999)),
+                        child: Text(S.t('view'), style: const TextStyle(color: Color(0xFF0E5A8A), fontSize: 12, fontWeight: FontWeight.w700)),
+                      ),
+                    ],
                   ),
                 ],
               ),

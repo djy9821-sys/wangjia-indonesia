@@ -163,6 +163,10 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 
 配件、附件这类小额订单不需要销售手动建付款计划：订单金额 ≤ `AUTO_PLAN_MAX_TOTAL`（默认 1500 万 IDR，设 0 关闭）时，下单或接受报价后系统自动生成一期「Pembayaran penuh」（全款、发货前付清、`AUTO_PLAN_DUE_DAYS` 天内到期），客户立刻收到 WhatsApp 并可在 App 里用 Midtrans 付款或上传转账凭证。整机大额订单仍由销售按定金/尾款建计划。
 
+## 商品图片
+
+`brand/products/` 里是矢量插图（1 HP、2 HP、叶轮、齿轮箱、浮筒），渲染后的 PNG 由后端 `/static/products/*.png` 提供并在种子数据里引用。拿到 WANGJIA 实拍照片后，直接在后台 Products 里上传替换；老库可用 `npx medusa exec ./src/scripts/set-product-images.ts force` 批量挂回插图。
+
 ## 防伪与保修（扫码）
 
 产品元数据里可以放 `warranty_months`（如 1 HP 12、2 HP 18），生成序列号时自动按产品预填保修月数。每台设备出厂前在后台「防伪保修」页按批次生成序列号（`WJ-26-000123`）和随机二维码（`https://商城域名/id/garansi/<12位码>`）。生成后自动下载 A4 标签 PDF（3×8 格、70×37 mm 不干胶，普通打印机即可）和 CSV（给专业标签机），贴在机身铭牌旁。

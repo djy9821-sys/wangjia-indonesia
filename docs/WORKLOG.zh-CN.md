@@ -52,6 +52,8 @@
 
 - 站内通知：所有发给客户的通知带 `receiver_id`，`GET /store/notifications` 返回去重后的历史，App「账户 → Notifikasi」可回看并跳转订单/保修；发货后 7 天自动回访（`FOLLOWUP_DAYS`，回复进 Chatwoot）；操作指南新增「经销商开子账号与信用额度」。优化大纲 `docs/ROADMAP.zh-CN.md`。
 
+- 视觉打磨：画了一套矢量水车/叶轮/齿轮箱/浮筒插图（`brand/products/`，渲染为 PNG 放在后端 `static/products` 与商城 `public/products`），种子数据和 `set-product-images.ts` 脚本把插图挂到商品上（真实照片到位后在后台替换即可）；商城首页用 2 HP 插图作主视觉；App 统一主题（浅蓝底、白卡片、圆角按钮）、首页品牌头图 + 三个信任标签、商品卡片 4:3 大图 + “Garansi 12 bln”角标 + 价格区、详情页价格块与信任标签。
+
 ## 本机验证手段
 - 后端：`pnpm test:integration:http`（30 个用例）、tsc、medusa lint；curl 走接口；浏览器查后台页面。
 - 商城：tsc、lint；浏览器查页面；sitemap 检查。

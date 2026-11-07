@@ -74,9 +74,39 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           if (p.subtitle != null && p.subtitle!.isNotEmpty)
             Text(p.subtitle!, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54)),
           const SizedBox(height: 8),
-          Text(
-            _variant.price == null ? S.t('ask_price') : money(_variant.price, _variant.currency),
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(color: const Color(0xFF0E5A8A)),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(color: const Color(0xFFE6F0F6), borderRadius: BorderRadius.circular(14)),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(S.t('price'), style: Theme.of(context).textTheme.bodySmall),
+                      Text(
+                        _variant.price == null ? S.t('ask_price') : money(_variant.price, _variant.currency),
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: const Color(0xFF0E5A8A), fontWeight: FontWeight.w800),
+                      ),
+                      Text(S.t('price_note'), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.verified, color: Color(0xFF1B8A5A), size: 32),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _Trust(Icons.verified_user_outlined, S.t('badge_warranty')),
+              _Trust(Icons.payments_outlined, S.t('badge_installment')),
+              _Trust(Icons.local_shipping_outlined, S.t('badge_shipping')),
+              _Trust(Icons.qr_code_2, S.t('badge_qr')),
+            ],
           ),
           const SizedBox(height: 16),
           if (p.variants.length > 1) ...[
@@ -270,6 +300,29 @@ class _SpecTable extends StatelessWidget {
                   ],
                 ),
               ),
+          ],
+        ),
+      );
+}
+
+class _Trust extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  const _Trust(this.icon, this.label);
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: const Color(0xFFD6E2EB)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: const Color(0xFF1B8A5A)),
+            const SizedBox(width: 6),
+            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
           ],
         ),
       );
