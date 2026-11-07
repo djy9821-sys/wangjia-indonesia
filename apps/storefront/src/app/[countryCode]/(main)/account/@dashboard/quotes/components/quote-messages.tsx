@@ -35,7 +35,8 @@ const QuoteMessages = ({
     reset,
   } = useForm({
     defaultValues,
-    resolver: zodResolver(CreateQuoteMessageForm),
+    // zod v3 schema with a resolver typed for zod v4: shapes are compatible at runtime
+    resolver: zodResolver(CreateQuoteMessageForm as any),
   })
 
   const [isCreatingMessage, setIsCreatingMessage] = useState(false)

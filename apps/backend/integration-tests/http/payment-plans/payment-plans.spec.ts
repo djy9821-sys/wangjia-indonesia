@@ -22,6 +22,7 @@ const PNG_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
 
 medusaIntegrationTestRunner({
+  // @ts-expect-error inApp is honoured at runtime but missing from the runner's types
   inApp: true,
   env: { ADMIN_DEFAULT_ROLE: "owner", OTP_DEV_CODE: "000000", RATE_LIMIT_DISABLED: "true" },
   testSuite: ({ api, getContainer }) => {

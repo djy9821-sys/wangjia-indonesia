@@ -18,6 +18,7 @@ import {
 jest.setTimeout(60 * 1000);
 
 medusaIntegrationTestRunner({
+  // @ts-expect-error inApp is honoured at runtime but missing from the runner's types
   inApp: true,
   env: {
     JWT_SECRET: "supersecret",
