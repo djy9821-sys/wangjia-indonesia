@@ -2,14 +2,16 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../api/medusa_client.dart';
+import '../cart.dart';
 import '../format.dart';
 import '../l10n/strings.dart';
 import '../models.dart';
+import '../widgets/brand.dart';
 import '../widgets/common.dart';
 import '../widgets/wangjia_logo.dart';
-import '../cart.dart';
 import 'checkout_screen.dart';
 import 'product_detail_screen.dart';
+import 'warranty_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
   final VoidCallback? onOpenCart;
@@ -33,6 +35,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
     return cats;
   });
   String? _categoryId;
+  String _query = '';
+  final _groupBuyKey = GlobalKey();
 
   Future<void> _reload() async {
     setState(() {
@@ -42,130 +46,334 @@ class _ProductsScreenState extends State<ProductsScreen> {
     await _future;
   }
 
+  Future<void> _pickCategory(String contains) async {
+    final cats = await _categories;
+    final hit = cats.where((c) => c.name.toLowerCase().contains(contains)).firstOrNull;
+    if (mounted) setState(() => _categoryId = hit?.id);
+  }
+
+  void _scrollToGroupBuys() {
+    final ctx = _groupBuyKey.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 400), alignment: 0.1);
+    } else {
+      showSnack(context, S.t('no_group_buy'));
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(S.t('products'))),
+        backgroundColor: Brand.bg,
         body: FutureBuilder<List<Product>>(
           future: _future,
           builder: (context, snap) {
-            if (snap.hasError) return ErrorRetry(error: snap.error!, onRetry: _reload);
+            if (snap.hasError) return SafeArea(child: ErrorRetry(error: snap.error!, onRetry: _reload));
             if (!snap.hasData) return const Center(child: CircularProgressIndicator());
             final all = snap.data!;
-            final products = _categoryId == null
-                ? all
-                : all.where((p) => p.categoryIds.contains(_categoryId)).toList();
-            return Column(
-              children: [
-                const _BrandHero(),
-                _GroupBuySection(future: _groupBuys, onJoined: _reload),
-                if (MedusaClient.instance.productsFromCache)
-                  MaterialBanner(
-                    content: Text(S.t('offline_catalog')),
-                    leading: const Icon(Icons.cloud_off),
-                    actions: [TextButton(onPressed: _reload, child: Text(S.t('retry')))],
-                  ),
-                FutureBuilder<List<Category>>(
-                  future: _categories,
-                  builder: (context, cs) {
-                    final cats = cs.data ?? [];
-                    if (cats.isEmpty) return const SizedBox.shrink();
-                    return SizedBox(
-                      height: 48,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+            final q = _query.trim().toLowerCase();
+            final products = all.where((p) {
+              if (_categoryId != null && !p.categoryIds.contains(_categoryId)) return false;
+              if (q.isNotEmpty && !p.title.toLowerCase().contains(q) && !(p.subtitle ?? '').toLowerCase().contains(q)) return false;
+              return true;
+            }).toList();
+            final featured = all.where((p) => p.thumbnail != null && p.minPrice != null).take(3).toList();
+            return RefreshIndicator(
+              onRefresh: _reload,
+              child: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(child: _Header(query: _query, onQuery: (v) => setState(() => _query = v))),
+                  if (MedusaClient.instance.productsFromCache)
+                    SliverToBoxAdapter(
+                      child: MaterialBanner(
+                        content: Text(S.t('offline_catalog')),
+                        leading: const Icon(Icons.cloud_off),
+                        actions: [TextButton(onPressed: _reload, child: Text(S.t('retry')))],
+                      ),
+                    ),
+                  if (q.isEmpty) ...[
+                    if (featured.isNotEmpty) SliverToBoxAdapter(child: _Banner(products: featured, onOpenCart: widget.onOpenCart)),
+                    SliverToBoxAdapter(
+                      child: _QuickEntries(
+                        onAerator: () => _pickCategory('kincir'),
+                        onParts: () => _pickCategory('suku'),
+                        onGroupBuy: _scrollToGroupBuys,
+                        onWarranty: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WarrantyScreen())),
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: KeyedSubtree(key: _groupBuyKey, child: _GroupBuySection(future: _groupBuys, onJoined: _reload)),
+                    ),
+                  ],
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                      child: Row(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: ChoiceChip(
-                              label: Text(S.t('all')),
-                              selected: _categoryId == null,
-                              onSelected: (_) => setState(() => _categoryId = null),
-                            ),
-                          ),
-                          ...cats.map((c) => Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: ChoiceChip(
-                                  label: Text(c.name),
-                                  selected: _categoryId == c.id,
-                                  onSelected: (_) => setState(() => _categoryId = c.id),
-                                ),
-                              )),
+                          Container(width: 4, height: 18, decoration: BoxDecoration(color: Brand.accent, borderRadius: BorderRadius.circular(2))),
+                          const SizedBox(width: 8),
+                          Text(q.isEmpty ? S.t('all_products') : '"$_query"',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                          const Spacer(),
+                          Text('${products.length} ${S.t('items_unit')}', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
                         ],
                       ),
-                    );
-                  },
-                ),
-                Expanded(
-                  child: products.isEmpty
-                      ? Center(child: Text(S.t('no_products')))
-                      : RefreshIndicator(
-                          onRefresh: _reload,
-                          child: ListView.separated(
-                            padding: const EdgeInsets.all(16),
-                            itemCount: products.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 12),
-                            itemBuilder: (context, i) => _ProductCard(product: products[i], onOpenCart: widget.onOpenCart),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: FutureBuilder<List<Category>>(
+                      future: _categories,
+                      builder: (context, cs) {
+                        final cats = cs.data ?? [];
+                        if (cats.isEmpty) return const SizedBox.shrink();
+                        return SizedBox(
+                          height: 44,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            children: [
+                              _Pill(label: S.t('all'), selected: _categoryId == null, onTap: () => setState(() => _categoryId = null)),
+                              ...cats.map((c) => _Pill(label: c.name, selected: _categoryId == c.id, onTap: () => setState(() => _categoryId = c.id))),
+                            ],
                           ),
+                        );
+                      },
+                    ),
+                  ),
+                  if (products.isEmpty)
+                    SliverToBoxAdapter(
+                      child: Padding(padding: const EdgeInsets.all(40), child: Center(child: Text(S.t('no_products')))),
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
+                      sliver: SliverGrid(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 10,
+                          crossAxisSpacing: 10,
+                          childAspectRatio: 0.62,
                         ),
-                ),
-              ],
+                        delegate: SliverChildBuilderDelegate(
+                          (context, i) => _ProductCard(product: products[i], onOpenCart: widget.onOpenCart),
+                          childCount: products.length,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             );
           },
         ),
       );
 }
 
-class _BrandHero extends StatelessWidget {
-  const _BrandHero();
+/// Blue header with the logo and a search field (filters the catalogue locally).
+class _Header extends StatelessWidget {
+  final String query;
+  final ValueChanged<String> onQuery;
+  const _Header({required this.query, required this.onQuery});
+
   @override
   Widget build(BuildContext context) => Container(
-        margin: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-        padding: const EdgeInsets.fromLTRB(18, 16, 12, 16),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [Color(0xFF0193DE), Color(0xFF0E5A8A)], begin: Alignment.topLeft, end: Alignment.bottomRight),
-          borderRadius: BorderRadius.circular(20),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(colors: [Brand.blue, Brand.navy], begin: Alignment.topLeft, end: Alignment.bottomRight),
         ),
+        padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 8, 16, 14),
         child: Row(
           children: [
+            const WangjiaLogo(size: 40, withText: false),
+            const SizedBox(width: 10),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('WANGJIA\u00AE', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: 3)),
-                  const SizedBox(height: 4),
-                  Text(S.t('hero_tagline'), style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.3)),
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      _HeroChip(S.t('badge_warranty')),
-                      _HeroChip(S.t('badge_installment')),
-                      _HeroChip(S.t('badge_shipping')),
-                    ],
+              child: Container(
+                height: 40,
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(999)),
+                child: TextField(
+                  onChanged: onQuery,
+                  textInputAction: TextInputAction.search,
+                  decoration: InputDecoration(
+                    hintText: S.t('search_hint'),
+                    hintStyle: const TextStyle(fontSize: 13, color: Colors.black45),
+                    prefixIcon: const Icon(Icons.search, color: Brand.navy),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
                   ),
-                ],
+                ),
               ),
             ),
-            const SizedBox(width: 8),
-            const WangjiaLogo(size: 64, withText: false),
           ],
         ),
       );
 }
 
-class _HeroChip extends StatelessWidget {
-  final String label;
-  const _HeroChip(this.label);
+/// Swipeable promo banner built from real products (photo + starting price).
+class _Banner extends StatefulWidget {
+  final List<Product> products;
+  final VoidCallback? onOpenCart;
+  const _Banner({required this.products, this.onOpenCart});
   @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.18), borderRadius: BorderRadius.circular(999)),
-        child: Text(label, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+  State<_Banner> createState() => _BannerState();
+}
+
+class _BannerState extends State<_Banner> {
+  int _index = 0;
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 168,
+              child: PageView.builder(
+                itemCount: widget.products.length,
+                onPageChanged: (i) => setState(() => _index = i),
+                itemBuilder: (context, i) {
+                  final p = widget.products[i];
+                  final palette = const [
+                    [Color(0xFF0193DE), Color(0xFF0E5A8A)],
+                    [Color(0xFFF04E23), Color(0xFFB3290A)],
+                    [Color(0xFF1B8A5A), Color(0xFF0B5A3A)],
+                  ][i % 3];
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(18),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => ProductDetailScreen(product: p, onOpenCart: widget.onOpenCart)),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(colors: palette, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      padding: const EdgeInsets.fromLTRB(18, 14, 12, 14),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(S.t('official_store').toUpperCase(),
+                                    style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.2)),
+                                const SizedBox(height: 4),
+                                Text(p.title, maxLines: 2, overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800, height: 1.15)),
+                                const SizedBox(height: 6),
+                                Text('${S.t('from')} ${money(p.minPrice, p.variants.first.currency)}',
+                                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(999)),
+                                  child: Text(S.t('view'), style: TextStyle(color: palette.first, fontSize: 12, fontWeight: FontWeight.w800)),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              width: 118,
+                              height: 118,
+                              color: Colors.white,
+                              padding: const EdgeInsets.all(4),
+                              child: CachedNetworkImage(imageUrl: p.thumbnail!, fit: BoxFit.contain),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                widget.products.length,
+                (i) => AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: i == _index ? 16 : 6,
+                  height: 6,
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  decoration: BoxDecoration(color: i == _index ? Brand.accent : Colors.black26, borderRadius: BorderRadius.circular(3)),
+                ),
+              ),
+            ),
+          ],
+        ),
       );
 }
 
+class _QuickEntries extends StatelessWidget {
+  final VoidCallback onAerator, onParts, onGroupBuy, onWarranty;
+  const _QuickEntries({required this.onAerator, required this.onParts, required this.onGroupBuy, required this.onWarranty});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget item(IconData icon, Color color, String label, VoidCallback onTap) => Expanded(
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Column(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(16)),
+                    child: Icon(icon, color: color, size: 26),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(label, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
+                ],
+              ),
+            ),
+          ),
+        );
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+      child: Row(
+        children: [
+          item(Icons.water, Brand.blue, S.t('quick_aerator'), onAerator),
+          item(Icons.settings_suggest_outlined, Brand.navy, S.t('quick_parts'), onParts),
+          item(Icons.groups_2_outlined, Brand.accent, S.t('group_buy'), onGroupBuy),
+          item(Icons.verified_user_outlined, Brand.green, S.t('quick_warranty'), onWarranty),
+        ],
+      ),
+    );
+  }
+}
+
+class _Pill extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  const _Pill({required this.label, required this.selected, required this.onTap});
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: selected ? Brand.accentSoft : Colors.white,
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: selected ? Brand.accent : Brand.line),
+            ),
+            child: Text(label,
+                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: selected ? Brand.accentDark : Colors.black87)),
+          ),
+        ),
+      );
+}
+
+/// Marketplace-style card: square photo, two-line title, big accent price.
 class _ProductCard extends StatelessWidget {
   final Product product;
   final VoidCallback? onOpenCart;
@@ -175,68 +383,67 @@ class _ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final min = product.minPrice;
     final currency = product.variants.isNotEmpty ? product.variants.first.currency : 'idr';
-    final theme = Theme.of(context);
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => ProductDetailScreen(product: product, onOpenCart: onOpenCart)),
-        ),
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => ProductDetailScreen(product: product, onOpenCart: onOpenCart)),
+      ),
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Stack(
               children: [
                 AspectRatio(
-                  aspectRatio: 4 / 3,
+                  aspectRatio: 1,
                   child: Container(
-                    // Catalogue photos are white 1:1 squares; show them whole.
                     color: product.thumbnail != null ? Colors.white : const Color(0xFFE6F0F6),
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(6),
                     child: product.thumbnail != null
                         ? CachedNetworkImage(imageUrl: product.thumbnail!, fit: BoxFit.contain)
-                        : const Center(child: WangjiaLogo(size: 64, withText: false)),
+                        : const Center(child: WangjiaLogo(size: 56, withText: false)),
                   ),
                 ),
-                Positioned(
-                  left: 12,
-                  top: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: const Color(0xFF1B8A5A), borderRadius: BorderRadius.circular(999)),
-                    child: Text(S.t('badge_warranty'), style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+                if (product.variants.length > 1)
+                  Positioned(
+                    left: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                      decoration: BoxDecoration(color: Brand.navy, borderRadius: BorderRadius.circular(6)),
+                      child: Text('${product.variants.length} ${S.t('variants_unit')}',
+                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
+                    ),
                   ),
-                ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(product.title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-                  if (product.subtitle != null && product.subtitle!.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Text(product.subtitle!, style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54)),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(product.title, maxLines: 2, overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 13, height: 1.25, fontWeight: FontWeight.w600)),
+                    const Spacer(),
+                    Text(
+                      min == null ? S.t('ask_price') : money(min, currency),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Brand.accent, fontSize: 16, fontWeight: FontWeight.w800),
                     ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          min == null ? S.t('ask_price') : '${product.variants.length > 1 ? '${S.t('from')} ' : ''}${money(min, currency)}',
-                          style: theme.textTheme.titleMedium?.copyWith(color: const Color(0xFF0E5A8A), fontWeight: FontWeight.w800),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(color: const Color(0xFFDCEBF5), borderRadius: BorderRadius.circular(999)),
-                        child: Text(S.t('view'), style: const TextStyle(color: Color(0xFF0E5A8A), fontSize: 12, fontWeight: FontWeight.w700)),
-                      ),
-                    ],
-                  ),
-                ],
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        _MiniTag(S.t('badge_warranty')),
+                        const SizedBox(width: 4),
+                        _MiniTag(S.t('tag_installment')),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -244,6 +451,21 @@ class _ProductCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _MiniTag extends StatelessWidget {
+  final String text;
+  const _MiniTag(this.text);
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+        decoration: BoxDecoration(
+          color: Brand.accentSoft,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: const Color(0xFFF9C3B2)),
+        ),
+        child: Text(text, style: const TextStyle(color: Brand.accentDark, fontSize: 9.5, fontWeight: FontWeight.w700)),
+      );
 }
 
 /// Horizontal strip of open patungan; hidden when there are none.
@@ -259,7 +481,7 @@ class _GroupBuySection extends StatelessWidget {
           final list = snap.data ?? const <GroupBuy>[];
           if (list.isEmpty) return const SizedBox.shrink();
           return Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(top: 12, bottom: 4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -267,7 +489,7 @@ class _GroupBuySection extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                   child: Row(
                     children: [
-                      const Icon(Icons.groups_2_outlined, color: Color(0xFF0E5A8A)),
+                      Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Brand.accentSoft, borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.groups_2_outlined, color: Brand.accent, size: 20)),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Column(
@@ -342,7 +564,7 @@ class _GroupBuyCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          _Tag(S.t('group_buy').toUpperCase(), const Color(0xFF0193DE)),
+                          _Tag(S.t('group_buy').toUpperCase(), Brand.accent),
                           if (disc != null && disc > 0) ...[
                             const SizedBox(width: 6),
                             _Tag(S.t('save_pct').replaceFirst('{n}', '$disc'), const Color(0xFFD9342B)),
@@ -357,7 +579,7 @@ class _GroupBuyCard extends StatelessWidget {
                         spacing: 6,
                         children: [
                           Text(money(g.groupPrice, g.currency),
-                              style: theme.textTheme.titleMedium?.copyWith(color: const Color(0xFF0E5A8A), fontWeight: FontWeight.w800)),
+                              style: theme.textTheme.titleMedium?.copyWith(color: Brand.accent, fontWeight: FontWeight.w800)),
                           if (g.regularPrice != null)
                             Text(money(g.regularPrice, g.currency),
                                 style: theme.textTheme.bodySmall?.copyWith(decoration: TextDecoration.lineThrough, color: Colors.black45)),
@@ -371,7 +593,7 @@ class _GroupBuyCard extends StatelessWidget {
             const Spacer(),
             ClipRRect(
               borderRadius: BorderRadius.circular(99),
-              child: LinearProgressIndicator(value: g.progress, minHeight: 6, backgroundColor: const Color(0xFFE6F0F6), color: const Color(0xFF0193DE)),
+              child: LinearProgressIndicator(value: g.progress, minHeight: 6, backgroundColor: Brand.accentSoft, color: Brand.accent),
             ),
             const SizedBox(height: 6),
             Row(
