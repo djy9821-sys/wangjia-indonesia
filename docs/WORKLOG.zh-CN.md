@@ -62,7 +62,7 @@
 - 商城：首页主视觉改为 1 HP / 2 HP 实拍图 + 按真实卖点改写的文案；新增 `/panduan` 安装与保养指南（装箱清单可点到对应配件、10 步组装、换油周期、故障对应配件），页脚加链接。本机验证：tsc/lint 两端无错误，同步脚本连跑两次结果收敛（15 件），网页首页/列表/详情/指南页和 App 商品列表均显示实拍图和新参数。
 - 产品图统一处理（李总反馈“图片能不能好看些”）：原图只有 300–700 px，无法凭空提清晰度或去掉 WANG JIA 水印，所以做的是统一规格——`brand/products/enhance-photos.cjs`（sharp）先裁掉图里自带的蓝色边框、标题和说明字幕，白底图再自动去白边，然后全部居中放到 1200×1200 白底正方形（留白 8 %），轻度锐化/对比度/饱和度，mozjpeg 压缩（27 张共 2.6 MB）。列表页和详情页现在每张图尺寸、留白一致。真正好看还得李总用手机补拍，脚本可以直接复用。 App 商品卡片和详情图廊改为白底完整显示（`BoxFit.contain`），不再把正方形图裁成 4:3；商城商品详情图廊改为白色正方形展示台（原来 80px 内边距把图压得很小）+ 56px 缩略图带选中框。
 - 发现并修掉一个流程坑：`medusa exec` 跑完脚本就退出，本地事件总线来不及把商品变更写进搜索索引，整体重建商品后商城列表页会空白。`sync-catalog.ts` 现在结尾调用 Search 模块 `reindex({ index: "product", strategy: "in_place" })` 并轮询到 `ready` 再退出。（CI ee25466、f9fca67 四项全绿）
-- 正式 logo 到位（李总发来一张带灰底和产品图的 JPG）：用 `brand/logo/cut-from-source.cjs` 按饱和度/明度把蓝色 W、红点和黑色 WANG JIA 字样从灰底里抠成透明 PNG（标志、字标、竖排组合、横排组合各一份），再用 `brand/logo/build-assets.cjs` 一键生成 App 启动图标/自适应图标/启动页（白底）、商城 `icon.png`/`apple-icon.png`/`favicon.ico`、1200×630 的 Open Graph 分享图。App 的 `WangjiaLogo` 组件改为直接用官方图（无字版放在白色圆角块里，蓝底上也看得清），商城顶栏换横排组合标；品牌渐变从“深蓝→绿”改为 logo 的“天蓝 #0193DE → 深蓝 #0E5A8A”。占位用的矢量水车 logo 和 SVG 全部删除。
+- 正式 logo 到位（李总发来一张带灰底和产品图的 JPG）：用 `brand/logo/cut-from-source.cjs` 按饱和度/明度把蓝色 W、红点和黑色 WANG JIA 字样从灰底里抠成透明 PNG（标志、字标、竖排组合、横排组合各一份），再用 `brand/logo/build-assets.cjs` 一键生成 App 启动图标/自适应图标/启动页（白底）、商城 `icon.png`/`apple-icon.png`/`favicon.ico`、1200×630 的 Open Graph 分享图。App 的 `WangjiaLogo` 组件改为直接用官方图（无字版放在白色圆角块里，蓝底上也看得清），商城顶栏换横排组合标；品牌渐变从“深蓝→绿”改为 logo 的“天蓝 #0193DE → 深蓝 #0E5A8A”。占位用的矢量水车 logo 和 SVG 全部删除。（CI eb77789 四项含 APK 全绿）
 
 ## 本机验证手段
 - 后端：`pnpm test:integration:http`（30 个用例）、tsc、medusa lint；curl 走接口；浏览器查后台页面。
