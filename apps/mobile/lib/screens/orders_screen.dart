@@ -5,6 +5,7 @@ import '../api/medusa_client.dart';
 import '../format.dart';
 import '../l10n/strings.dart';
 import '../models.dart';
+import '../widgets/brand.dart';
 import '../widgets/common.dart';
 import '../widgets/wangjia_logo.dart';
 import 'order_detail_screen.dart';
@@ -91,9 +92,9 @@ class _OrderCard extends StatelessWidget {
                 child: Container(
                   width: 64,
                   height: 64,
-                  color: const Color(0xFFF4F8FB),
+                  color: Colors.white,
                   child: thumb != null
-                      ? CachedNetworkImage(imageUrl: thumb, fit: BoxFit.cover)
+                      ? CachedNetworkImage(imageUrl: thumb, fit: BoxFit.contain)
                       : const Center(child: WangjiaLogo(size: 36, withText: false)),
                 ),
               ),
@@ -109,7 +110,7 @@ class _OrderCard extends StatelessWidget {
                               style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
                         ),
                         Text(money(order.total, order.currency),
-                            style: theme.textTheme.titleSmall?.copyWith(color: const Color(0xFF0E5A8A), fontWeight: FontWeight.w700)),
+                            style: theme.textTheme.titleSmall?.copyWith(color: Brand.accent, fontWeight: FontWeight.w800)),
                       ],
                     ),
                     const SizedBox(height: 2),

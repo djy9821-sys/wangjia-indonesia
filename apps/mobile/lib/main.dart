@@ -8,6 +8,7 @@ import 'monitoring.dart';
 import 'push.dart';
 import 'screens/order_detail_screen.dart';
 import 'l10n/strings.dart';
+import 'widgets/brand.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
 import 'screens/warranty_screen.dart';
@@ -45,24 +46,58 @@ class TrukAirApp extends StatelessWidget {
           title: S.t('app_title'),
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            colorSchemeSeed: const Color(0xFF0E5A8A),
+            colorSchemeSeed: Brand.navy,
             useMaterial3: true,
-            scaffoldBackgroundColor: const Color(0xFFF4F8FB),
-            appBarTheme: const AppBarTheme(centerTitle: true, backgroundColor: Color(0xFFF4F8FB), elevation: 0, scrolledUnderElevation: 0),
+            scaffoldBackgroundColor: Brand.bg,
+            appBarTheme: const AppBarTheme(
+              centerTitle: true,
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black87,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              titleTextStyle: TextStyle(color: Colors.black87, fontSize: 16, fontWeight: FontWeight.w700),
+            ),
             cardTheme: CardThemeData(
               elevation: 0,
               color: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: const BorderSide(color: Color(0xFFE1EAF1))),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: const BorderSide(color: Brand.line)),
               margin: EdgeInsets.zero,
             ),
+            // Primary actions are orange-red (buy / pay / confirm); secondary stay navy.
             filledButtonTheme: FilledButtonThemeData(
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              style: FilledButton.styleFrom(
+                backgroundColor: Brand.accent,
+                foregroundColor: Colors.white,
+                minimumSize: const Size.fromHeight(48),
+                textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
             outlinedButtonTheme: OutlinedButtonThemeData(
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Brand.navy,
+                side: const BorderSide(color: Brand.navy),
+                minimumSize: const Size.fromHeight(48),
+                textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
-            chipTheme: ChipThemeData(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)), side: const BorderSide(color: Color(0xFFD6E2EB))),
-            navigationBarTheme: const NavigationBarThemeData(backgroundColor: Colors.white, indicatorColor: Color(0xFFDCEBF5)),
+            textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: Brand.navy)),
+            chipTheme: ChipThemeData(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)), side: const BorderSide(color: Brand.line)),
+            navigationBarTheme: NavigationBarThemeData(
+              backgroundColor: Colors.white,
+              indicatorColor: Brand.accentSoft,
+              iconTheme: WidgetStateProperty.resolveWith(
+                (states) => IconThemeData(color: states.contains(WidgetState.selected) ? Brand.accent : Colors.black54),
+              ),
+              labelTextStyle: WidgetStateProperty.resolveWith(
+                (states) => TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                  color: states.contains(WidgetState.selected) ? Brand.accentDark : Colors.black54,
+                ),
+              ),
+            ),
             inputDecorationTheme: InputDecorationTheme(
               filled: true,
               fillColor: Colors.white,
