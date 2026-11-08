@@ -115,6 +115,24 @@ export async function syncCatalog(container: MedusaContainer, { recreate = false
     logger.info(`[catalog] added ${variantCreates.length} variant(s): ${variantCreates.map((v) => v.sku).join(", ")}`);
   }
   logger.info(`[catalog] in sync: ${defs.length} product(s) defined`);
+
+  // `medusa exec` exits before the local event bus has indexed the changes,
+  // so the product search index (behind the storefront listing) is rebuilt
+  // here and awaited: reindex() only starts a background job.
+  try {
+    const searchModule = container.resolve(Modules.SEARCH);
+    await searchModule.reindex({ index: "product", strategy: "in_place" });
+    const deadline = Date.now() + 120_000;
+    let status = "building";
+    while (status === "building" && Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, 1000));
+      const [info] = (await searchModule.listIndexes()).filter((i) => i.name === "product");
+      status = info?.status ?? "unknown";
+    }
+    logger.info(`[catalog] product search index: ${status}`);
+  } catch (e) {
+    logger.warn(`[catalog] search index not rebuilt: ${(e as Error).message}`);
+  }
 }
 
 export default async function ({ container, args }: ExecArgs) {

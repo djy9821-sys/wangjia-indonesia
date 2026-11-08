@@ -185,9 +185,11 @@ class _ProductCard extends StatelessWidget {
                 AspectRatio(
                   aspectRatio: 4 / 3,
                   child: Container(
-                    color: const Color(0xFFE6F0F6),
+                    // Catalogue photos are white 1:1 squares; show them whole.
+                    color: product.thumbnail != null ? Colors.white : const Color(0xFFE6F0F6),
+                    padding: const EdgeInsets.all(8),
                     child: product.thumbnail != null
-                        ? CachedNetworkImage(imageUrl: product.thumbnail!, fit: BoxFit.cover)
+                        ? CachedNetworkImage(imageUrl: product.thumbnail!, fit: BoxFit.contain)
                         : const Center(child: WangjiaLogo(size: 64, withText: false)),
                   ),
                 ),

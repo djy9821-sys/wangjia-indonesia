@@ -240,10 +240,13 @@ class _GalleryState extends State<_Gallery> {
               onPageChanged: (i) => setState(() => _index = i),
               itemBuilder: (_, i) => GestureDetector(
                 onTap: () => _openFull(i),
-                child: CachedNetworkImage(imageUrl: widget.images[i],
-                  fit: BoxFit.cover,
-                  placeholder: (_, __) => const Center(child: CircularProgressIndicator()),
-                  errorWidget: (_, __, ___) => const Center(child: Icon(Icons.broken_image_outlined)),
+                child: Container(
+                  color: Colors.white,
+                  child: CachedNetworkImage(imageUrl: widget.images[i],
+                    fit: BoxFit.contain,
+                    placeholder: (_, __) => const Center(child: CircularProgressIndicator()),
+                    errorWidget: (_, __, ___) => const Center(child: Icon(Icons.broken_image_outlined)),
+                  ),
                 ),
               ),
             ),

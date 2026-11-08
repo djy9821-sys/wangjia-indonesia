@@ -73,22 +73,22 @@ const ImageGallery = ({ product }: ImageGalleryProps) => {
 
   return (
     <div className="flex flex-col justify-end items-center bg-neutral-100 p-8 pt-0 gap-6 w-full h-full">
+      {/* Catalogue photos are white 1:1 squares, so the stage is a white
+          square card and the photo fills it with a small margin. */}
       <div
-        className="relative aspect-[29/34] w-full overflow-hidden"
+        className="relative aspect-square w-full max-w-[640px] overflow-hidden rounded-2xl bg-white shadow-borders-base"
         id={selectedImage.id}
       >
-        <div className="flex p-48">
-          {!!selectedImage.url && (
-            <Image
-              src={selectedImage.url}
-              priority
-              className="absolute inset-0 rounded-rounded p-20 overflow-visible object-contain"
-              alt={(selectedImage.metadata?.alt as string) || product.title}
-              fill
-              sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
-            />
-          )}
-        </div>
+        {!!selectedImage.url && (
+          <Image
+            src={selectedImage.url}
+            priority
+            className="object-contain p-4"
+            alt={(selectedImage.metadata?.alt as string) || product.title}
+            fill
+            sizes="(max-width: 576px) 90vw, (max-width: 992px) 50vw, 640px"
+          />
+        )}
       </div>
       <div className="flex small:flex-row flex-col-reverse gap-y-3 justify-between w-full">
         {images.length > 1 && (
@@ -115,7 +115,10 @@ const ImageGallery = ({ product }: ImageGalleryProps) => {
           {images.map((image, index) => (
             <li
               key={image.id}
-              className="flex aspect-[1/1] w-8 h-8 rounded-rounded"
+              className={clx(
+                "flex aspect-[1/1] w-14 h-14 rounded-lg overflow-hidden bg-white shadow-borders-base cursor-pointer",
+                index === selectedImageIndex && "ring-2 ring-ui-fg-interactive"
+              )}
               onClick={() => handleImageClick(image)}
               role="button"
               aria-label={`Show image ${index + 1}`}
@@ -123,11 +126,11 @@ const ImageGallery = ({ product }: ImageGalleryProps) => {
               <Image
                 src={image.url}
                 alt={(image.metadata?.alt as string) || ""}
-                height={32}
-                width={32}
+                height={56}
+                width={56}
                 className={clx(
-                  index === selectedImageIndex ? "opacity-100" : "opacity-40",
-                  "hover:opacity-100 object-contain"
+                  index === selectedImageIndex ? "opacity-100" : "opacity-60",
+                  "hover:opacity-100 object-contain p-1"
                 )}
               />
             </li>
