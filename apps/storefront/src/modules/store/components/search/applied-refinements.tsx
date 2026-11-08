@@ -112,7 +112,7 @@ const AppliedRefinements = ({ currencyCode }: { currencyCode: string }) => {
       className="flex flex-wrap items-center gap-2"
       data-testid="applied-refinements"
     >
-      <Text className="text-xs text-neutral-500">Filters:</Text>
+      <Text className="text-xs text-neutral-500">Filter:</Text>
 
       {priceLabel && (
         <PriceChip label={priceLabel} attribute={priceAttributeName} />
@@ -141,7 +141,7 @@ const AppliedRefinements = ({ currencyCode }: { currencyCode: string }) => {
         className="text-xs text-neutral-600 underline hover:text-neutral-900"
         data-testid="clear-refinements"
       >
-        Clear all
+        Hapus semua
       </button>
     </div>
   )

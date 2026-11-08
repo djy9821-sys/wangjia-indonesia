@@ -13,15 +13,15 @@ type SortProductsProps = {
 const sortOptions = [
   {
     value: "created_at",
-    label: "Latest Arrivals",
+    label: "Terbaru",
   },
   {
     value: "price_asc",
-    label: "Price: Low -> High",
+    label: "Harga: rendah ke tinggi",
   },
   {
     value: "price_desc",
-    label: "Price: High -> Low",
+    label: "Harga: tinggi ke rendah",
   },
 ]
 
@@ -36,11 +36,11 @@ const SortProducts = ({
 
   return (
     <div className="flex items-center gap-2 text-sm p-2 justify-between">
-      <span className="text-neutral-500">Sort by:</span>
+      <span className="text-neutral-500">Urutkan:</span>
       <div className="relative">
         <select
           className="w-full pr-8 overflow-hidden focus:outline-none appearance-none"
-          title="Sort by"
+          title="Urutkan"
           value={sortBy}
           onChange={(e) => handleChange(e.target.value as SortOptions)}
           data-testid={dataTestId}

@@ -22,7 +22,7 @@ const SearchResults = ({ currencyCode }: { currencyCode: string }) => {
     return (
       <Container className="flex flex-col gap-2 text-center text-sm">
         <Text className="text-ui-fg-error font-medium">
-          Couldn&apos;t load products{errorStatus ? ` (${errorStatus})` : ""}
+          Gagal memuat produk{errorStatus ? ` (${errorStatus})` : ""}
         </Text>
         {error?.message && (
           <Text className="text-ui-fg-error text-xs break-words">
@@ -40,12 +40,12 @@ const SearchResults = ({ currencyCode }: { currencyCode: string }) => {
   return (
     <div className="flex flex-col gap-4">
       <Text className="text-sm text-neutral-500" data-testid="product-count">
-        {nbHits} {nbHits === 1 ? "product" : "products"}
+        {nbHits} produk
       </Text>
 
       {items.length === 0 ? (
         <Container className="text-center text-sm text-neutral-500">
-          No products match these filters.
+          Tidak ada produk yang cocok dengan filter ini.
         </Container>
       ) : (
         <ul

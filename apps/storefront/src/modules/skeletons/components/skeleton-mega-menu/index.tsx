@@ -6,7 +6,7 @@ export default function SkeletonMegaMenu() {
       className="hover:text-ui-fg-base hover:bg-neutral-100 rounded-full px-3 py-2"
       href="/store"
     >
-      Products
+      Produk
     </LocalizedClientLink>
   )
 }

@@ -23,21 +23,21 @@ const SearchForm = ({
     }}
   >
     <label htmlFor="search-q" className="sr-only">
-      Search products
+      Cari produk
     </label>
     <input
       id="search-q"
       type="search"
       name="q"
       defaultValue={defaultValue}
-      placeholder="Search products"
+      placeholder="Cari produk"
       className="flex-1 h-10 px-4 border rounded-full border-ui-border-base bg-ui-bg-field txt-compact-medium"
     />
     <button
       type="submit"
       className="h-10 px-4 rounded-full bg-neutral-900 text-white text-sm hover:bg-neutral-800"
     >
-      Search
+      Cari
     </button>
   </form>
 )

@@ -52,14 +52,14 @@ export default function CategoryTemplate({
             {currentCategory.products?.length === 0 ? (
               <Container className="flex flex-col gap-2 justify-center text-center items-center text-sm text-neutral-500">
                 <Text className="font-medium">
-                  No products found for this category.
+                  Belum ada produk di kategori ini.
                 </Text>
                 <LocalizedClientLink
                   href="/store"
                   className="flex gap-2 items-center"
                 >
                   <Button variant="secondary">
-                    Back to all products
+                    Kembali ke semua produk
                     <ArrowUturnLeft className="w-4 h-4" />
                   </Button>
                 </LocalizedClientLink>

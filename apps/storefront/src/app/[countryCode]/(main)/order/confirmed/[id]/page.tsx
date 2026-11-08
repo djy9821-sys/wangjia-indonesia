@@ -9,7 +9,7 @@ type Props = {
 }
 
 export const metadata: Metadata = {
-  title: "Order Confirmed",
+  title: "Pesanan Dibuat",
   description: "You purchase was successful",
 }
 

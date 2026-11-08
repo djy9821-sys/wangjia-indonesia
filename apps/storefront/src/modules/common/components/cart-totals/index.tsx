@@ -37,7 +37,7 @@ const CartTotals: React.FC = () => {
         </div>
         {!!discount_total && (
           <div className="flex items-center justify-between">
-            <Text>Discount</Text>
+            <Text>Diskon</Text>
             <Text
               className="text-ui-fg-interactive"
               data-testid="cart-discount"
@@ -49,20 +49,20 @@ const CartTotals: React.FC = () => {
           </div>
         )}
         <div className="flex items-center justify-between">
-          <Text>Shipping</Text>
+          <Text>Ongkir</Text>
           <Text data-testid="cart-shipping" data-value={shipping_total || 0}>
             {convertToLocale({ amount: shipping_total ?? 0, currency_code })}
           </Text>
         </div>
         <div className="flex justify-between">
-          <Text className="flex gap-x-1 items-center ">Taxes</Text>
+          <Text className="flex gap-x-1 items-center ">PPN</Text>
           <Text data-testid="cart-taxes" data-value={tax_total || 0}>
             {convertToLocale({ amount: tax_total ?? 0, currency_code })}
           </Text>
         </div>
         {!!gift_card_total && (
           <div className="flex items-center justify-between">
-            <Text>Gift card</Text>
+            <Text>Voucher</Text>
             <Text
               className="text-ui-fg-interactive"
               data-testid="cart-gift-card-amount"

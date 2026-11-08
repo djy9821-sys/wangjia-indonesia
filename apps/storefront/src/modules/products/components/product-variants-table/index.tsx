@@ -113,12 +113,12 @@ const ProductVariantsTable = ({
                 )
               })}
               <Table.HeaderCell className="px-4 border-x">
-                Price
+                Harga
               </Table.HeaderCell>
               <Table.HeaderCell className="px-4 border-x">
-                Availability
+                Ketersediaan
               </Table.HeaderCell>
-              <Table.HeaderCell className="px-4">Quantity</Table.HeaderCell>
+              <Table.HeaderCell className="px-4">Jumlah</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body className="border-none">
@@ -150,7 +150,7 @@ const ProductVariantsTable = ({
                     {variantPrice?.calculated_price}
                   </Table.Cell>
                   <Table.Cell className="px-4 border-x">
-                    {isVariantInStock(variant) ? "In stock" : "Out of stock"}
+                    {isVariantInStock(variant) ? "Tersedia" : "Stok habis"}
                   </Table.Cell>
                   <Table.Cell className="pl-1 !pr-1">
                     <BulkTableQuantity
@@ -178,8 +178,8 @@ const ProductVariantsTable = ({
           fill={totalQuantity === 0 ? "none" : "#fff"}
         />
         {isHydrated && totalQuantity === 0
-          ? "Choose product variant(s) above"
-          : "Add to cart"}
+          ? "Pilih varian di tabel di atas"
+          : "Tambah ke keranjang"}
       </Button>
     </form>
   )

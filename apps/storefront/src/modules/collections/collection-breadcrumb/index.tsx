@@ -27,7 +27,7 @@ const CollectionBreadcrumb = ({
 }) => {
   return (
     <ul className="flex items-center gap-x-3 text-sm">
-      <CollectionBreadcrumbItem title="Products" key="base" />
+      <CollectionBreadcrumbItem title="Produk" key="base" />
       <span className="text-neutral-500">{">"}</span>
       <CollectionBreadcrumbItem
         title={collection.title}

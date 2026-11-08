@@ -74,7 +74,7 @@ const SearchPanel = ({
           className="p-6 text-center text-neutral-500 text-sm"
           data-testid="search-idle"
         >
-          Start typing to search for products.
+          Ketik nama produk atau suku cadang.
         </Text>
       )
     }
@@ -86,7 +86,7 @@ const SearchPanel = ({
           data-testid="search-error"
         >
           <Text className="text-ui-fg-error font-medium">
-            Couldn&apos;t search products
+            Pencarian gagal
             {errorStatus ? ` (${errorStatus})` : ""}
           </Text>
           {error?.message && (
@@ -117,7 +117,7 @@ const SearchPanel = ({
           className="p-6 text-center text-neutral-500 text-sm"
           data-testid="search-no-results"
         >
-          No products found for &quot;{query}&quot;.
+          Tidak ada produk untuk &quot;{query}&quot;.
         </Text>
       )
     }
@@ -158,8 +158,8 @@ const SearchPanel = ({
             setInputValue(event.target.value)
             refine(event.target.value)
           }}
-          placeholder="Search for products"
-          aria-label="Search for products"
+          placeholder="Cari produk"
+          aria-label="Cari produk"
           autoFocus
           className="w-full bg-transparent py-4 text-sm text-zinc-900 outline-none placeholder:text-neutral-500"
           data-testid="search-input"

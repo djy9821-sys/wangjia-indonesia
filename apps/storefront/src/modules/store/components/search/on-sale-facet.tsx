@@ -17,10 +17,10 @@ const OnSaleFacet = ({ currencyCode }: { currencyCode: string }) => {
   })
 
   return (
-    <FacetSection value={ON_SALE_ATTRIBUTE} title="Offers">
+    <FacetSection value={ON_SALE_ATTRIBUTE} title="Promo">
       <div className="flex items-center justify-between gap-x-2">
         <CheckboxWithLabel
-          label="On sale"
+          label="Sedang diskon"
           checked={value.isRefined}
           onChange={() => refine(value)}
           data-testid="facet-on-sale"

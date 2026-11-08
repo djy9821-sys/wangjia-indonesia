@@ -13,14 +13,17 @@ export const convertToLocale = ({
   currency_code,
   minimumFractionDigits,
   maximumFractionDigits,
-  locale = "en-US",
+  locale = "id-ID",
 }: ConvertToLocaleParams) => {
-  return currency_code && !isEmpty(currency_code)
-    ? new Intl.NumberFormat(locale, {
-        style: "currency",
-        currency: currency_code,
-        minimumFractionDigits,
-        maximumFractionDigits,
-      }).format(amount)
-    : amount.toString()
+  if (!currency_code || isEmpty(currency_code)) {
+    return amount.toString()
+  }
+  // Rupiah is quoted without sen: "Rp 8.900.000" instead of "IDR 8,900,000.00".
+  const wholeAmount = Number.isInteger(amount)
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: currency_code,
+    minimumFractionDigits: minimumFractionDigits ?? (wholeAmount ? 0 : undefined),
+    maximumFractionDigits: maximumFractionDigits ?? (wholeAmount ? 0 : undefined),
+  }).format(amount)
 }

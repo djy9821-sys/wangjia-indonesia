@@ -47,9 +47,9 @@ const SearchRefinements = ({ currencyCode }: { currencyCode: string }) => (
       >
         <PriceRangeFacet currencyCode={currencyCode} />
         <OnSaleFacet currencyCode={currencyCode} />
-        <CheckboxFacet attribute={CATEGORY_ATTRIBUTE} title="Categories" />
+        <CheckboxFacet attribute={CATEGORY_ATTRIBUTE} title="Kategori" />
         <OptionValuesFacet />
-        <CheckboxFacet attribute={LABELS_ATTRIBUTE} title="Labels" />
+        <CheckboxFacet attribute={LABELS_ATTRIBUTE} title="Label" />
       </AccordionPrimitive.Root>
     </Container>
   </div>

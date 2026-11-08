@@ -94,7 +94,7 @@ const ImageGallery = ({ product }: ImageGalleryProps) => {
         {images.length > 1 && (
           <div className="flex flex-row gap-x-2 self-end small:self-auto">
             <IconButton
-              aria-label="Previous image"
+              aria-label="Gambar sebelumnya"
               disabled={selectedImageIndex === 0}
               className="rounded-full items-center justify-center"
               onClick={() => handleArrowClick("left")}
@@ -102,7 +102,7 @@ const ImageGallery = ({ product }: ImageGalleryProps) => {
               <ArrowLeftMini />
             </IconButton>
             <IconButton
-              aria-label="Next image"
+              aria-label="Gambar berikutnya"
               disabled={selectedImageIndex === images.length - 1}
               className="rounded-full items-center justify-center"
               onClick={() => handleArrowClick("right")}

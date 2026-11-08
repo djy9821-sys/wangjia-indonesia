@@ -10,7 +10,7 @@ const Hero = () => {
       <div className="flex flex-col justify-center items-center text-center px-6 small:px-32 gap-6">
         <span>
           <p className="text-neutral-600 text-xs uppercase tracking-wide">
-            Official store WANGJIA® Indonesia
+            Toko resmi WANGJIA® Indonesia
           </p>
 
           <img

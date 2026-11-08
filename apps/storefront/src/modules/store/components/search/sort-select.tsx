@@ -8,18 +8,18 @@ export const getSortItems = (currencyCode: string) => {
   const minPrice = priceAttribute("min_price", currencyCode)
 
   return [
-    { value: PRODUCT_INDEX_NAME, label: "Relevance" },
+    { value: PRODUCT_INDEX_NAME, label: "Paling sesuai" },
     {
       value: `${PRODUCT_INDEX_NAME}/sort/created_at:desc`,
-      label: "Latest Arrivals",
+      label: "Terbaru",
     },
     {
       value: `${PRODUCT_INDEX_NAME}/sort/${minPrice}:asc`,
-      label: "Price: Low -> High",
+      label: "Harga: rendah ke tinggi",
     },
     {
       value: `${PRODUCT_INDEX_NAME}/sort/${minPrice}:desc`,
-      label: "Price: High -> Low",
+      label: "Harga: tinggi ke rendah",
     },
   ]
 }
@@ -31,11 +31,11 @@ const SortSelect = ({ currencyCode }: { currencyCode: string }) => {
 
   return (
     <div className="flex items-center gap-2 text-sm p-2 justify-between">
-      <span className="text-neutral-500">Sort by:</span>
+      <span className="text-neutral-500">Urutkan:</span>
       <div className="relative">
         <select
           className="w-full pr-8 overflow-hidden focus:outline-none appearance-none"
-          title="Sort by"
+          title="Urutkan"
           value={currentRefinement}
           onChange={(event) => refine(event.target.value)}
           data-testid="sort-by-container"

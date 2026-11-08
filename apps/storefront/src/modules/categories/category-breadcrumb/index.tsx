@@ -76,7 +76,7 @@ const CategoryBreadcrumb = ({
     )
 
     breadcrumbs.unshift(
-      <CategoryBreadcrumbItem title="Products" key={`base`} />
+      <CategoryBreadcrumbItem title="Produk" key={`base`} />
     )
 
     return breadcrumbs

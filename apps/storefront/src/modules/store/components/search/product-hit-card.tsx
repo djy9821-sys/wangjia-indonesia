@@ -69,7 +69,7 @@ const ProductHitCard = ({
                 </Text>
               )}
             </div>
-            <Text className="text-neutral-600 text-[0.6rem]">Excl. VAT</Text>
+            <Text className="text-neutral-600 text-[0.6rem]">Belum termasuk PPN</Text>
           </div>
         )}
       </div>

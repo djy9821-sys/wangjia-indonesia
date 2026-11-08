@@ -84,16 +84,16 @@ const PriceRangeFacet = ({ currencyCode }: { currencyCode: string }) => {
       className="self-start text-xs text-neutral-600 underline hover:text-neutral-900"
       data-testid="facet-price-reset"
     >
-      Reset
+      Atur ulang
     </button>
   ) : null
 
   if (!hasTrack) {
     return (
-      <FacetSection value={PRICE_ATTRIBUTE} title="Price">
+      <FacetSection value={PRICE_ATTRIBUTE} title="Harga">
         <div className="flex flex-col gap-y-2">
           <Text className="text-xs text-neutral-500">
-            No price range for the current results.
+            Tidak ada rentang harga.
           </Text>
           {reset}
         </div>
@@ -134,7 +134,7 @@ const PriceRangeFacet = ({ currencyCode }: { currencyCode: string }) => {
   }
 
   return (
-    <FacetSection value={PRICE_ATTRIBUTE} title="Price">
+    <FacetSection value={PRICE_ATTRIBUTE} title="Harga">
       <div className="flex flex-col gap-y-3">
         <style>{PRICE_RANGE_STYLES}</style>
 
@@ -163,7 +163,7 @@ const PriceRangeFacet = ({ currencyCode }: { currencyCode: string }) => {
           <input
             {...inputProps}
             ref={minInputRef}
-            aria-label="Minimum price"
+            aria-label="Harga minimum"
             value={values[0]}
             onInput={onInput(0)}
             onChange={onInput(0)}
@@ -172,7 +172,7 @@ const PriceRangeFacet = ({ currencyCode }: { currencyCode: string }) => {
           <input
             {...inputProps}
             ref={maxInputRef}
-            aria-label="Maximum price"
+            aria-label="Harga maksimum"
             value={values[1]}
             onInput={onInput(1)}
             onChange={onInput(1)}

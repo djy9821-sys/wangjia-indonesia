@@ -64,10 +64,10 @@ const OptionValuesFacet = () => {
   }, [items])
 
   return (
-    <FacetSection value={OPTION_VALUES_ATTRIBUTE} title="Options">
+    <FacetSection value={OPTION_VALUES_ATTRIBUTE} title="Pilihan">
       {groups.length === 0 ? (
         <Text className="text-xs text-neutral-500">
-          No options for the current results.
+          Tidak ada pilihan untuk hasil ini.
         </Text>
       ) : (
         <div className="flex flex-col gap-y-4">

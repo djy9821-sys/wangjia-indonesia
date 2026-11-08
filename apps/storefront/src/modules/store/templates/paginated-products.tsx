@@ -88,7 +88,7 @@ export default async function PaginatedProducts({
           })
         ) : (
           <Container className="text-center text-sm text-neutral-500">
-            No products found for this category.
+            Belum ada produk di kategori ini.
           </Container>
         )}
       </ul>

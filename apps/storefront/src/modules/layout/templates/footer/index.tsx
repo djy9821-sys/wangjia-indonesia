@@ -3,7 +3,6 @@ import { listCollections } from "@/lib/data/collections"
 import { Text, clx } from "@medusajs/ui"
 
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
-import MedusaCTA from "@/modules/layout/components/medusa-cta"
 
 export default async function Footer() {
   const [{ collections }, product_categories] = await Promise.all([
@@ -36,7 +35,7 @@ export default async function Footer() {
             {product_categories && product_categories?.length > 0 && (
               <div className="flex flex-col gap-y-2">
                 <span className="txt-small-plus txt-ui-fg-base">
-                  Categories
+                  Kategori
                 </span>
                 <ul
                   className="grid grid-cols-1 gap-2"
@@ -94,7 +93,7 @@ export default async function Footer() {
             {collections && collections.length > 0 && (
               <div className="flex flex-col gap-y-2">
                 <span className="txt-small-plus txt-ui-fg-base">
-                  Collections
+                  Koleksi
                 </span>
                 <ul
                   className={clx(
@@ -119,7 +118,7 @@ export default async function Footer() {
             )}
             <div className="flex flex-col gap-y-2">
               <span className="txt-small-plus txt-ui-fg-base">
-                Customer service
+                Layanan pelanggan
               </span>
               <ul className="grid grid-cols-1 gap-y-2 text-ui-fg-subtle txt-small">
                 <li>
@@ -143,7 +142,7 @@ export default async function Footer() {
                     className="hover:text-ui-fg-base"
                     href="/shipping"
                   >
-                    Shipping information
+                    Informasi pengiriman
                   </LocalizedClientLink>
                 </li>
                 <li>
@@ -151,7 +150,7 @@ export default async function Footer() {
                     className="hover:text-ui-fg-base"
                     href="/returns"
                   >
-                    Return policy
+                    Kebijakan retur
                   </LocalizedClientLink>
                 </li>
                 <li>
@@ -159,7 +158,7 @@ export default async function Footer() {
                     className="hover:text-ui-fg-base"
                     href="/terms"
                   >
-                    Terms of service
+                    Syarat & ketentuan
                   </LocalizedClientLink>
                 </li>
                 <li>
@@ -167,7 +166,7 @@ export default async function Footer() {
                     className="hover:text-ui-fg-base"
                     href="/privacy"
                   >
-                    Privacy policy
+                    Kebijakan privasi
                   </LocalizedClientLink>
                 </li>
                 <li>
@@ -175,7 +174,7 @@ export default async function Footer() {
                     className="hover:text-ui-fg-base"
                     href="/contact"
                   >
-                    Contact
+                    Hubungi kami
                   </LocalizedClientLink>
                 </li>
                 <li>
@@ -183,43 +182,8 @@ export default async function Footer() {
                     className="hover:text-ui-fg-base"
                     href="/search"
                   >
-                    Search
+                    Cari produk
                   </LocalizedClientLink>
-                </li>
-              </ul>
-            </div>
-            <div className="flex flex-col gap-y-2">
-              <span className="txt-small-plus txt-ui-fg-base">Medusa</span>
-              <ul className="grid grid-cols-1 gap-y-2 text-ui-fg-subtle txt-small">
-                <li>
-                  <a
-                    href="https://github.com/medusajs"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-ui-fg-base"
-                  >
-                    GitHub
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://docs.medusajs.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-ui-fg-base"
-                  >
-                    Documentation
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://github.com/medusajs/b2b-starter-medusa"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-ui-fg-base"
-                  >
-                    Source code
-                  </a>
                 </li>
               </ul>
             </div>
@@ -227,9 +191,8 @@ export default async function Footer() {
         </div>
         <div className="flex w-full mb-16 justify-between text-ui-fg-muted">
           <Text className="txt-compact-small">
-            © {new Date().getFullYear()} PT Adhinusa Lestari Jaya · WANGJIA® Kincir Air. All rights reserved.
+            © {new Date().getFullYear()} PT Adhinusa Lestari Jaya · WANGJIA® Kincir Air. Hak cipta dilindungi.
           </Text>
-          <MedusaCTA />
         </div>
       </div>
     </footer>

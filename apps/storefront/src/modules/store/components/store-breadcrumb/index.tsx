@@ -22,9 +22,9 @@ const StoreBreadcrumbItem = ({
 const StoreBreadcrumb = () => {
   return (
     <ul className="flex items-center gap-x-3 text-sm">
-      <StoreBreadcrumbItem title="Products" key="base" />
+      <StoreBreadcrumbItem title="Produk" key="base" />
       <span className="text-neutral-500">{">"}</span>
-      <StoreBreadcrumbItem title="All products" handle="/store" />
+      <StoreBreadcrumbItem title="Semua produk" handle="/store" />
     </ul>
   )
 }

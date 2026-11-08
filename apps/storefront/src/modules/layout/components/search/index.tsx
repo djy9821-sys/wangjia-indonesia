@@ -32,8 +32,8 @@ const Search = ({ currencyCode }: { currencyCode: string }) => {
           event.preventDefault()
           setIsOpen(true)
         }}
-        aria-label="Search for products"
-        title="Search for products"
+        aria-label="Cari produk"
+        title="Cari produk"
         className="transition-fg inline-flex w-fit items-center justify-center outline-none px-3 py-1.5 rounded-full hover:bg-neutral-100"
         data-testid="nav-search-button"
       >
@@ -45,7 +45,7 @@ const Search = ({ currencyCode }: { currencyCode: string }) => {
         data-testid="search-drawer"
       >
         <Drawer.Header className="flex self-center">
-          <Drawer.Title>Search products</Drawer.Title>
+          <Drawer.Title>Cari produk</Drawer.Title>
         </Drawer.Header>
 
         <div className="flex flex-col h-full overflow-hidden">

@@ -32,7 +32,7 @@ const CheckboxFacet = ({
     <FacetSection value={attribute} title={title}>
       {items.length === 0 ? (
         <Text className="text-xs text-neutral-500">
-          No values for the current results.
+          Tidak ada pilihan untuk hasil ini.
         </Text>
       ) : (
         <div className="flex flex-col gap-y-2">
@@ -59,7 +59,7 @@ const CheckboxFacet = ({
               onClick={toggleShowMore}
               className="self-start text-xs text-neutral-600 underline hover:text-neutral-900"
             >
-              {isShowingMore ? "Show less" : "Show more"}
+              {isShowingMore ? "Lebih sedikit" : "Lebih banyak"}
             </button>
           )}
         </div>

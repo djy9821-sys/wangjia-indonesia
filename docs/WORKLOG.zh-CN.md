@@ -56,6 +56,7 @@
 
 - App 页面风格统一：登录页品牌头图 + 密码可见切换 + 回车提交；订单卡片改为缩略图 + 日期/件数 + 商品摘要 + 发货/付款两个状态标签；账户页改为头像卡（姓名首字母、公司标签）+ 分组卡片（服务 / 设置 / 退出），底部显示版本号，新增「Bantuan（WhatsApp）」入口；购物车、订单、报价、通知的空状态统一为图标 + 说明 + “Lihat produk”按钮。订单行项目模型加 `thumbnail`。
 - 网页商城印尼语化：账户区（导航、总览、订单、报价、资料、地址、公司、审批）、购物车、结账各步骤、订单详情、询价弹窗等 75 个文件的 starter 英文文案全部改为印尼语（`src/lib/util/order-status.ts` 统一发货/付款状态文案与 id-ID 日期）；网页订单卡加缩略图与状态标签；账户页横幅、登录页右栏、购物车登录提示的 starter 抽象图换成品牌视觉块 `BrandBanner`（渐变 + WANGJIA 字标 + 2 HP 插图）。
+- 商城第二轮印尼语化：商品页/列表/筛选/排序/搜索/面包屑/页脚/404 的 starter 英文全部改掉（页脚去掉 Medusa 推广链接和 “Powered by” 角标）；联系页改为真正的印尼语页面（WhatsApp + 邮箱，取自 `NEXT_PUBLIC_WHATSAPP_NUMBER` / `NEXT_PUBLIC_CONTACT_EMAIL`）；货币改为 `Rp 8.900.000` 格式（id-ID，整数不显示分）；商品卡库存改为“Tersedia / Sisa N unit / Stok habis”；价格注明「Belum termasuk PPN 11%」——顺手修正 App 里原先写反的「Sudah termasuk PPN」（目录价为未税价，PPN 在结算时加）。
 
 ## 本机验证手段
 - 后端：`pnpm test:integration:http`（30 个用例）、tsc、medusa lint；curl 走接口；浏览器查后台页面。

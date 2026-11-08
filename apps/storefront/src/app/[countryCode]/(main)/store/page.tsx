@@ -6,8 +6,8 @@ import { notFound } from "next/navigation"
 export const dynamicParams = true
 
 export const metadata: Metadata = {
-  title: "Store",
-  description: "Explore all of our products.",
+  title: "Produk",
+  description: "Semua kincir air dan suku cadang WANGJIA.",
 }
 
 export default async function StorePage(props: {
