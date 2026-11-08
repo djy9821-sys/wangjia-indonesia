@@ -1,18 +1,13 @@
 import { ExecArgs } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, Modules, ProductStatus } from "@medusajs/framework/utils";
-import {
-  createProductCategoriesWorkflow,
-  createProductsWorkflow,
-  updateProductsWorkflow,
-  updateStoresWorkflow,
-} from "@medusajs/medusa/core-flows";
-import { WANGJIA_PRODUCTS } from "../migration-scripts/initial-data-seed";
+import { updateProductsWorkflow, updateStoresWorkflow } from "@medusajs/medusa/core-flows";
+import { syncCatalog } from "./sync-catalog";
 
 /*
   One-off for databases seeded before the WANGJIA rebrand:
     pnpm medusa exec ./src/scripts/rebrand-wangjia.ts
-  Renames the store, unpublishes the old sample products and creates the
-  WANGJIA aerator catalog. Safe to re-run (skips products that exist).
+  Renames the store, unpublishes the old sample products and brings the
+  WANGJIA catalogue in (see sync-catalog.ts). Safe to re-run.
 */
 export default async function rebrand({ container }: ExecArgs) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
@@ -39,53 +34,11 @@ export default async function rebrand({ container }: ExecArgs) {
     logger.info(`Unpublished ${oldProducts.length} old sample product(s)`);
   }
 
-  // Hide the sample category from the old seed.
   const oldCats = await productModule.listProductCategories({ name: ["Truk Tangki Air"] });
   if (oldCats.length) {
     await productModule.updateProductCategories(oldCats[0].id, { is_active: false });
     logger.info("Deactivated old category Truk Tangki Air");
   }
 
-  const { data: existing } = await query.graph({ entity: "product", fields: ["handle"] });
-  const have = new Set(existing.map((p: any) => p.handle));
-
-  let categories = await productModule.listProductCategories({ name: ["Kincir Air (Aerator)", "Suku Cadang"] });
-  const names = new Set(categories.map((c) => c.name));
-  const missing = ["Kincir Air (Aerator)", "Suku Cadang"].filter((n) => !names.has(n));
-  if (missing.length) {
-    await createProductCategoriesWorkflow(container).run({
-      input: { product_categories: missing.map((name) => ({ name, is_active: true })) },
-    });
-    categories = await productModule.listProductCategories({ name: ["Kincir Air (Aerator)", "Suku Cadang"] });
-  }
-  const categoryId = (name: string) => categories.find((c) => c.name === name)!.id;
-
-  const { data: [collection] } = await query.graph({ entity: "product_collection", fields: ["id"], filters: { handle: "featured" } });
-  const { data: [profile] } = await query.graph({ entity: "shipping_profile", fields: ["id"] });
-  const { data: [channel] } = await query.graph({ entity: "sales_channel", fields: ["id"] });
-  const idr = (amount: number) => [{ currency_code: "idr", amount }];
-
-  const all = WANGJIA_PRODUCTS(collection?.id, categoryId, profile.id, channel.id, idr);
-  const products = all.filter((p) => !have.has(p.handle));
-  if (products.length) {
-    await createProductsWorkflow(container).run({ input: { products } });
-  }
-  // Keep spec metadata of existing products in sync with the seed definition.
-  const { data: existingFull } = await query.graph({ entity: "product", fields: ["id", "handle", "metadata"] });
-  const specUpdates = existingFull
-    .filter((p: any) => all.some((d) => d.handle === p.handle && (d as any).metadata))
-    .map((p: any) => ({
-      id: p.id,
-      // Medusa merges metadata on update; an empty string removes a key, so
-      // stale spec keys are blanked before the seed definition is applied.
-      metadata: {
-        ...Object.fromEntries(Object.keys(p.metadata ?? {}).filter((k) => k.startsWith("spec:")).map((k) => [k, ""])),
-        ...((all.find((d) => d.handle === p.handle) as any).metadata ?? {}),
-      },
-    }));
-  if (specUpdates.length) {
-    await updateProductsWorkflow(container).run({ input: { products: specUpdates } });
-    logger.info(`Synced spec metadata on ${specUpdates.length} product(s)`);
-  }
-  logger.info(`WANGJIA catalog ready (${products.length} created, ${WANGJIA_PRODUCTS.length} total defined)`);
+  await syncCatalog(container);
 }

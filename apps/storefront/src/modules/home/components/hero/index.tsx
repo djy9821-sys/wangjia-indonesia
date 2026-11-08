@@ -13,11 +13,18 @@ const Hero = () => {
             Toko resmi WANGJIA® Indonesia
           </p>
 
-          <img
-            src="/products/aerator-2hp.png"
-            alt="Kincir air WANGJIA 2 HP"
-            className="mx-auto w-full max-w-xl rounded-2xl mb-2"
-          />
+          <div className="mx-auto mt-4 mb-2 grid grid-cols-2 gap-3 max-w-xl">
+            <img
+              src="/products/kincir-1hp.jpg"
+              alt="Kincir air WANGJIA 1 HP"
+              className="w-full rounded-2xl bg-white shadow-sm"
+            />
+            <img
+              src="/products/kincir-2hp.jpg"
+              alt="Kincir air WANGJIA 2 HP"
+              className="w-full rounded-2xl bg-white shadow-sm"
+            />
+          </div>
           <Heading
             level="h1"
             className="text-4xl small:text-6xl leading-tight text-ui-fg-base font-normal mt-4 mb-5"
@@ -26,9 +33,10 @@ const Hero = () => {
           </Heading>
 
           <p className="leading-8 text-ui-fg-subtle font-normal text-lg max-w-2xl mx-auto">
-            Aerator tambak udang & ikan: hemat listrik, oksigen merata, suku cadang
-            selalu tersedia. Pesan langsung dari pabrik, bayar bertahap, kirim ke
-            seluruh Indonesia. Garansi 1 tahun.
+            Aerator tambak udang & ikan: gearbox bevel gear mechanical seal hemat
+            listrik 25 %, poros dan rangka stainless SS304, pelampung HDPE 175 cm.
+            Suku cadang lengkap, bayar bertahap, kirim ke seluruh Indonesia. Garansi
+            motor 1 tahun.
           </p>
         </span>
         <div className="flex gap-3">

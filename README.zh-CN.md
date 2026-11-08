@@ -165,7 +165,7 @@ Midtrans 后台 Settings → Configuration → Payment Notification URL 填 `htt
 
 ## 商品图片
 
-`brand/products/` 里是矢量插图（1 HP、2 HP、叶轮、齿轮箱、浮筒），渲染后的 PNG 由后端 `/static/products/*.png` 提供并在种子数据里引用。拿到 WANGJIA 实拍照片后，直接在后台 Products 里上传替换；老库可用 `npx medusa exec ./src/scripts/set-product-images.ts force` 批量挂回插图。
+商品照片放在后端 `static/products/*.jpg`（来自 WANGJIA 印尼经销商目录的实拍图）并在种子数据里引用；`brand/products/` 里的矢量插图只用于商城首页和占位。改了种子里的商品/参数/图片后，对已有数据库运行 `pnpm medusa exec ./src/scripts/sync-catalog.ts` 同步（按 handle 和 SKU 匹配，不覆盖后台改过的价格）。
 
 ## 防伪与保修（扫码）
 

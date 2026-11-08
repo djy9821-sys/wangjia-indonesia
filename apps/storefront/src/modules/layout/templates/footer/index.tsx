@@ -140,6 +140,14 @@ export default async function Footer() {
                 <li>
                   <LocalizedClientLink
                     className="hover:text-ui-fg-base"
+                    href="/panduan"
+                  >
+                    Panduan pemasangan &amp; perawatan
+                  </LocalizedClientLink>
+                </li>
+                <li>
+                  <LocalizedClientLink
+                    className="hover:text-ui-fg-base"
                     href="/shipping"
                   >
                     Informasi pengiriman
