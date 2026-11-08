@@ -32,7 +32,11 @@ export const createGroupBuyStep = createStep(
     if (!variant?.product) {
       throw new MedusaError(MedusaError.Types.NOT_FOUND, `Varian ${input.variant_id} tidak ditemukan.`);
     }
-    const regular = (((variant as any).prices ?? []) as any[]).find((p: any) => p?.currency_code === currency);
+    // List price in the requested currency; fall back to the variant's first
+    // price (and its currency) so a catalogue priced in one currency still works.
+    const prices = (((variant as any).prices ?? []) as any[]).filter((p: any) => p?.amount != null);
+    const regular = prices.find((p: any) => p?.currency_code === currency) ?? prices[0] ?? null;
+    const currencyCode = regular?.currency_code ?? currency;
     if (regular && Number(input.group_price) >= Number(regular.amount)) {
       throw new MedusaError(MedusaError.Types.INVALID_DATA, "Harga patungan harus lebih rendah dari harga normal.");
     }
@@ -44,7 +48,7 @@ export const createGroupBuyStep = createStep(
       variant_id: variant.id,
       variant_title: variant.title ?? null,
       thumbnail: variant.product.thumbnail ?? null,
-      currency_code: currency,
+      currency_code: currencyCode,
       group_price: input.group_price,
       regular_price: regular ? Number(regular.amount) : null,
       min_quantity: input.min_quantity,
