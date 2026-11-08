@@ -77,8 +77,8 @@
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>Lokasi dipakai untuk menandai titik pengiriman tambak Anda di peta.</string>
 		<key>FlutterDeepLinkingEnabled</key>
-	<true/>
-	<key>FirebaseAppDelegateProxyEnabled</key>
+		<true/>
+		<key>FirebaseAppDelegateProxyEnabled</key>
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>

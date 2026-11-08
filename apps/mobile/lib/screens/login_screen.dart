@@ -132,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container(
                       padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(colors: [Color(0xFF0E5A8A), Color(0xFF1B8A5A)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                        gradient: const LinearGradient(colors: [Color(0xFF0193DE), Color(0xFF0E5A8A)], begin: Alignment.topLeft, end: Alignment.bottomRight),
                         borderRadius: BorderRadius.circular(22),
                       ),
                       child: Row(

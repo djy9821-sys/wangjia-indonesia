@@ -28,7 +28,7 @@
 | 1.2 | 🔑 WhatsApp Cloud API 号码 + 模板 `wangjia_notice` 审核（见 docs/whatsapp-templates.md） | 李总 / 运营 | 客户收到付款确认 WhatsApp，含订单号 |
 | 1.3 | 🔑 Firebase 项目（iOS/Android 配置文件 + 服务账号）、APNs 密钥 | 开发 | 真机收到“已发货”推送并能点开订单 |
 | 1.4 | 🔑 域名、VPS、R2/S3、Redis；按 deploy/README 部署 | 开发 | `https://api.<域名>/health/deep` 返回 ok，Uptime Kuma 告警到 WhatsApp |
-| 1.5 | 🔑 官方 logo、公司全名/NPWP/收款账户（只进 `.env`）、确认价目表（商品实拍图和参数已按经销商目录入库，价格仍是参考价） | 李总 | 发票 PDF 与商城信息无占位内容 |
+| 1.5 | 🔑 公司全名/NPWP/收款账户（只进 `.env`）、确认价目表（logo ✅ 已换成官方版；商品实拍图和参数已按经销商目录入库，价格仍是参考价） | 李总 | 发票 PDF 与商城信息无占位内容 |
 | 1.6 | 🔧 真机回归：安卓（CI 的 APK）+ iPhone：登录、下单、支付、上传凭证、扫码、地图、推送 | 开发 + 销售 | Maestro 三条流程通过，人工清单无阻断 |
 | 1.7 | 🔧 恢复演练一次（restore.sh） | 开发 | 从昨日备份恢复出一个可登录的测试环境 |
 | 1.8 | 🔑 Apple Developer / Google Play 账号、隐私政策链接、截图文案；律师过一遍条款 | 李总 | 两家商店审核通过 |

@@ -2,7 +2,7 @@
 
 李总（PT Adhinusa Lestari Jaya，待确认）的 WANGJIA 品牌增氧水车（kincir air / paddle wheel aerator，虾塘鱼塘用）在印尼的官方商城与 App。基于 [Medusa B2B Starter](https://github.com/medusajs/b2b-starter) 改造。
 
-品牌素材在 `brand/`：目前是我们画的占位标识，拿到李总的正式 logo 文件后替换同名文件即可。
+品牌素材在 `brand/`：`brand/logo/` 是李总提供的正式 WANGJIA logo（透明 PNG 与生成脚本），改 logo 后运行 `node brand/logo/build-assets.cjs` 重新生成图标、favicon 和分享图。
 
 工作日志：[docs/WORKLOG.zh-CN.md](docs/WORKLOG.zh-CN.md)；优化大纲（阶段、优先级、验收标准）：[docs/ROADMAP.zh-CN.md](docs/ROADMAP.zh-CN.md)。
 

@@ -151,7 +151,7 @@ class _AccountScreen extends StatelessWidget {
                     height: 56,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: LinearGradient(colors: [Color(0xFF0E5A8A), Color(0xFF1B8A5A)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                      gradient: LinearGradient(colors: [Color(0xFF0193DE), Color(0xFF0E5A8A)], begin: Alignment.topLeft, end: Alignment.bottomRight),
                     ),
                     alignment: Alignment.center,
                     child: Text(_initials, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),

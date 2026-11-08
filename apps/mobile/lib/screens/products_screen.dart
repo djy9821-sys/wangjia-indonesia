@@ -118,7 +118,7 @@ class _BrandHero extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(16, 4, 16, 8),
         padding: const EdgeInsets.fromLTRB(18, 16, 12, 16),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [Color(0xFF0E5A8A), Color(0xFF1B8A5A)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          gradient: const LinearGradient(colors: [Color(0xFF0193DE), Color(0xFF0E5A8A)], begin: Alignment.topLeft, end: Alignment.bottomRight),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(

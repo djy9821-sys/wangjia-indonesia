@@ -18,11 +18,11 @@ export async function NavigationHeader({
         <div className="small:mx-auto flex justify-between items-center min-w-full">
           <div className="flex items-center small:space-x-4">
             <LocalizedClientLink
-              className="hover:text-ui-fg-base flex items-center w-fit"
+              className="hover:text-ui-fg-base flex items-center w-fit shrink-0"
               href="/"
             >
               <span className="small:text-base text-sm font-medium flex items-center">
-                <img src="/wangjia-logo.svg" alt="WANGJIA" className="h-8 w-auto" />
+                <img src="/wangjia-logo-horizontal.png" alt="WANGJIA" width={1444} height={400} className="h-9 w-[130px] shrink-0 object-contain" />
               </span>
             </LocalizedClientLink>
 

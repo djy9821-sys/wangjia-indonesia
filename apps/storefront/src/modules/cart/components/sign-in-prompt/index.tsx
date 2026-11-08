@@ -6,7 +6,7 @@ import { Container, Text } from "@medusajs/ui"
 import Image from "next/image"
 
 const BackgroundImage = () => (
-  <div className="absolute inset-0 bg-[linear-gradient(120deg,#0E5A8A_0%,#1B8A5A_100%)]">
+  <div className="absolute inset-0 bg-[linear-gradient(120deg,#0193DE_0%,#0E5A8A_100%)]">
     <Image
       src="/products/aerator-2hp.png"
       alt=""

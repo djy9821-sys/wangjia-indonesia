@@ -1,7 +1,16 @@
 # WANGJIA brand assets
 
-- `wangjia-logo.svg`  — horizontal wordmark (placeholder drawn by us; swap for 李总's official file, keep the filename)
-- `wangjia-mark.svg`  — square mark for app icon / favicon
-- `wangjia-mark.svg.png` — 1024px raster of the mark (generated with `qlmanage`), source for app icons
+Official logo (from 李总, 2026-11-08): blue "W" swoosh mark with a red dot and the black "WANG JIA" wordmark.
 
-Company: PT Adhinusa Lestari Jaya (to be confirmed with 李总). Brand: WANGJIA (Wang Jia) ® — paddle wheel aerators (kincir air) for shrimp/fish ponds.
+- `logo/wangjia-logo.png` — stacked logo (mark + wordmark), transparent
+- `logo/wangjia-mark.png` — mark only (app icon, favicon, placeholders)
+- `logo/wangjia-wordmark.png` — wordmark only
+- `logo/wangjia-logo-horizontal.png` — horizontal lockup for the storefront header
+- `logo/cut-from-source.cjs` — keyed the logo out of the original JPG (grey backdrop)
+- `logo/build-assets.cjs` — regenerates app icon/splash sources, storefront icons, favicon and the Open Graph image
+- `og-image.png` — 1200×630 social preview (also copied to the storefront)
+- `products/` — product photo clean-up script and the old vector illustrations
+
+Colours: blue `#0193DE`, red `#DA251C`, text `#1E1A17`; deep blue `#0E5A8A` for UI accents.
+
+Company: PT Adhinusa Lestari Jaya (to be confirmed with 李总).

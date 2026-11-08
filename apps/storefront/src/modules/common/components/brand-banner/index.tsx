@@ -16,7 +16,7 @@ const BrandBanner = ({
   <div
     className={clx(
       "relative overflow-hidden rounded-md text-white w-full",
-      "bg-[linear-gradient(120deg,#0E5A8A_0%,#1B8A5A_100%)]",
+      "bg-[linear-gradient(120deg,#0193DE_0%,#0E5A8A_100%)]",
       className
     )}
   >

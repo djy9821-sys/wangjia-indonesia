@@ -34,21 +34,24 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/brand/mark.png
+    - assets/brand/logo.png
 
 flutter_launcher_icons:
   android: true
   ios: true
   remove_alpha_ios: true
   image_path: "assets/brand/icon.png"
-  adaptive_icon_background: "#0E5A8A"
-  adaptive_icon_foreground: "assets/brand/icon.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/brand/icon-adaptive.png"
 
 flutter_native_splash:
-  color: "#0E5A8A"
-  image: assets/brand/icon.png
+  color: "#FFFFFF"
+  image: assets/brand/splash.png
   android_12:
-    color: "#0E5A8A"
-    image: assets/brand/icon.png
+    color: "#FFFFFF"
+    image: assets/brand/splash.png
   ios: true
   android: true
   web: false
