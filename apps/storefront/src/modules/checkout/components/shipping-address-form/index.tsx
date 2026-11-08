@@ -104,7 +104,7 @@ const ShippingAddressForm = ({
       )}
       <div className="grid grid-cols-2 gap-4">
         <Input
-          label="First name"
+          label="Nama depan"
           name="shipping_address.first_name"
           autoComplete="given-name"
           value={formData["shipping_address.first_name"]}
@@ -113,7 +113,7 @@ const ShippingAddressForm = ({
           data-testid="shipping-first-name-input"
         />
         <Input
-          label="Last name"
+          label="Nama belakang"
           name="shipping_address.last_name"
           autoComplete="family-name"
           value={formData["shipping_address.last_name"]}
@@ -122,7 +122,7 @@ const ShippingAddressForm = ({
           data-testid="shipping-last-name-input"
         />
         <Input
-          label="Phone"
+          label="Nomor HP / WhatsApp"
           name="shipping_address.phone"
           autoComplete="tel"
           value={formData["shipping_address.phone"]}
@@ -131,7 +131,7 @@ const ShippingAddressForm = ({
           data-testid="shipping-phone-input"
         />
         <Input
-          label="Company name"
+          label="Nama perusahaan (opsional)"
           name="shipping_address.company"
           value={formData["shipping_address.company"]}
           onChange={handleChange}
@@ -140,7 +140,7 @@ const ShippingAddressForm = ({
           colSpan={2}
         />
         <Input
-          label="Address"
+          label="Alamat"
           name="shipping_address.address_1"
           autoComplete="address-line1"
           value={formData["shipping_address.address_1"]}
@@ -150,7 +150,7 @@ const ShippingAddressForm = ({
           colSpan={2}
         />
         <Input
-          label="Postal code"
+          label="Kode pos"
           name="shipping_address.postal_code"
           autoComplete="postal-code"
           value={formData["shipping_address.postal_code"]}
@@ -161,7 +161,7 @@ const ShippingAddressForm = ({
         />
         <div className="grid small:grid-cols-3 grid-cols-2 gap-4 col-span-2">
           <Input
-            label="City"
+            label="Kota / Kabupaten"
             name="shipping_address.city"
             autoComplete="address-level2"
             value={formData["shipping_address.city"]}
@@ -170,7 +170,7 @@ const ShippingAddressForm = ({
             data-testid="shipping-city-input"
           />
           <Input
-            label="Province"
+            label="Provinsi"
             name="shipping_address.province"
             autoComplete="address-level1"
             value={formData["shipping_address.province"]}

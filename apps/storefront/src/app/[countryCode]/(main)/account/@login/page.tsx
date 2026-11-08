@@ -3,8 +3,8 @@ import LoginTemplate from "@/modules/account/templates/login-template"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Log in",
-  description: "Log in to your WANGJIA account.",
+  title: "Masuk",
+  description: "Masuk ke akun WANGJIA Anda.",
 }
 
 export default async function Login() {

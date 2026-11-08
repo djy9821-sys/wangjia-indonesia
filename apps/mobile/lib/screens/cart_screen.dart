@@ -12,7 +12,8 @@ import 'checkout_screen.dart';
 class CartScreen extends StatefulWidget {
   /// Called after a quote request so the shell can switch to the quotes tab.
   final VoidCallback? onQuoteRequested;
-  const CartScreen({super.key, this.onQuoteRequested});
+  final VoidCallback? onBrowse;
+  const CartScreen({super.key, this.onQuoteRequested, this.onBrowse});
   @override
   State<CartScreen> createState() => _CartScreenState();
 }
@@ -45,15 +46,12 @@ class _CartScreenState extends State<CartScreen> {
           animation: cart,
           builder: (context, _) {
             if (cart.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.shopping_cart_outlined, size: 56, color: Colors.black26),
-                    const SizedBox(height: 12),
-                    Text(S.t('cart_empty')),
-                  ],
-                ),
+              return EmptyState(
+                icon: Icons.shopping_cart_outlined,
+                title: S.t('cart_empty'),
+                subtitle: S.t('cart_empty_hint'),
+                actionLabel: widget.onBrowse == null ? null : S.t('browse_products'),
+                onAction: widget.onBrowse,
               );
             }
             return Column(

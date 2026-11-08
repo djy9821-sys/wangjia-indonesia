@@ -36,8 +36,8 @@ class _HomeShellState extends State<HomeShell> {
   Widget build(BuildContext context) {
     final pages = [
       ProductsScreen(onOpenCart: () => setState(() => _tab = 1)),
-      CartScreen(onQuoteRequested: _goToQuotes),
-      OrdersHubScreen(key: _ordersKey),
+      CartScreen(onQuoteRequested: _goToQuotes, onBrowse: () => setState(() => _tab = 0)),
+      OrdersHubScreen(key: _ordersKey, onBrowse: () => setState(() => _tab = 0)),
       _AccountScreen(customer: widget.customer, onLoggedOut: widget.onLoggedOut),
     ];
     return Scaffold(
@@ -71,43 +71,129 @@ class _AccountScreen extends StatelessWidget {
   final VoidCallback onLoggedOut;
   const _AccountScreen({required this.customer, required this.onLoggedOut});
 
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(S.t('account'))),
-        body: ListView(
+  String get _name => '${customer['first_name'] ?? ''} ${customer['last_name'] ?? ''}'.trim();
+
+  String get _initials {
+    final parts = _name.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return 'W';
+    return parts.take(2).map((p) => p[0].toUpperCase()).join();
+  }
+
+  Widget _tile(BuildContext context, IconData icon, String title, {String? subtitle, VoidCallback? onTap, Widget? trailing, Color? color}) =>
+      ListTile(
+        leading: Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(color: (color ?? const Color(0xFF0E5A8A)).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+          child: Icon(icon, size: 20, color: color ?? const Color(0xFF0E5A8A)),
+        ),
+        title: Text(title, style: TextStyle(color: color, fontWeight: FontWeight.w500)),
+        subtitle: subtitle == null ? null : Text(subtitle),
+        trailing: trailing ?? (onTap == null ? null : const Icon(Icons.chevron_right, color: Colors.black38)),
+        onTap: onTap,
+      );
+
+  Widget _group(List<Widget> tiles) => Card(
+        clipBehavior: Clip.antiAlias,
+        child: Column(
           children: [
-            ListTile(
-              leading: const CircleAvatar(child: Icon(Icons.person)),
-              title: Text('${customer['first_name'] ?? ''} ${customer['last_name'] ?? ''}'.trim()),
-              subtitle: Text('${customer['email'] ?? ''}\n${customer['phone'] ?? ''}'.trim()),
-              isThreeLine: true,
+            for (var i = 0; i < tiles.length; i++) ...[
+              if (i > 0) const Divider(height: 1, indent: 64),
+              tiles[i],
+            ],
+          ],
+        ),
+      );
+
+  Future<void> _deleteAccount(BuildContext context) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(S.t('delete_account')),
+        content: Text(S.t('delete_account_confirm')),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(S.t('cancel'))),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(S.t('delete')),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !context.mounted) return;
+    try {
+      await PushService.instance.unregister();
+      await MedusaClient.instance.deleteAccount();
+      if (context.mounted) showSnack(context, S.t('delete_account_done'));
+      onLoggedOut();
+    } catch (e) {
+      if (context.mounted) showSnack(context, friendlyError(e));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final company = (customer['company_name'] ?? '').toString();
+    return Scaffold(
+      appBar: AppBar(title: Text(S.t('account'))),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+        children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(colors: [Color(0xFF0E5A8A), Color(0xFF1B8A5A)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(_initials, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(_name.isEmpty ? S.t('profile') : _name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                        if ((customer['email'] ?? '').toString().isNotEmpty)
+                          Text('${customer['email']}', style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                        if ((customer['phone'] ?? '').toString().isNotEmpty)
+                          Text('${customer['phone']}', style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                        if (company.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          StatusChip(company, const Color(0xFF0E5A8A)),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            if ((customer['company_name'] ?? '').toString().isNotEmpty)
-              ListTile(leading: const Icon(Icons.business), title: Text('${customer['company_name']}')),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.location_on_outlined),
-              title: Text(S.t('addresses')),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AddressesScreen())),
-            ),
-            ListTile(
-              leading: const Icon(Icons.notifications_outlined),
-              title: Text(S.t('notifications')),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotificationsScreen())),
-            ),
-            ListTile(
-              leading: const Icon(Icons.verified_outlined),
-              title: Text(S.t('warranty')),
-              subtitle: Text(S.t('scan_qr')),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WarrantyScreen())),
-            ),
-            ListTile(
-              leading: const Icon(Icons.language),
-              title: Text(S.t('language')),
+          ),
+          SectionTitle(S.t('services')),
+          _group([
+            _tile(context, Icons.location_on_outlined, S.t('addresses'),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AddressesScreen()))),
+            _tile(context, Icons.notifications_outlined, S.t('notifications'),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotificationsScreen()))),
+            _tile(context, Icons.verified_outlined, S.t('warranty'), subtitle: S.t('scan_qr'), color: const Color(0xFF1B8A5A),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WarrantyScreen()))),
+          ]),
+          SectionTitle(S.t('settings')),
+          _group([
+            _tile(
+              context,
+              Icons.language,
+              S.t('language'),
               trailing: SegmentedButton<String>(
+                style: const ButtonStyle(visualDensity: VisualDensity.compact),
                 segments: const [
                   ButtonSegment(value: 'id', label: Text('ID')),
                   ButtonSegment(value: 'en', label: Text('EN')),
@@ -116,52 +202,28 @@ class _AccountScreen extends StatelessWidget {
                 onSelectionChanged: (s) => S.locale.value = s.first,
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.privacy_tip_outlined),
-              title: Text(S.t('privacy_policy')),
-              trailing: const Icon(Icons.open_in_new, size: 18),
-              onTap: () => launchUrl(Uri.parse(AppConfig.privacyUrl), mode: LaunchMode.externalApplication),
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: Text(S.t('logout')),
-              onTap: () async {
-                await PushService.instance.unregister();
-                await MedusaClient.instance.logout();
-                onLoggedOut();
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.delete_forever_outlined, color: Theme.of(context).colorScheme.error),
-              title: Text(S.t('delete_account'), style: TextStyle(color: Theme.of(context).colorScheme.error)),
-              onTap: () async {
-                final ok = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: Text(S.t('delete_account')),
-                    content: Text(S.t('delete_account_confirm')),
-                    actions: [
-                      TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(S.t('cancel'))),
-                      FilledButton(
-                        style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
-                        onPressed: () => Navigator.of(ctx).pop(true),
-                        child: Text(S.t('delete')),
-                      ),
-                    ],
-                  ),
-                );
-                if (ok != true || !context.mounted) return;
-                try {
-                  await PushService.instance.unregister();
-                  await MedusaClient.instance.deleteAccount();
-                  if (context.mounted) showSnack(context, S.t('delete_account_done'));
-                  onLoggedOut();
-                } catch (e) {
-                  if (context.mounted) showSnack(context, friendlyError(e));
-                }
-              },
-            ),
-          ],
-        ),
-      );
+            _tile(context, Icons.privacy_tip_outlined, S.t('privacy_policy'),
+                trailing: const Icon(Icons.open_in_new, size: 18, color: Colors.black38),
+                onTap: () => launchUrl(Uri.parse(AppConfig.privacyUrl), mode: LaunchMode.externalApplication)),
+            _tile(context, Icons.chat_outlined, S.t('help'), subtitle: 'WhatsApp',
+                trailing: const Icon(Icons.open_in_new, size: 18, color: Colors.black38),
+                onTap: () => launchUrl(Uri.parse('https://wa.me/${AppConfig.whatsappNumber}'), mode: LaunchMode.externalApplication)),
+          ]),
+          const SizedBox(height: 18),
+          _group([
+            _tile(context, Icons.logout, S.t('logout'), color: Colors.black87, onTap: () async {
+              await PushService.instance.unregister();
+              await MedusaClient.instance.logout();
+              onLoggedOut();
+            }),
+            _tile(context, Icons.delete_forever_outlined, S.t('delete_account'), color: theme.colorScheme.error,
+                onTap: () => _deleteAccount(context)),
+          ]),
+          const SizedBox(height: 20),
+          Text('${S.t('app_version')} ${AppConfig.appVersion}',
+              textAlign: TextAlign.center, style: theme.textTheme.bodySmall?.copyWith(color: Colors.black38)),
+        ],
+      ),
+    );
+  }
 }

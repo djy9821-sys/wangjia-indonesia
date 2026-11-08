@@ -43,7 +43,7 @@ export default async function CheckoutForm({
         >
           <Button variant="secondary">
             <UTurnArrowRight />
-            Back to shopping cart
+            Kembali ke keranjang
           </Button>
         </LocalizedClientLink>
 

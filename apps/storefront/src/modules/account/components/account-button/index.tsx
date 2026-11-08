@@ -12,7 +12,7 @@ export default function AccountButton({
       <button className="flex gap-1.5 items-center rounded-2xl bg-none shadow-none border-none hover:bg-neutral-100 px-2 py-1">
         <User />
         <span className="hidden small:inline-block">
-          {customer ? customer.first_name : "Log in"}
+          {customer ? customer.first_name : "Masuk"}
         </span>
       </button>
     </LocalizedClientLink>

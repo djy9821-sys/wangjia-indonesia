@@ -61,7 +61,7 @@ const ApprovalSettingsCard = ({
           <TooltipProvider>
             <div className="flex flex-col gap-y-2">
               <Text className="flex items-center gap-x-2 font-medium text-neutral-950">
-                Requires Admin Approval
+                Perlu persetujuan admin
                 <Tooltip content="This setting determines whether orders require admin approval before being processed. If enabled, orders will be held until an admin approves them.">
                   <InformationCircleSolid className="w-4 h-4" />
                 </Tooltip>
@@ -76,14 +76,14 @@ const ApprovalSettingsCard = ({
                   />
                 ) : (
                   <Text className="text-neutral-500">
-                    {requiresAdminApproval ? "Yes" : "No"}
+                    {requiresAdminApproval ? "Ya" : "No"}
                   </Text>
                 )}
               </div>
             </div>
             <div className="flex flex-col gap-y-2">
               <Text className="flex items-center gap-x-2 font-medium text-neutral-950">
-                Requires Sales Manager Approval
+                Perlu persetujuan sales manager
                 <Tooltip content="This setting determines whether orders require sales manager approval before being processed. If enabled, orders will be held until a sales manager approves them.">
                   <InformationCircleSolid className="w-4 h-4" />
                 </Tooltip>
@@ -91,7 +91,7 @@ const ApprovalSettingsCard = ({
               <div className="flex items-center gap-x-2 h-3">
                 <Text className="text-neutral-500">
                   {approval_settings?.requires_sales_manager_approval
-                    ? "Yes"
+                    ? "Ya"
                     : "No"}
                 </Text>
               </div>
@@ -108,19 +108,19 @@ const ApprovalSettingsCard = ({
                   onClick={() => setIsEditing(false)}
                   disabled={isSaving}
                 >
-                  Cancel
+                  Batal
                 </Button>
                 <Button
                   variant="primary"
                   onClick={handleSave}
                   isLoading={isSaving}
                 >
-                  Save
+                  Simpan
                 </Button>
               </>
             ) : (
               <Button variant="secondary" onClick={() => setIsEditing(true)}>
-                Edit
+                Ubah
               </Button>
             )}
           </div>

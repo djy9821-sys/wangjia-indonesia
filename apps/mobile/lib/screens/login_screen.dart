@@ -16,6 +16,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _register = false;
   bool _busy = false;
+  bool _showPassword = false;
   final _email = TextEditingController(text: AppConfig.devEmail);
   final _password = TextEditingController(text: AppConfig.devPassword);
   final _first = TextEditingController();
@@ -128,11 +129,31 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const WangjiaLogo(size: 72),
-                    const SizedBox(height: 4),
-                    Text(S.t('app_title'),
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54)),
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(colors: [Color(0xFF0E5A8A), Color(0xFF1B8A5A)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                        borderRadius: BorderRadius.circular(22),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('WANGJIA\u00AE', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: 3)),
+                                const SizedBox(height: 2),
+                                const Text('KINCIR AIR · AERATOR TAMBAK', style: TextStyle(color: Colors.white70, fontSize: 10, letterSpacing: 1.4, fontWeight: FontWeight.w600)),
+                                const SizedBox(height: 10),
+                                Text(S.t('login_tagline'), style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.3)),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const WangjiaLogo(size: 64, withText: false),
+                        ],
+                      ),
+                    ),
                     const SizedBox(height: 24),
                     SegmentedButton<bool>(
                       segments: [
@@ -186,7 +207,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                     TextField(controller: _email, keyboardType: TextInputType.emailAddress, decoration: InputDecoration(labelText: S.t('email'))),
                     const SizedBox(height: 12),
-                    TextField(controller: _password, obscureText: true, decoration: InputDecoration(labelText: S.t('password'))),
+                    TextField(
+                      controller: _password,
+                      obscureText: !_showPassword,
+                      onSubmitted: (_) => _busy ? null : _submit(),
+                      decoration: InputDecoration(
+                        labelText: S.t('password'),
+                        suffixIcon: IconButton(
+                          onPressed: () => setState(() => _showPassword = !_showPassword),
+                          icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 20),
                     FilledButton(
                       onPressed: _busy ? null : _submit,

@@ -3,8 +3,7 @@
 import Login from "@/modules/account/components/login"
 import Register from "@/modules/account/components/register"
 import { HttpTypes } from "@medusajs/types"
-import { clx } from "@medusajs/ui"
-import Image from "next/image"
+import BrandBanner from "@/modules/common/components/brand-banner"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -18,7 +17,6 @@ const LoginTemplate = ({ regions }: { regions: HttpTypes.StoreRegion[] }) => {
   const searchParams = useSearchParams()
   const router = useRouter()
 
-  const [imageLoaded, setImageLoaded] = useState(false)
   const [currentView, setCurrentView] = useState<LOGIN_VIEW>(() => {
     const viewFromUrl = searchParams.get("view") as LOGIN_VIEW
     return viewFromUrl && Object.values(LOGIN_VIEW).includes(viewFromUrl)
@@ -37,14 +35,6 @@ const LoginTemplate = ({ regions }: { regions: HttpTypes.StoreRegion[] }) => {
     }
   }, [searchParams, route, router])
 
-  useEffect(() => {
-    const image = new window.Image()
-    image.src = "/account-block.jpg"
-    image.onload = () => {
-      setImageLoaded(true)
-    }
-  }, [])
-
   const updateView = (view: LOGIN_VIEW) => {
     setCurrentView(view)
     router.push(`/account?view=${view}`)
@@ -60,19 +50,7 @@ const LoginTemplate = ({ regions }: { regions: HttpTypes.StoreRegion[] }) => {
         )}
       </div>
 
-      <div className="relative">
-        <Image
-          src="/account-block.jpg"
-          alt="Login banner background"
-          className={clx(
-            "object-cover transition-opacity duration-300 w-full h-full",
-            imageLoaded ? "opacity-100" : "opacity-0"
-          )}
-          fill
-          quality={100}
-          priority
-        />
-      </div>
+      <BrandBanner className="min-h-[320px] small:min-h-full" />
     </div>
   )
 }

@@ -3,11 +3,11 @@
 import { StatusBadge } from "@medusajs/ui"
 
 const StatusTitles: Record<string, string> = {
-  accepted: "Accepted",
-  customer_rejected: "Customer Rejected",
-  merchant_rejected: "Merchant Rejected",
-  pending_merchant: "Pending Merchant",
-  pending_customer: "Pending Customer",
+  accepted: "Diterima",
+  customer_rejected: "Anda tolak",
+  merchant_rejected: "Ditolak penjual",
+  pending_merchant: "Menunggu tim sales",
+  pending_customer: "Menunggu persetujuan Anda",
 }
 
 const StatusColors: Record<string, "green" | "orange" | "red" | "blue"> = {

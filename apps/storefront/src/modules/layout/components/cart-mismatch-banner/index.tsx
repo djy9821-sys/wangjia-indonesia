@@ -9,7 +9,7 @@ import { B2BCart, B2BCustomer } from "@/types/global"
 function CartMismatchBanner(props: { customer: B2BCustomer; cart: B2BCart }) {
   const { customer, cart } = props
   const [isPending, setIsPending] = useState(false)
-  const [actionText, setActionText] = useState("Connect cart")
+  const [actionText, setActionText] = useState("Hubungkan keranjang")
 
   if (!customer || !!cart.customer_id) {
     return
@@ -18,11 +18,11 @@ function CartMismatchBanner(props: { customer: B2BCustomer; cart: B2BCart }) {
   const handleSubmit = async () => {
     try {
       setIsPending(true)
-      setActionText("Connecting..")
+      setActionText("Menghubungkan..")
 
       await transferCart()
     } catch {
-      setActionText("Connect cart")
+      setActionText("Hubungkan keranjang")
       setIsPending(false)
     }
   }
@@ -32,7 +32,7 @@ function CartMismatchBanner(props: { customer: B2BCustomer; cart: B2BCart }) {
       <div className="flex flex-col small:flex-row small:gap-2 gap-1 items-center">
         <span className="flex items-center gap-1">
           <ExclamationCircleSolid className="inline" />
-          Cart is not connected to your account
+          Keranjang belum terhubung ke akun Anda
         </span>
 
         <span>·</span>

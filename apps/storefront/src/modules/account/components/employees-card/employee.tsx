@@ -35,26 +35,25 @@ const RemoveEmployeePrompt = ({ employee }: { employee: QueryEmployee }) => {
   return (
     <Prompt variant="danger">
       <Prompt.Trigger asChild>
-        <Button variant="transparent">Remove</Button>
+        <Button variant="transparent">Hapus</Button>
       </Prompt.Trigger>
       <Prompt.Content>
         <Prompt.Header>
-          <Prompt.Title>Remove Employee</Prompt.Title>
+          <Prompt.Title>Hapus Karyawan</Prompt.Title>
           <Prompt.Description>
             Are you sure you want to remove{" "}
-            <strong>{employee.customer.email}</strong> from your team? They will
-            no longer be able to purchase on behalf of your company.
+            <strong>{employee.customer.email}</strong> dari tim Anda? Ia tidak bisa lagi berbelanja atas nama perusahaan.
           </Prompt.Description>
         </Prompt.Header>
         <Prompt.Footer>
           <Prompt.Cancel className="h-10 rounded-full shadow-borders-base">
-            Cancel
+            Batal
           </Prompt.Cancel>
           <Prompt.Action
             className="h-10 px-4 rounded-full shadow-none"
             onClick={handleRemove}
           >
-            Remove
+            Hapus
           </Prompt.Action>
         </Prompt.Footer>
       </Prompt.Content>
@@ -131,7 +130,7 @@ const Employee = ({
               {amountSpent} /{" "}
               {employee.spending_limit > 0
                 ? formatAmount(employee.spending_limit, company.currency_code!)
-                : "No limit"}{" "}
+                : "Tanpa batas"}{" "}
               spent
             </Text>
           </div>
@@ -144,14 +143,14 @@ const Employee = ({
                 onClick={() => setIsEditing(false)}
                 disabled={isSaving}
               >
-                Cancel
+                Batal
               </Button>
               <Button
                 variant="primary"
                 onClick={handleSubmit}
                 isLoading={isSaving}
               >
-                Save
+                Simpan
               </Button>
             </>
           ) : (
@@ -161,7 +160,7 @@ const Employee = ({
                 variant="secondary"
                 onClick={() => setIsEditing((prev) => !prev)}
               >
-                Edit
+                Ubah
               </Button>
             </>
           )}
@@ -183,7 +182,7 @@ const Employee = ({
         }}
       >
         <div className="flex flex-col gap-y-2">
-          <Text className=" text-neutral-950 font-medium">Spending Limit</Text>
+          <Text className=" text-neutral-950 font-medium">Batas Belanja</Text>
           <CurrencyInput
             symbol={currencySymbolMap[company.currency_code!]}
             code={company.currency_code!}
@@ -199,7 +198,7 @@ const Employee = ({
           />
         </div>
         <div className="flex flex-col gap-y-2">
-          <Text className=" text-neutral-950 font-medium">Permissions</Text>
+          <Text className=" text-neutral-950 font-medium">Hak Akses</Text>
           <NativeSelect
             className="bg-white"
             name="permissions"
@@ -213,7 +212,7 @@ const Employee = ({
             }}
           >
             <option value="true">Admin</option>
-            <option value="false">Employee</option>
+            <option value="false">Karyawan</option>
           </NativeSelect>
         </div>
       </form>

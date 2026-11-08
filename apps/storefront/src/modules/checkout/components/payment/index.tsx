@@ -130,7 +130,7 @@ const Payment = ({
                 !isOpen && !paymentReady,
             })}
           >
-            Payment Method
+            Metode Pembayaran
             {!isOpen && paymentReady && <CheckCircleSolid />}
           </Heading>
           {!isOpen &&
@@ -142,7 +142,7 @@ const Payment = ({
                   className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
                   data-testid="edit-payment-button"
                 >
-                  Edit
+                  Ubah
                 </button>
               </Text>
             )}
@@ -174,7 +174,7 @@ const Payment = ({
               {stripeReady && isCardPayment(selectedPaymentMethod) && (
                 <div className="mt-5 transition-all duration-150 ease-in-out">
                   <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                    Enter your card details:
+                    Masukkan data kartu:
                   </Text>
 
                   <CardElement
@@ -199,7 +199,7 @@ const Payment = ({
                 className="txt-medium text-ui-fg-subtle"
                 data-testid="payment-method-summary"
               >
-                Gift card
+                Voucher
               </Text>
             </div>
           )}
@@ -222,8 +222,8 @@ const Payment = ({
               data-testid="submit-payment-button"
             >
               {!activeSession && isStripeLike(selectedPaymentMethod)
-                ? " Enter card details"
-                : "Next step"}
+                ? "Isi data kartu"
+                : "Lanjut"}
             </Button>
           </div>
         </div>
@@ -261,13 +261,13 @@ const Payment = ({
           ) : paidByGiftcard ? (
             <div className="flex flex-col w-1/3">
               <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                Payment method
+                Metode pembayaran
               </Text>
               <Text
                 className="txt-medium text-ui-fg-subtle"
                 data-testid="payment-method-summary"
               >
-                Gift card
+                Voucher
               </Text>
             </div>
           ) : null}

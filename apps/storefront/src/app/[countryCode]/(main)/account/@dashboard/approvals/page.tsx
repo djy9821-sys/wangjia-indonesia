@@ -6,8 +6,8 @@ import { Metadata } from "next"
 import { Suspense } from "react"
 
 export const metadata: Metadata = {
-  title: "Approvals",
-  description: "Overview of your pending approvals.",
+  title: "Persetujuan",
+  description: "Permintaan persetujuan pembelian.",
 }
 
 export default async function Approvals({
@@ -19,26 +19,26 @@ export default async function Approvals({
 
   return (
     <div className="w-full flex flex-col gap-y-4">
-      <Heading>Approvals</Heading>
+      <Heading>Persetujuan</Heading>
 
       <Heading level="h2" className="text-neutral-700">
-        Pending
+        Menunggu
       </Heading>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>Memuat...</div>}>
         <PendingApprovalRequestsAdminList searchParams={urlSearchParams} />
       </Suspense>
 
       <Heading level="h2" className="text-neutral-700">
-        Approved
+        Disetujui
       </Heading>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>Memuat...</div>}>
         <ApprovedApprovalRequestsAdminList searchParams={urlSearchParams} />
       </Suspense>
 
       <Heading level="h2" className="text-neutral-700">
-        Rejected
+        Ditolak
       </Heading>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>Memuat...</div>}>
         <RejectedApprovalRequestsAdminList searchParams={urlSearchParams} />
       </Suspense>
     </div>

@@ -74,7 +74,7 @@ const Shipping: React.FC<ShippingProps> = ({
                 !isOpen && cart.shipping_methods?.length === 0,
             })}
           >
-            Delivery Method
+            Metode Pengiriman
             {!isOpen && (cart.shipping_methods?.length ?? 0) > 0 && (
               <CheckCircleSolid />
             )}
@@ -90,7 +90,7 @@ const Shipping: React.FC<ShippingProps> = ({
                   className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
                   data-testid="edit-delivery-button"
                 >
-                  Edit
+                  Ubah
                 </button>
               </Text>
             )}
@@ -148,7 +148,7 @@ const Shipping: React.FC<ShippingProps> = ({
               disabled={!cart.shipping_methods?.[0]}
               data-testid="submit-delivery-option-button"
             >
-              Next step
+              Lanjut
             </Button>
           </div>
         </div>

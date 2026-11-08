@@ -7,7 +7,8 @@ import 'quotes_screen.dart';
 /// "Pesanan" tab: orders and quotes side by side.
 class OrdersHubScreen extends StatefulWidget {
   final int initialTab;
-  const OrdersHubScreen({super.key, this.initialTab = 0});
+  final VoidCallback? onBrowse;
+  const OrdersHubScreen({super.key, this.initialTab = 0, this.onBrowse});
   @override
   State<OrdersHubScreen> createState() => OrdersHubScreenState();
 }
@@ -39,8 +40,8 @@ class OrdersHubScreenState extends State<OrdersHubScreen> with SingleTickerProvi
         body: TabBarView(
           controller: _tabs,
           children: [
-            const OrdersScreen(embedded: true),
-            QuotesScreen(key: _quotesKey),
+            OrdersScreen(embedded: true, onBrowse: widget.onBrowse),
+            QuotesScreen(key: _quotesKey, onBrowse: widget.onBrowse),
           ],
         ),
       );

@@ -89,14 +89,14 @@ const QuoteCard = ({ quote }: QuoteCardProps) => {
           </span>
           {"·"}
           <span className="pl-2">{`${numberOfLines} ${
-            numberOfLines > 1 ? "items" : "item"
+            "barang"
           }`}</span>
         </div>
 
         <div className="pl-4">
           <LocalizedClientLink href={`/account/quotes/details/${quote.id}`}>
             <Button variant="secondary" className="rounded-full text-xs">
-              See details
+              Lihat detail
             </Button>
           </LocalizedClientLink>
         </div>

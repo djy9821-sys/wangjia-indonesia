@@ -90,12 +90,14 @@ class OrderItem {
   final String? variantTitle;
   final int quantity;
   final num unitPrice;
-  OrderItem(this.title, this.variantTitle, this.quantity, this.unitPrice);
+  final String? thumbnail;
+  OrderItem(this.title, this.variantTitle, this.quantity, this.unitPrice, {this.thumbnail});
   factory OrderItem.fromJson(Map<String, dynamic> j) => OrderItem(
         (j['title'] ?? j['product_title'] ?? '') as String,
         j['variant_title'] as String?,
         _num(j['quantity']).toInt(),
         _num(j['unit_price']),
+        thumbnail: j['thumbnail'] as String?,
       );
 }
 

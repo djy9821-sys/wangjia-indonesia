@@ -60,7 +60,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               if (!snap.hasData) return const Center(child: CircularProgressIndicator());
               final list = snap.data!;
               if (list.isEmpty) {
-                return ListView(children: [Padding(padding: const EdgeInsets.all(24), child: Text(S.t("no_notifications"), textAlign: TextAlign.center))]);
+                return ListView(children: [
+                  SizedBox(height: MediaQuery.sizeOf(context).height * 0.2),
+                  EmptyState(icon: Icons.notifications_none, title: S.t("notifications"), subtitle: S.t("no_notifications")),
+                ]);
               }
               return ListView.separated(
                 padding: const EdgeInsets.symmetric(vertical: 8),

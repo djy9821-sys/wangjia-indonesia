@@ -10,7 +10,7 @@ const BillingDetails = ({ order }: BillingDetailsProps) => {
     !!order.billing_address && (
       <>
         <Heading level="h3" className="mb-2">
-          Billing Address
+          Alamat Penagihan
         </Heading>
 
         {!!order.billing_address && (

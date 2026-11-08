@@ -8,7 +8,7 @@ const AppliedPromotions = ({
 }) => {
   return (
     <Container className="flex gap-2 items-center py-3 flex-wrap">
-      <Text>Promotions applied:</Text>
+      <Text>Promo diterapkan:</Text>
       {promotions?.map((promotion) => (
         <Badge
           key={promotion.id}

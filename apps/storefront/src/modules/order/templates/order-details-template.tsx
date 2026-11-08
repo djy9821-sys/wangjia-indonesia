@@ -40,7 +40,7 @@ const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
           data-testid="back-to-overview-button"
         >
           <Button variant="secondary">
-            <ArrowUturnLeft /> Back
+            <ArrowUturnLeft /> Kembali
           </Button>
         </LocalizedClientLink>
       </div>

@@ -93,3 +93,65 @@ Color fulfillmentColor(String? status) => switch (status) {
 
 void showSnack(BuildContext context, String msg) =>
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+
+/// Friendly empty list: icon, one line, optional action (e.g. "Lihat produk").
+class EmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  const EmptyState({super.key, required this.icon, required this.title, this.subtitle, this.actionLabel, this.onAction});
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 84,
+                height: 84,
+                decoration: const BoxDecoration(color: Color(0xFFDCEBF5), shape: BoxShape.circle),
+                child: Icon(icon, size: 40, color: const Color(0xFF0E5A8A)),
+              ),
+              const SizedBox(height: 16),
+              Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium),
+              if (subtitle != null) ...[
+                const SizedBox(height: 6),
+                Text(subtitle!, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
+              ],
+              if (actionLabel != null && onAction != null) ...[
+                const SizedBox(height: 20),
+                FilledButton.tonal(
+                  style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
+                  onPressed: onAction,
+                  child: Text(actionLabel!),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
+}
+
+/// Rounded section title used above lists on detail screens.
+class SectionTitle extends StatelessWidget {
+  final String text;
+  const SectionTitle(this.text, {super.key});
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(4, 18, 4, 8),
+        child: Text(text.toUpperCase(),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.black54, letterSpacing: 1.1, fontWeight: FontWeight.w700)),
+      );
+}
+
+Color paymentColor(String? status) => switch (status) {
+      'captured' || 'paid' => const Color(0xFF1B8A5A),
+      'partially_captured' || 'authorized' || 'awaiting' => const Color(0xFFD98E04),
+      'refunded' || 'partially_refunded' => const Color(0xFF7C3AED),
+      'canceled' => const Color(0xFFB3261E),
+      _ => const Color(0xFF6B7280),
+    };

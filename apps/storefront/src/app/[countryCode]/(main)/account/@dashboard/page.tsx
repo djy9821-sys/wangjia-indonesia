@@ -6,8 +6,8 @@ import Overview from "@/modules/account/components/overview"
 import { notFound } from "next/navigation"
 
 export const metadata: Metadata = {
-  title: "Account",
-  description: "Overview of your account activity.",
+  title: "Akun",
+  description: "Ringkasan akun WANGJIA Anda.",
 }
 
 export default async function OverviewTemplate() {

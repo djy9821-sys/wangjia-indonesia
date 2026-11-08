@@ -52,7 +52,10 @@
 
 - 站内通知：所有发给客户的通知带 `receiver_id`，`GET /store/notifications` 返回去重后的历史，App「账户 → Notifikasi」可回看并跳转订单/保修；发货后 7 天自动回访（`FOLLOWUP_DAYS`，回复进 Chatwoot）；操作指南新增「经销商开子账号与信用额度」。优化大纲 `docs/ROADMAP.zh-CN.md`。
 
-- 视觉打磨：画了一套矢量水车/叶轮/齿轮箱/浮筒插图（`brand/products/`，渲染为 PNG 放在后端 `static/products` 与商城 `public/products`），种子数据和 `set-product-images.ts` 脚本把插图挂到商品上（真实照片到位后在后台替换即可）；商城首页用 2 HP 插图作主视觉；App 统一主题（浅蓝底、白卡片、圆角按钮）、首页品牌头图 + 三个信任标签、商品卡片 4:3 大图 + “Garansi 12 bln”角标 + 价格区、详情页价格块与信任标签。
+- 视觉打磨：画了一套矢量水车/叶轮/齿轮箱/浮筒插图（`brand/products/`，渲染为 PNG 放在后端 `static/products` 与商城 `public/products`），种子数据和 `set-product-images.ts` 脚本把插图挂到商品上（真实照片到位后在后台替换即可）；商城首页用 2 HP 插图作主视觉；App 统一主题（浅蓝底、白卡片、圆角按钮）、首页品牌头图 + 三个信任标签、商品卡片 4:3 大图 + “Garansi 12 bln”角标 + 价格区、详情页价格块与信任标签。（CI 611eea3 四项全绿）
+
+- App 页面风格统一：登录页品牌头图 + 密码可见切换 + 回车提交；订单卡片改为缩略图 + 日期/件数 + 商品摘要 + 发货/付款两个状态标签；账户页改为头像卡（姓名首字母、公司标签）+ 分组卡片（服务 / 设置 / 退出），底部显示版本号，新增「Bantuan（WhatsApp）」入口；购物车、订单、报价、通知的空状态统一为图标 + 说明 + “Lihat produk”按钮。订单行项目模型加 `thumbnail`。
+- 网页商城印尼语化：账户区（导航、总览、订单、报价、资料、地址、公司、审批）、购物车、结账各步骤、订单详情、询价弹窗等 75 个文件的 starter 英文文案全部改为印尼语（`src/lib/util/order-status.ts` 统一发货/付款状态文案与 id-ID 日期）；网页订单卡加缩略图与状态标签；账户页横幅、登录页右栏、购物车登录提示的 starter 抽象图换成品牌视觉块 `BrandBanner`（渐变 + WANGJIA 字标 + 2 HP 插图）。
 
 ## 本机验证手段
 - 后端：`pnpm test:integration:http`（30 个用例）、tsc、medusa lint；curl 走接口；浏览器查后台页面。

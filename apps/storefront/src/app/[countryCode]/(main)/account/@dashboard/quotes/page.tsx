@@ -8,7 +8,7 @@ export default async function Quotes() {
   return (
     <div className="w-full" data-testid="quotes-page-wrapper">
       <div className="mb-4">
-        <Heading>Quotes</Heading>
+        <Heading>Penawaran</Heading>
       </div>
 
       <div>

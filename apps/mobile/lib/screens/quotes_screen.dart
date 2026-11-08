@@ -15,7 +15,8 @@ Color quoteColor(String status) => switch (status) {
     };
 
 class QuotesScreen extends StatefulWidget {
-  const QuotesScreen({super.key});
+  final VoidCallback? onBrowse;
+  const QuotesScreen({super.key, this.onBrowse});
   @override
   State<QuotesScreen> createState() => QuotesScreenState();
 }
@@ -37,7 +38,15 @@ class QuotesScreenState extends State<QuotesScreen> {
           if (snap.hasError) return ErrorRetry(error: snap.error!, onRetry: reload);
           if (!snap.hasData) return const Center(child: CircularProgressIndicator());
           final quotes = snap.data!;
-          if (quotes.isEmpty) return Center(child: Text(S.t('no_quotes')));
+          if (quotes.isEmpty) {
+            return EmptyState(
+              icon: Icons.request_quote_outlined,
+              title: S.t('no_quotes'),
+              subtitle: S.t('no_quotes_hint'),
+              actionLabel: widget.onBrowse == null ? null : S.t('browse_products'),
+              onAction: widget.onBrowse,
+            );
+          }
           return RefreshIndicator(
             onRefresh: reload,
             child: ListView.separated(

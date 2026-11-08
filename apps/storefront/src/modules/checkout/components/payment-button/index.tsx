@@ -99,7 +99,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
         />
       )
     default:
-      return <Button disabled>Select a payment method</Button>
+      return <Button disabled>Pilih metode pembayaran</Button>
   }
 }
 
@@ -135,10 +135,10 @@ const RequestApprovalButton = ({
       <Container className="flex flex-col gap-y-2">
         <Text className="text-neutral-700-950 text-xs text-center">
           {requires_admin_approval && requires_sales_manager_approval
-            ? "This order requires approval by both a company admin and a sales manager."
+            ? "Pesanan ini perlu persetujuan admin perusahaan dan sales manager."
             : requires_admin_approval
-            ? "This order requires approval by a company admin."
-            : "This order requires approval by a sales manager."}
+            ? "Pesanan ini perlu persetujuan admin perusahaan."
+            : "Pesanan ini perlu persetujuan sales manager."}
         </Text>
         <Button
           className="w-full h-10 rounded-full shadow-none"
@@ -146,7 +146,7 @@ const RequestApprovalButton = ({
           onClick={createApproval}
           isLoading={submitting}
         >
-          {isPendingAdminApproval ? "Approval Requested" : "Request Approval"}
+          {isPendingAdminApproval ? "Persetujuan Diminta" : "Minta Persetujuan"}
         </Button>
       </Container>
     </>
@@ -167,7 +167,7 @@ const GiftCardPaymentButton = ({ cart }: { cart: B2BCart }) => {
       isLoading={submitting}
       data-testid="submit-order-button"
     >
-      Place order
+      Buat Pesanan
     </Button>
   )
 }
@@ -276,7 +276,7 @@ const StripePaymentButton = ({
         isLoading={submitting}
         data-testid={dataTestId}
       >
-        Place order
+        Buat Pesanan
       </Button>
       <ErrorMessage
         error={errorMessage}
@@ -392,7 +392,7 @@ const ManualTestPaymentButton = ({
         size="large"
         data-testid="submit-order-button"
       >
-        Place order
+        Buat Pesanan
       </Button>
       <ErrorMessage
         error={errorMessage}

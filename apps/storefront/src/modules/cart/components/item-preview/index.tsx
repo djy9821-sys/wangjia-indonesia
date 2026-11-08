@@ -46,7 +46,7 @@ const ItemPreview = ({ item, showBorders = true, currencyCode }: ItemProps) => {
           <div className="flex small:flex-row flex-col gap-2">
             {(item.metadata?.note as string) && (
               <div className="flex gap-x-1">
-                <span className="text-neutral-950 text-xs">Note:</span>
+                <span className="text-neutral-950 text-xs">Catatan:</span>
                 <span className="text-xs text-neutral-600 italic truncate max-w-44 pr-px">
                   {item.metadata?.note as string}
                 </span>

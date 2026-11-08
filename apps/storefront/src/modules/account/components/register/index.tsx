@@ -109,9 +109,9 @@ const Register = ({ setCurrentView, regions }: Props) => {
       data-testid="register-page"
     >
       <Text className="text-4xl text-neutral-950 text-left mb-4">
-        Create your
+        Buat akun
         <br />
-        company account.
+        WANGJIA Anda.
       </Text>
       <form className="w-full flex flex-col" action={formAction}>
         <div className="flex flex-col w-full gap-y-4">
@@ -127,7 +127,7 @@ const Register = ({ setCurrentView, regions }: Props) => {
             onChange={handleChange}
           />
           <Input
-            label="First name"
+            label="Nama depan"
             name="first_name"
             required
             autoComplete="given-name"
@@ -137,7 +137,7 @@ const Register = ({ setCurrentView, regions }: Props) => {
             onChange={handleChange}
           />
           <Input
-            label="Last name"
+            label="Nama belakang"
             name="last_name"
             required
             autoComplete="family-name"
@@ -158,7 +158,7 @@ const Register = ({ setCurrentView, regions }: Props) => {
             onChange={handleChange}
           />
           <Input
-            label="Company name"
+            label="Nama perusahaan / usaha"
             name="company_name"
             required
             autoComplete="organization"
@@ -168,7 +168,7 @@ const Register = ({ setCurrentView, regions }: Props) => {
             onChange={handleChange}
           />
           <Input
-            label="Password"
+            label="Kata sandi"
             name="password"
             required
             type="password"
@@ -179,7 +179,7 @@ const Register = ({ setCurrentView, regions }: Props) => {
             onChange={handleChange}
           />
           <Input
-            label="Company address"
+            label="Alamat perusahaan"
             name="company_address"
             required
             autoComplete="address"
@@ -189,7 +189,7 @@ const Register = ({ setCurrentView, regions }: Props) => {
             onChange={handleChange}
           />
           <Input
-            label="Company city"
+            label="Kota"
             name="company_city"
             required
             autoComplete="city"
@@ -199,7 +199,7 @@ const Register = ({ setCurrentView, regions }: Props) => {
             onChange={handleChange}
           />
           <Input
-            label="Company state"
+            label="Provinsi"
             name="company_state"
             autoComplete="state"
             data-testid="company-state-input"
@@ -208,7 +208,7 @@ const Register = ({ setCurrentView, regions }: Props) => {
             onChange={handleChange}
           />
           <Input
-            label="Company zip"
+            label="Kode pos"
             name="company_zip"
             required
             autoComplete="postal-code"
@@ -228,7 +228,7 @@ const Register = ({ setCurrentView, regions }: Props) => {
             <Select.Trigger className="rounded-full h-10 px-4">
               <Select.Value
                 placeholder={placeholder({
-                  placeholder: "Select a country",
+                  placeholder: "Pilih negara",
                   required: true,
                 })}
               />
@@ -252,7 +252,7 @@ const Register = ({ setCurrentView, regions }: Props) => {
             <Select.Trigger className="rounded-full h-10 px-4">
               <Select.Value
                 placeholder={placeholder({
-                  placeholder: "Select a currency",
+                  placeholder: "Pilih mata uang",
                   required: true,
                 })}
               />
@@ -282,7 +282,7 @@ const Register = ({ setCurrentView, regions }: Props) => {
             htmlFor="terms-checkbox"
             data-testid="terms-label"
           >
-            I agree to the terms and conditions.
+            Saya setuju dengan syarat & ketentuan.
           </Label>
         </div>
         <SubmitButton
@@ -290,7 +290,7 @@ const Register = ({ setCurrentView, regions }: Props) => {
           data-testid="register-button"
           disabled={!isValid}
         >
-          Register
+          Daftar
         </SubmitButton>
       </form>
       <span className="text-center text-ui-fg-base text-small-regular mt-6">
@@ -299,7 +299,7 @@ const Register = ({ setCurrentView, regions }: Props) => {
           onClick={() => setCurrentView(LOGIN_VIEW.LOG_IN)}
           className="underline"
         >
-          Log in
+          Masuk
         </button>
         .
       </span>

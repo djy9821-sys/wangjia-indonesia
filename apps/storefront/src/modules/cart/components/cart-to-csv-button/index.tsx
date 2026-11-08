@@ -57,7 +57,7 @@ const CartToCsvButton = ({ cart }: CartToCsvButtonProps) => {
         onClick={handleExportCart}
         isLoading={isExportingCart}
       >
-        Export Cart (.csv)
+        Ekspor Keranjang (.csv)
       </Button>
       {error && <Text className="text-red-500">{error}</Text>}
     </div>
