@@ -325,6 +325,22 @@ class MedusaClient {
 
   Future<void> requestQuote(String cartId) => post('/store/quotes', {'cart_id': cartId});
 
+  // ---- Patungan (group buy) ----
+  Future<List<GroupBuy>> groupBuys() async {
+    final res = await get('/store/group-buys');
+    return ((res['group_buys'] as List?) ?? [])
+        .map((e) => GroupBuy.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// Creates a cart with [quantity] units at the group price; returns the cart
+  /// id so the normal checkout can finish it.
+  Future<String> joinGroupBuy(String id, int quantity) async {
+    final r = await region();
+    final res = await post('/store/group-buys/$id/join', {'quantity': quantity, 'region_id': r.id});
+    return res['cart_id'] as String;
+  }
+
   // ---------- quotes ----------
 
   Future<List<Quote>> quotes() async {

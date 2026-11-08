@@ -38,7 +38,14 @@ export async function syncCatalog(container: MedusaContainer, { recreate = false
   const categoryId = (name: string) => categories.find((c) => c.name === name)!.id;
 
   const { data: [collection] } = await query.graph({ entity: "product_collection", fields: ["id"], filters: { handle: "featured" } });
-  const { data: [profile] } = await query.graph({ entity: "shipping_profile", fields: ["id"] });
+  // Several "default" profiles can exist (Medusa creates one on first boot, the
+  // seed another); products must use the one the shipping options belong to.
+  const { data: shippingOptions } = await query.graph({ entity: "shipping_option", fields: ["shipping_profile_id"] });
+  const { data: profiles } = await query.graph({ entity: "shipping_profile", fields: ["id", "name"] });
+  const profile =
+    profiles.find((p: any) => shippingOptions.some((o: any) => o.shipping_profile_id === p.id)) ??
+    profiles.find((p: any) => p.name === "Default") ??
+    profiles[0];
   const { data: [channel] } = await query.graph({ entity: "sales_channel", fields: ["id"] });
   const idr = (amount: number) => [{ currency_code: "idr", amount }];
   const defs = WANGJIA_PRODUCTS(collection?.id, categoryId, profile.id, channel.id, idr);

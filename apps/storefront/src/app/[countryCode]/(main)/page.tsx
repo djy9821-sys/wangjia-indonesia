@@ -3,7 +3,9 @@ import { toJsonLd } from "@/lib/util/product-structured-data"
 import { getSiteOrigin, listCountryCodes, STORE_NAME } from "@/lib/util/site"
 import { buildRegionsReturnPolicies } from "@/lib/util/store-policies"
 import FeaturedProducts from "@/modules/home/components/featured-products"
+import GroupBuyStrip from "@/modules/home/components/group-buy-strip"
 import Hero from "@/modules/home/components/hero"
+import ProductGrid from "@/modules/home/components/product-grid"
 import SkeletonFeaturedProducts from "@/modules/skeletons/templates/skeleton-featured-products"
 import { Metadata } from "next"
 import { Suspense } from "react"
@@ -80,7 +82,13 @@ export default async function Home(props: {
         dangerouslySetInnerHTML={{ __html: toJsonLd(structuredData) }}
       />
       <Hero />
+      <Suspense fallback={null}>
+        <GroupBuyStrip countryCode={countryCode} />
+      </Suspense>
       <Suspense fallback={<SkeletonFeaturedProducts />}>
+        <ProductGrid countryCode={countryCode} />
+      </Suspense>
+      <Suspense fallback={null}>
         <FeaturedProducts countryCode={countryCode} />
       </Suspense>
     </div>

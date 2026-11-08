@@ -15,7 +15,10 @@ import 'order_detail_screen.dart';
 /// completed with the "system" payment provider (no charge here).
 class CheckoutScreen extends StatefulWidget {
   final List<CartItem> items;
-  const CheckoutScreen({super.key, required this.items});
+  /// Set when the cart already exists on the server (e.g. a group-buy join);
+  /// the local cart is then left untouched.
+  final String? cartId;
+  const CheckoutScreen({super.key, required this.items, this.cartId});
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
@@ -46,6 +49,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
+    _cartId = widget.cartId;
     MedusaClient.instance.addresses().then((list) {
       if (!mounted) return;
       setState(() => _saved = list);
@@ -130,7 +134,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         // Best effort: keep the address for the next order.
         await api.saveAddress(_currentAddress).catchError((_) {});
       }
-      CartStore.instance.clear();
+      if (widget.cartId == null) CartStore.instance.clear();
       if (!mounted) return;
       showSnack(context, S.t('order_placed'));
       Navigator.of(context).pushAndRemoveUntil(

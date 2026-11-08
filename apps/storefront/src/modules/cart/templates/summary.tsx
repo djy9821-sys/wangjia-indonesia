@@ -63,7 +63,7 @@ const Summary = ({ customer, spendLimitExceeded }: SummaryProps) => {
           {customer
             ? spendLimitExceeded
               ? "Melebihi Batas Belanja"
-              : "Checkout"
+              : "Bayar sekarang"
             : "Masuk untuk Checkout"}
         </Button>
       </LocalizedClientLink>

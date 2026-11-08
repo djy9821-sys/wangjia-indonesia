@@ -4,6 +4,7 @@ import { COMPANY_MODULE } from "./src/modules/company";
 import { PAYMENT_PLAN_MODULE } from "./src/modules/payment-plan";
 import { PUSH_DEVICE_MODULE } from "./src/modules/push-device";
 import { WARRANTY_MODULE } from "./src/modules/warranty";
+import { GROUP_BUY_MODULE } from "./src/modules/group-buy";
 import { loadEnv, defineConfig, Modules } from "@medusajs/framework/utils";
 import { initSentry } from "./src/utils/sentry";
 
@@ -99,6 +100,9 @@ const modules: Record<string, any> = {
   },
   [WARRANTY_MODULE]: {
     resolve: "./modules/warranty",
+  },
+  [GROUP_BUY_MODULE]: {
+    resolve: "./modules/group-buy",
   },
   [Modules.NOTIFICATION]: {
     resolve: "@medusajs/medusa/notification",

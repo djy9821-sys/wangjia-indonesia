@@ -205,7 +205,7 @@ const CartDrawer = ({
                         {customer
                           ? spendLimitExceeded
                             ? "Melebihi Batas Belanja"
-                            : "Checkout"
+                            : "Bayar sekarang"
                           : "Masuk untuk checkout"}
                       </Button>
                     </LocalizedClientLink>

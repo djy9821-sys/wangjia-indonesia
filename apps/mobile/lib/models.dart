@@ -551,3 +551,79 @@ class TrackingInfo {
             .toList(),
       );
 }
+
+/// Patungan (group buy) as served by GET /store/group-buys.
+class GroupBuy {
+  final String id;
+  final String title;
+  final String productId;
+  final String? productHandle;
+  final String productTitle;
+  final String variantId;
+  final String? variantTitle;
+  final String? thumbnail;
+  final String currency;
+  final num groupPrice;
+  final num? regularPrice;
+  final int minQuantity;
+  final int? maxQuantity;
+  final int joinedQuantity;
+  final int participants;
+  final int? remainingQuantity;
+  final DateTime endsAt;
+  final String status;
+  final String? note;
+
+  GroupBuy({
+    required this.id,
+    required this.title,
+    required this.productId,
+    required this.productTitle,
+    required this.variantId,
+    required this.currency,
+    required this.groupPrice,
+    required this.minQuantity,
+    required this.joinedQuantity,
+    required this.participants,
+    required this.endsAt,
+    required this.status,
+    this.productHandle,
+    this.variantTitle,
+    this.thumbnail,
+    this.regularPrice,
+    this.maxQuantity,
+    this.remainingQuantity,
+    this.note,
+  });
+
+  factory GroupBuy.fromJson(Map<String, dynamic> j) => GroupBuy(
+        id: j['id'] as String,
+        title: j['title'] as String,
+        productId: j['product_id'] as String,
+        productHandle: j['product_handle'] as String?,
+        productTitle: j['product_title'] as String? ?? '',
+        variantId: j['variant_id'] as String,
+        variantTitle: j['variant_title'] as String?,
+        thumbnail: j['thumbnail'] as String?,
+        currency: (j['currency_code'] as String?) ?? 'idr',
+        groupPrice: (j['group_price'] as num?) ?? 0,
+        regularPrice: j['regular_price'] as num?,
+        minQuantity: (j['min_quantity'] as num?)?.toInt() ?? 1,
+        maxQuantity: (j['max_quantity'] as num?)?.toInt(),
+        joinedQuantity: (j['joined_quantity'] as num?)?.toInt() ?? 0,
+        participants: (j['participants'] as num?)?.toInt() ?? 0,
+        remainingQuantity: (j['remaining_quantity'] as num?)?.toInt(),
+        endsAt: DateTime.tryParse('${j['ends_at']}') ?? DateTime.now(),
+        status: (j['status'] as String?) ?? 'open',
+        note: j['note'] as String?,
+      );
+
+  int get missing => (minQuantity - joinedQuantity) < 0 ? 0 : minQuantity - joinedQuantity;
+  double get progress => minQuantity == 0 ? 1 : (joinedQuantity / minQuantity).clamp(0, 1).toDouble();
+  int get daysLeft {
+    final d = endsAt.difference(DateTime.now()).inHours;
+    return d <= 0 ? 0 : (d / 24).ceil();
+  }
+  int? get discountPercent =>
+      regularPrice == null || regularPrice == 0 ? null : (100 - groupPrice * 100 / regularPrice!).round();
+}

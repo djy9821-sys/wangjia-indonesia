@@ -6,14 +6,14 @@ import LocalizedClientLink from "@/modules/common/components/localized-client-li
 
 const Hero = () => {
   return (
-    <div className="min-h-[75vh] w-full py-10 border-b border-ui-border-base relative bg-gradient-to-b from-sky-50 to-neutral-100">
+    <div className="w-full py-8 small:py-12 border-b border-ui-border-base relative bg-gradient-to-b from-sky-50 to-neutral-100">
       <div className="flex flex-col justify-center items-center text-center px-6 small:px-32 gap-6">
         <span>
           <p className="text-neutral-600 text-xs uppercase tracking-wide">
             Toko resmi WANGJIA® Indonesia
           </p>
 
-          <div className="mx-auto mt-4 mb-2 grid grid-cols-2 gap-3 max-w-xl">
+          <div className="mx-auto mt-4 mb-2 grid grid-cols-2 gap-3 max-w-md">
             <img
               src="/products/kincir-1hp.jpg"
               alt="Kincir air WANGJIA 1 HP"
@@ -27,7 +27,7 @@ const Hero = () => {
           </div>
           <Heading
             level="h1"
-            className="text-4xl small:text-6xl leading-tight text-ui-fg-base font-normal mt-4 mb-5"
+            className="text-3xl small:text-5xl leading-tight text-ui-fg-base font-normal mt-3 mb-4"
           >
             Kincir Air WANGJIA 1 HP & 2 HP
           </Heading>

@@ -37,6 +37,7 @@ export const GET = async (req: AuthenticatedMedusaRequest, res: MedusaResponse) 
         text: (d.text as string | undefined) ?? "",
         order_id: (d.order_id as string | undefined) ?? null,
         warranty_unit_id: (d.warranty_unit_id as string | undefined) ?? null,
+        group_buy_id: (d.group_buy_id as string | undefined) ?? null,
         created_at: n.created_at,
       };
     });
