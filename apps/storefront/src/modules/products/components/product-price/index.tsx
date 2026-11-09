@@ -23,7 +23,7 @@ export default function ProductPrice({
         })}
       >
         <Text
-          className="font-medium text-xl"
+          className="font-bold text-2xl text-[#F04E23]"
           data-testid="product-price"
           data-value={cheapestPrice.calculated_price_number}
         >

@@ -81,7 +81,7 @@ const CartTotals: React.FC = () => {
           <div className="w-28 h-6 mt-[3px] bg-neutral-200 rounded-full animate-pulse" />
         ) : (
           <Text
-            className="txt-xlarge-plus"
+            className="txt-xlarge-plus text-[#F04E23]"
             data-testid="cart-total"
             data-value={total || 0}
           >

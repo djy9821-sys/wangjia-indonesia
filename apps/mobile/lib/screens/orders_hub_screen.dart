@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/strings.dart';
+import '../widgets/brand.dart';
 import 'orders_screen.dart';
 import 'quotes_screen.dart';
 
@@ -34,6 +35,12 @@ class OrdersHubScreenState extends State<OrdersHubScreen> with SingleTickerProvi
           title: Text(S.t('orders')),
           bottom: TabBar(
             controller: _tabs,
+            indicatorColor: Brand.accent,
+            indicatorWeight: 3,
+            labelColor: Brand.accentDark,
+            unselectedLabelColor: Colors.black54,
+            labelStyle: const TextStyle(fontWeight: FontWeight.w700),
+            dividerColor: Brand.line,
             tabs: [Tab(text: S.t('orders')), Tab(text: S.t('quotes'))],
           ),
         ),

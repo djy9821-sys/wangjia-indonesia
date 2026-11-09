@@ -5,6 +5,7 @@ import '../cart.dart';
 import '../format.dart';
 import '../l10n/strings.dart';
 import '../models.dart';
+import '../widgets/brand.dart';
 import '../widgets/common.dart';
 import '../widgets/region_picker.dart';
 import 'map_picker_screen.dart';
@@ -173,7 +174,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       )),
                   ListTile(
                     title: Text(S.t('subtotal'), style: Theme.of(context).textTheme.titleSmall),
-                    trailing: Text(money(subtotal, currency), style: Theme.of(context).textTheme.titleSmall),
+                    trailing: Text(money(subtotal, currency), style: const TextStyle(color: Brand.accent, fontSize: 17, fontWeight: FontWeight.w800)),
                   ),
                 ],
               ),

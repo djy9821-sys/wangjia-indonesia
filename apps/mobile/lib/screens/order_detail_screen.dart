@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -5,6 +6,7 @@ import '../api/medusa_client.dart';
 import '../format.dart';
 import '../l10n/strings.dart';
 import '../models.dart';
+import '../widgets/brand.dart';
 import '../widgets/common.dart';
 import 'tracking_sheet.dart';
 import 'order_units_section.dart';
@@ -106,89 +108,148 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> with WidgetsBindi
             return RefreshIndicator(
               onRefresh: _reload,
               child: ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 32),
                 children: [
-                  Row(
-                    children: [
-                      Text('#${order.displayId}', style: Theme.of(context).textTheme.headlineSmall),
-                      const Spacer(),
-                      StatusChip(S.t('fulfillment_$fs'), fulfillmentColor(fs)),
-                    ],
-                  ),
-                  Text(dateTime(order.createdAt), style: Theme.of(context).textTheme.bodySmall),
-                  const SizedBox(height: 8),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: OutlinedButton.icon(
-                      onPressed: () async {
-                        try {
-                          final url = await MedusaClient.instance.invoiceLink(order.id);
-                          await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                        } catch (e) {
-                          if (context.mounted) showSnack(context, friendlyError(e));
-                        }
-                      },
-                      icon: const Icon(Icons.picture_as_pdf_outlined),
-                      label: Text(S.t('invoice')),
+                  _card(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text('${S.t('order')} #${order.displayId}',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                            const Spacer(),
+                            StatusChip(S.t('fulfillment_$fs'), fulfillmentColor(fs)),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(dateTime(order.createdAt), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                        const SizedBox(height: 10),
+                        ...order.items.map((i) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 52,
+                                    height: 52,
+                                    clipBehavior: Clip.antiAlias,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: Brand.line),
+                                    ),
+                                    child: i.thumbnail != null && i.thumbnail!.isNotEmpty
+                                        ? CachedNetworkImage(imageUrl: i.thumbnail!, fit: BoxFit.contain)
+                                        : const Icon(Icons.water, color: Brand.blue),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(i.title, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
+                                        if (i.variantTitle != null)
+                                          Text(i.variantTitle!, style: const TextStyle(fontSize: 11.5, color: Colors.black54)),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(money(i.unitPrice, order.currency), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                                      Text('x${i.quantity}', style: const TextStyle(fontSize: 11.5, color: Colors.black54)),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            )),
+                        const Divider(height: 18, color: Brand.line),
+                        Row(
+                          children: [
+                            Text(S.t('total'), style: const TextStyle(fontSize: 13, color: Colors.black54)),
+                            const Spacer(),
+                            Text(money(order.total, order.currency),
+                                style: const TextStyle(color: Brand.accent, fontSize: 18, fontWeight: FontWeight.w800)),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(minimumSize: const Size(0, 38), padding: const EdgeInsets.symmetric(horizontal: 14)),
+                            onPressed: () async {
+                              try {
+                                final url = await MedusaClient.instance.invoiceLink(order.id);
+                                await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                              } catch (e) {
+                                if (context.mounted) showSnack(context, friendlyError(e));
+                              }
+                            },
+                            icon: const Icon(Icons.picture_as_pdf_outlined, size: 18),
+                            label: Text(S.t('invoice')),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  _section(context, S.t('items')),
-                  ...order.items.map((i) => ListTile(
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(i.title),
-                        subtitle: i.variantTitle == null ? null : Text(i.variantTitle!),
-                        trailing: Text('${i.quantity} × ${money(i.unitPrice, order.currency)}'),
-                      )),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(S.t('total'), style: Theme.of(context).textTheme.titleMedium),
-                    trailing: Text(money(order.total, order.currency), style: Theme.of(context).textTheme.titleMedium),
-                  ),
-                  const Divider(height: 32),
-                  _section(context, S.t('payment_plan')),
-                  if (plan == null)
-                    Text(S.t('no_payment_plan'))
-                  else
-                    _PaymentPlanView(
-                      plan: plan,
-                      busy: _busy,
-                      onPay: _payMidtrans,
-                      onUpload: (i) => _uploadProof(i, plan),
+                  _card(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _section(context, S.t('payment_plan')),
+                        if (plan == null)
+                          Text(S.t('no_payment_plan'))
+                        else
+                          _PaymentPlanView(
+                            plan: plan,
+                            busy: _busy,
+                            onPay: _payMidtrans,
+                            onUpload: (i) => _uploadProof(i, plan),
+                          ),
+                      ],
                     ),
-                  const Divider(height: 32),
-                  _section(context, S.t('shipping')),
-                  if (order.fulfillments.isEmpty)
-                    Text(S.t('fulfillment_not_fulfilled'))
-                  else
-                    ...order.fulfillments.map((f) => ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: Icon(f.deliveredAt != null
-                              ? Icons.check_circle
-                              : f.shippedAt != null
-                                  ? Icons.local_shipping
-                                  : Icons.inventory_2),
-                          title: Text(f.deliveredAt != null
-                              ? S.t('fulfillment_delivered')
-                              : f.shippedAt != null
-                                  ? S.t('fulfillment_shipped')
-                                  : S.t('fulfillment_fulfilled')),
-                          subtitle: Text([
-                            if (f.trackingNumbers.isNotEmpty) '${S.t('tracking')}: ${f.trackingNumbers.join(', ')}',
-                            if (f.shippedAt != null) dateTime(f.shippedAt),
-                          ].join('\n')),
-                          trailing: f.trackingNumbers.isNotEmpty
-                              ? TextButton.icon(
-                                  onPressed: () => showTrackingSheet(context, order.id),
-                                  icon: const Icon(Icons.route_outlined, size: 18),
-                                  label: Text(S.t('track')),
-                                )
-                              : null,
-                        )),
-                  const Divider(height: 32),
-                  OrderUnitsSection(orderId: order.id),
-                  const SizedBox(height: 32),
+                  ),
+                  _card(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _section(context, S.t('shipping')),
+                        if (order.fulfillments.isEmpty)
+                          Text(S.t('fulfillment_not_fulfilled'), style: const TextStyle(color: Colors.black54))
+                        else
+                          ...order.fulfillments.map((f) => ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                leading: Icon(
+                                  f.deliveredAt != null
+                                      ? Icons.check_circle
+                                      : f.shippedAt != null
+                                          ? Icons.local_shipping
+                                          : Icons.inventory_2,
+                                  color: f.deliveredAt != null ? Brand.green : Brand.blue,
+                                ),
+                                title: Text(f.deliveredAt != null
+                                    ? S.t('fulfillment_delivered')
+                                    : f.shippedAt != null
+                                        ? S.t('fulfillment_shipped')
+                                        : S.t('fulfillment_fulfilled')),
+                                subtitle: Text([
+                                  if (f.trackingNumbers.isNotEmpty) '${S.t('tracking')}: ${f.trackingNumbers.join(', ')}',
+                                  if (f.shippedAt != null) dateTime(f.shippedAt),
+                                ].join('\n')),
+                                trailing: f.trackingNumbers.isNotEmpty
+                                    ? TextButton.icon(
+                                        onPressed: () => showTrackingSheet(context, order.id),
+                                        icon: const Icon(Icons.route_outlined, size: 18),
+                                        label: Text(S.t('track')),
+                                      )
+                                    : null,
+                              )),
+                      ],
+                    ),
+                  ),
+                  _card(OrderUnitsSection(orderId: order.id)),
                 ],
               ),
             );
@@ -196,9 +257,16 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> with WidgetsBindi
         ),
       );
 
+  Widget _card(Widget child) => Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+        child: child,
+      );
+
   Widget _section(BuildContext context, String title) => Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+        child: Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
       );
 }
 
@@ -228,9 +296,25 @@ class _PaymentPlanView extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 8),
-          Text('${money(plan.paidAmount, plan.currency)} / ${money(plan.totalAmount, plan.currency)}',
-              style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: LinearProgressIndicator(
+              value: plan.totalAmount == 0 ? 0 : (plan.paidAmount / plan.totalAmount).clamp(0, 1).toDouble(),
+              minHeight: 8,
+              backgroundColor: Brand.accentSoft,
+              color: Brand.accent,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Text('${S.t('paid_at').split(' ').first} ${money(plan.paidAmount, plan.currency)}',
+                  style: const TextStyle(fontSize: 12.5, color: Brand.accentDark, fontWeight: FontWeight.w700)),
+              const Spacer(),
+              Text(money(plan.totalAmount, plan.currency), style: const TextStyle(fontSize: 12.5, color: Colors.black54)),
+            ],
+          ),
           if (plan.note != null && plan.note!.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(plan.note!, style: Theme.of(context).textTheme.bodySmall),
@@ -260,6 +344,7 @@ class _InstallmentCard extends StatelessWidget {
     final latestProof = inst.proofs.isEmpty ? null : inst.proofs.last;
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
+      color: Brand.bg,
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -272,7 +357,7 @@ class _InstallmentCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 6),
-            Text(money(inst.amount, currency), style: Theme.of(context).textTheme.titleMedium),
+            Text(money(inst.amount, currency), style: const TextStyle(color: Brand.accent, fontSize: 17, fontWeight: FontWeight.w800)),
             if (inst.dueDate != null)
               Text('${S.t('due')}: ${shortDate(inst.dueDate)}', style: Theme.of(context).textTheme.bodySmall),
             if (inst.paidAt != null)
