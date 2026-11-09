@@ -662,7 +662,7 @@ class _JoinGroupBuySheetState extends State<_JoinGroupBuySheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(g.title, style: theme.textTheme.titleLarge),
-          Text('${g.productTitle}${g.variantTitle != null ? ' · ${g.variantTitle}' : ''}',
+          Text('${g.productTitle}${variantLabel(g.variantTitle) != null ? ' · ${variantLabel(g.variantTitle)}' : ''}',
               style: theme.textTheme.bodyMedium?.copyWith(color: Colors.black54)),
           const SizedBox(height: 12),
           Row(

@@ -149,8 +149,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> with WidgetsBindi
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(i.title, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
-                                        if (i.variantTitle != null)
-                                          Text(i.variantTitle!, style: const TextStyle(fontSize: 11.5, color: Colors.black54)),
+                                        if (variantLabel(i.variantTitle) != null)
+                                          Text(variantLabel(i.variantTitle)!, style: const TextStyle(fontSize: 11.5, color: Colors.black54)),
                                       ],
                                     ),
                                   ),

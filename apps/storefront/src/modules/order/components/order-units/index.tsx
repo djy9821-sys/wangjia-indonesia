@@ -1,5 +1,6 @@
 "use client"
 
+import { variantLabel } from "@/lib/util/variant-title"
 import { registerOrderUnit, type OrderUnit } from "@/lib/data/order-extras"
 import { Badge, Button, Heading, Text } from "@medusajs/ui"
 import { useActionState } from "react"
@@ -31,7 +32,7 @@ const OrderUnits = ({ units }: { units: OrderUnit[] }) => {
             <li key={u.id} className="flex flex-wrap items-center justify-between gap-2 txt-small">
               <div className="flex flex-col">
                 <span className="font-mono">{u.serial}</span>
-                <span className="text-ui-fg-subtle">{[u.product_title, u.variant_title].filter(Boolean).join(" · ")}</span>
+                <span className="text-ui-fg-subtle">{[u.product_title, variantLabel(u.variant_title)].filter(Boolean).join(" · ")}</span>
               </div>
               {u.registered ? (
                 <Badge color="green">{u.registered_to_me ? "Terdaftar atas nama Anda" : "Terdaftar"} · s/d {fmt(u.warranty_expires_at)}</Badge>

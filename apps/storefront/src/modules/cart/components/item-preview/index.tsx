@@ -1,5 +1,6 @@
 "use client"
 
+import { variantLabel } from "@/lib/util/variant-title"
 import LineItemPrice from "@/modules/common/components/line-item-price"
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
 import Thumbnail from "@/modules/products/components/thumbnail"
@@ -40,7 +41,7 @@ const ItemPreview = ({ item, showBorders = true, currencyCode }: ItemProps) => {
               {item.product?.title}
             </span>
             <span className="text-neutral-600 text-xs">
-              {item.variant?.title}
+              {variantLabel(item.variant?.title)}
             </span>
           </div>
           <div className="flex small:flex-row flex-col gap-2">

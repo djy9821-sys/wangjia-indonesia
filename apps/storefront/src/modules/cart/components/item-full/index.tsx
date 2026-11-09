@@ -1,5 +1,6 @@
 "use client"
 
+import { variantLabel } from "@/lib/util/variant-title"
 import { useCart } from "@/lib/context/cart-context"
 import AddNoteButton from "@/modules/cart/components/add-note-button"
 import DeleteButton from "@/modules/common/components/delete-button"
@@ -109,7 +110,7 @@ const ItemFull = ({
               {item.product?.title}
             </span>
             <span className="text-neutral-600 text-xs">
-              {item.variant?.title}
+              {variantLabel(item.variant?.title)}
             </span>
           </div>
           <div className="flex small:flex-row flex-col gap-2">

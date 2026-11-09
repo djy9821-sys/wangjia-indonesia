@@ -626,7 +626,7 @@ WANGJIA 水车联轴器，6 销橡胶缓冲，铸铁/不锈钢可选，单只价
     },
     {
       ...part,
-      ...photos("katalog-suku-cadang"),
+      ...photos("as-shaft", "katalog-suku-cadang"),
       title: "Poros (AS) Stainless Kincir WANGJIA",
       handle: "as-kincir-wangjia",
       subtitle: "Solid SS304 · Ø 25 mm × 550 mm · per pcs",
@@ -639,7 +639,7 @@ WANGJIA 水车 SS304 实心轴，Ø25 × 550 mm，单根价。`,
     },
     {
       ...part,
-      ...photos("katalog-suku-cadang"),
+      ...photos("rangka", "katalog-suku-cadang"),
       title: "Rangka (Frame) Stainless Kincir WANGJIA",
       handle: "rangka-kincir-wangjia",
       subtitle: "SS304 · 107 × 35 cm (1 HP) · tersedia model 4 kipas",

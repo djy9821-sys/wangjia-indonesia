@@ -25,3 +25,13 @@ String dateTime(String? iso) {
   if (d == null) return iso;
   return DateFormat('d MMM yyyy HH:mm', 'id_ID').format(d);
 }
+
+/// Single-variant seed products carry a placeholder option value ("Standar");
+/// returns null so screens can hide it instead of showing noise.
+String? variantLabel(String? title) {
+  if (title == null) return null;
+  final t = title.trim();
+  if (t.isEmpty) return null;
+  const placeholders = {'standar', 'standard', 'default', 'default variant'};
+  return placeholders.contains(t.toLowerCase()) ? null : t;
+}

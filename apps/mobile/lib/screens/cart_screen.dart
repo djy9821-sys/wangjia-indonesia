@@ -90,12 +90,14 @@ class _CartScreenState extends State<CartScreen> {
                                 children: [
                                   Text(it.productTitle, maxLines: 2, overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, height: 1.25)),
-                                  const SizedBox(height: 2),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(color: Brand.bg, borderRadius: BorderRadius.circular(4)),
-                                    child: Text(it.variantTitle, style: const TextStyle(fontSize: 11, color: Colors.black54)),
-                                  ),
+                                  if (variantLabel(it.variantTitle) != null) ...[
+                                    const SizedBox(height: 2),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(color: Brand.bg, borderRadius: BorderRadius.circular(4)),
+                                      child: Text(variantLabel(it.variantTitle)!, style: const TextStyle(fontSize: 11, color: Colors.black54)),
+                                    ),
+                                  ],
                                   const SizedBox(height: 8),
                                   Row(
                                     children: [

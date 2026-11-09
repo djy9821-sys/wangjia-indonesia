@@ -94,7 +94,7 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                             dense: true,
                             contentPadding: EdgeInsets.zero,
                             title: Text(i.title),
-                            subtitle: i.variantTitle == null ? null : Text(i.variantTitle!),
+                            subtitle: variantLabel(i.variantTitle) == null ? null : Text(i.variantTitle!),
                             trailing: Text('${i.quantity} × ${money(i.unitPrice, q.currency)}'),
                           )),
                       ListTile(

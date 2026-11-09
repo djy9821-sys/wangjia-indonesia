@@ -169,7 +169,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         dense: true,
                         leading: const Icon(Icons.water_outlined),
                         title: Text(it.productTitle),
-                        subtitle: Text('${it.variantTitle} × ${it.quantity}'),
+                        subtitle: Text('${variantLabel(it.variantTitle) == null ? '' : '${variantLabel(it.variantTitle)} · '}× ${it.quantity}'),
                         trailing: Text(money(it.lineTotal, it.currency)),
                       )),
                   ListTile(
