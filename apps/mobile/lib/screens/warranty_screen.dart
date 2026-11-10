@@ -7,6 +7,7 @@ import '../format.dart';
 import '../l10n/strings.dart';
 import '../models.dart';
 import '../widgets/common.dart';
+import 'login_screen.dart';
 import 'products_screen.dart';
 import 'warranty_scan_screen.dart';
 
@@ -20,7 +21,7 @@ class WarrantyScreen extends StatefulWidget {
 }
 
 class _WarrantyScreenState extends State<WarrantyScreen> {
-  late Future<List<WarrantyUnit>> _future = MedusaClient.instance.myWarrantyUnits();
+  late Future<List<WarrantyUnit>> _future = _load();
   final _code = TextEditingController();
   bool _checking = false;
 
@@ -33,18 +34,29 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
     }
   }
 
+  // A guest has no machines to list.
+  Future<List<WarrantyUnit>> _load() =>
+      MedusaClient.instance.isLoggedIn ? MedusaClient.instance.myWarrantyUnits() : Future.value(<WarrantyUnit>[]);
+
   Future<void> _reload() async {
     setState(() {
-      _future = MedusaClient.instance.myWarrantyUnits();
+      _future = _load();
     });
     await _future;
   }
 
+  Future<void> _signIn() async {
+    if (await ensureSignedIn(context) && mounted) _reload();
+  }
+
   Future<void> _scan() async {
+    final signedIn = MedusaClient.instance.isLoggedIn;
     final changed = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => const WarrantyScanScreen()),
     );
-    if (changed == true) _reload();
+    if (!mounted) return;
+    // Registering as a guest goes through the login page first.
+    if (changed == true || MedusaClient.instance.isLoggedIn != signedIn) _reload();
   }
 
   /// Service request on WhatsApp (serial prefilled) or jump to spare parts.
@@ -92,11 +104,11 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
     try {
       final result = await MedusaClient.instance.verifyWarranty(raw);
       if (!mounted) return;
+      final signedIn = MedusaClient.instance.isLoggedIn;
       final changed = await showWarrantyResult(context, result);
-      if (changed == true) {
-        _code.clear();
-        _reload();
-      }
+      if (!mounted) return;
+      if (changed == true) _code.clear();
+      if (changed == true || MedusaClient.instance.isLoggedIn != signedIn) _reload();
     } catch (e) {
       if (mounted) showSnack(context, friendlyError(e));
     } finally {
@@ -148,6 +160,9 @@ class _WarrantyScreenState extends State<WarrantyScreen> {
                   if (!snap.hasData) return const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()));
                   final list = snap.data!;
                   if (list.isEmpty) {
+                    if (!MedusaClient.instance.isLoggedIn) {
+                      return OutlinedButton(onPressed: _signIn, child: Text(S.t('units_guest')));
+                    }
                     return Text(S.t('no_units'), style: TextStyle(color: Theme.of(context).colorScheme.outline));
                   }
                   return Column(
@@ -203,6 +218,8 @@ class _ResultSheetState extends State<_ResultSheet> {
   WarrantyUnit? _registered;
 
   Future<void> _register() async {
+    if (!await ensureSignedIn(context)) return;
+    if (!mounted) return;
     setState(() => _busy = true);
     try {
       final unit = await MedusaClient.instance.registerWarranty(widget.result.code!, farmLocation: _farm.text.trim());
@@ -270,6 +287,9 @@ class _ResultSheetState extends State<_ResultSheet> {
             const SizedBox(height: 16),
             if (_registered != null || r.registeredToMe)
               StatusChip(S.t('registered_to_you'), const Color(0xFF1B8A5A))
+            else if (r.registered && !MedusaClient.instance.isLoggedIn)
+              // A guest cannot tell whose it is: the owner may just be signed out.
+              Text(S.t('registered_guest'))
             else if (r.registered)
               Text(S.t('registered_other'), style: TextStyle(color: scheme.error))
             else ...[

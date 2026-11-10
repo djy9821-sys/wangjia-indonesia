@@ -29,6 +29,15 @@ String? authFormError({
   return null;
 }
 
+/// True when a customer is signed in, asking on the login page first if not.
+Future<bool> ensureSignedIn(BuildContext context) async {
+  if (MedusaClient.instance.isLoggedIn) return true;
+  final ok = await Navigator.of(context).push<bool>(
+    MaterialPageRoute(builder: (ctx) => LoginScreen(onLoggedIn: () => Navigator.of(ctx).pop(true))),
+  );
+  return ok == true;
+}
+
 class LoginScreen extends StatefulWidget {
   final VoidCallback onLoggedIn;
   const LoginScreen({super.key, required this.onLoggedIn});
@@ -149,6 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         await api.login(email, _password.text);
       }
+      if (!mounted) return;
       widget.onLoggedIn();
     } on SignupIncomplete {
       if (!mounted) return;
@@ -167,6 +177,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+        // Blends into the page; carries the back arrow when opened from the shop.
+        appBar: AppBar(backgroundColor: Theme.of(context).scaffoldBackgroundColor),
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(

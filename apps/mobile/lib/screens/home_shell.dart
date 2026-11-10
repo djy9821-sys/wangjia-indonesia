@@ -16,9 +16,11 @@ import 'warranty_screen.dart';
 import 'notifications_screen.dart';
 
 class HomeShell extends StatefulWidget {
-  final Map<String, dynamic> customer;
-  final VoidCallback onLoggedOut;
-  const HomeShell({super.key, required this.customer, required this.onLoggedOut});
+  /// Null while browsing as a guest.
+  final Map<String, dynamic>? customer;
+  /// Opens the login page, or checks a saved login again.
+  final VoidCallback onSignIn;
+  const HomeShell({super.key, required this.customer, required this.onSignIn});
   @override
   State<HomeShell> createState() => _HomeShellState();
 }
@@ -27,18 +29,37 @@ class _HomeShellState extends State<HomeShell> {
   int _tab = 0;
   final _ordersKey = GlobalKey<OrdersHubScreenState>();
 
+  void _open(int tab) {
+    setState(() => _tab = tab);
+    // A saved login that could not be checked at start (no signal): try again
+    // when the customer's own pages are opened.
+    if (tab >= 2 && widget.customer == null && MedusaClient.instance.isLoggedIn) widget.onSignIn();
+  }
+
   void _goToQuotes() {
-    setState(() => _tab = 2);
+    _open(2);
     WidgetsBinding.instance.addPostFrameCallback((_) => _ordersKey.currentState?.showQuotes());
   }
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      ProductsScreen(onOpenCart: () => setState(() => _tab = 1)),
+    final customer = widget.customer;
+    final pages = <Widget>[
+      ProductsScreen(customerId: customer?['id'] as String?, onOpenCart: () => setState(() => _tab = 1)),
       CartScreen(onQuoteRequested: _goToQuotes, onBrowse: () => setState(() => _tab = 0)),
-      OrdersHubScreen(key: _ordersKey, onBrowse: () => setState(() => _tab = 0)),
-      _AccountScreen(customer: widget.customer, onLoggedOut: widget.onLoggedOut),
+      if (customer == null)
+        Scaffold(
+          appBar: AppBar(title: Text(S.t('orders'))),
+          body: EmptyState(
+            icon: Icons.receipt_long_outlined,
+            title: S.t('orders_guest'),
+            actionLabel: S.t('login_or_register'),
+            onAction: widget.onSignIn,
+          ),
+        )
+      else
+        OrdersHubScreen(key: _ordersKey, onBrowse: () => setState(() => _tab = 0)),
+      _AccountScreen(customer: customer, onSignIn: widget.onSignIn),
     ];
     return Scaffold(
       body: IndexedStack(index: _tab, children: pages),
@@ -46,7 +67,7 @@ class _HomeShellState extends State<HomeShell> {
         animation: CartStore.instance,
         builder: (context, _) => NavigationBar(
           selectedIndex: _tab,
-          onDestinationSelected: (i) => setState(() => _tab = i),
+          onDestinationSelected: _open,
           destinations: [
             NavigationDestination(icon: const Icon(Icons.water_outlined), label: S.t('products')),
             NavigationDestination(
@@ -67,11 +88,11 @@ class _HomeShellState extends State<HomeShell> {
 }
 
 class _AccountScreen extends StatelessWidget {
-  final Map<String, dynamic> customer;
-  final VoidCallback onLoggedOut;
-  const _AccountScreen({required this.customer, required this.onLoggedOut});
+  final Map<String, dynamic>? customer;
+  final VoidCallback onSignIn;
+  const _AccountScreen({required this.customer, required this.onSignIn});
 
-  String get _name => '${customer['first_name'] ?? ''} ${customer['last_name'] ?? ''}'.trim();
+  String get _name => '${customer?['first_name'] ?? ''} ${customer?['last_name'] ?? ''}'.trim();
 
   String get _initials {
     final parts = _name.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
@@ -126,7 +147,6 @@ class _AccountScreen extends StatelessWidget {
       await PushService.instance.unregister();
       await MedusaClient.instance.deleteAccount();
       if (context.mounted) showSnack(context, S.t('delete_account_done'));
-      onLoggedOut();
     } catch (e) {
       if (context.mounted) showSnack(context, friendlyError(e));
     }
@@ -135,54 +155,73 @@ class _AccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final company = (customer['company_name'] ?? '').toString();
+    final company = (customer?['company_name'] ?? '').toString();
     return Scaffold(
       appBar: AppBar(title: Text(S.t('account'))),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
         children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(colors: [Color(0xFF0193DE), Color(0xFF0E5A8A)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          if (customer == null)
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(S.t('account_guest'), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 4),
+                    Text(S.t('account_guest_hint'), style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                    const SizedBox(height: 14),
+                    FilledButton(onPressed: onSignIn, child: Text(S.t('login_or_register'))),
+                  ],
+                ),
+              ),
+            )
+          else
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(colors: [Color(0xFF0193DE), Color(0xFF0E5A8A)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(_initials, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
                     ),
-                    alignment: Alignment.center,
-                    child: Text(_initials, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(_name.isEmpty ? S.t('profile') : _name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-                        if ((customer['email'] ?? '').toString().isNotEmpty)
-                          Text('${customer['email']}', style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54)),
-                        if ((customer['phone'] ?? '').toString().isNotEmpty)
-                          Text('${customer['phone']}', style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54)),
-                        if (company.isNotEmpty) ...[
-                          const SizedBox(height: 6),
-                          StatusChip(company, const Color(0xFF0E5A8A)),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(_name.isEmpty ? S.t('profile') : _name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                          if ((customer?['email'] ?? '').toString().isNotEmpty)
+                            Text('${customer?['email']}', style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                          if ((customer?['phone'] ?? '').toString().isNotEmpty)
+                            Text('${customer?['phone']}', style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                          if (company.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            StatusChip(company, const Color(0xFF0E5A8A)),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
           SectionTitle(S.t('services')),
           _group([
-            _tile(context, Icons.location_on_outlined, S.t('addresses'),
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AddressesScreen()))),
-            _tile(context, Icons.notifications_outlined, S.t('notifications'),
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotificationsScreen()))),
+            if (customer != null) ...[
+              _tile(context, Icons.location_on_outlined, S.t('addresses'),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AddressesScreen()))),
+              _tile(context, Icons.notifications_outlined, S.t('notifications'),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotificationsScreen()))),
+            ],
             _tile(context, Icons.verified_outlined, S.t('warranty'), subtitle: S.t('scan_qr'), color: const Color(0xFF1B8A5A),
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WarrantyScreen()))),
           ]),
@@ -209,16 +248,17 @@ class _AccountScreen extends StatelessWidget {
                 trailing: const Icon(Icons.open_in_new, size: 18, color: Colors.black38),
                 onTap: () => launchUrl(Uri.parse('https://wa.me/${AppConfig.whatsappNumber}'), mode: LaunchMode.externalApplication)),
           ]),
-          const SizedBox(height: 18),
-          _group([
-            _tile(context, Icons.logout, S.t('logout'), color: Colors.black87, onTap: () async {
-              await PushService.instance.unregister();
-              await MedusaClient.instance.logout();
-              onLoggedOut();
-            }),
-            _tile(context, Icons.delete_forever_outlined, S.t('delete_account'), color: theme.colorScheme.error,
-                onTap: () => _deleteAccount(context)),
-          ]),
+          if (customer != null) ...[
+            const SizedBox(height: 18),
+            _group([
+              _tile(context, Icons.logout, S.t('logout'), color: Colors.black87, onTap: () async {
+                await PushService.instance.unregister();
+                await MedusaClient.instance.logout();
+              }),
+              _tile(context, Icons.delete_forever_outlined, S.t('delete_account'), color: theme.colorScheme.error,
+                  onTap: () => _deleteAccount(context)),
+            ]),
+          ],
           const SizedBox(height: 20),
           Text('${S.t('app_version')} ${AppConfig.appVersion}',
               textAlign: TextAlign.center, style: theme.textTheme.bodySmall?.copyWith(color: Colors.black38)),

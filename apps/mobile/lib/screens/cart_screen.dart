@@ -9,6 +9,7 @@ import '../widgets/brand.dart';
 import '../widgets/common.dart';
 import '../widgets/wangjia_logo.dart';
 import 'checkout_screen.dart';
+import 'login_screen.dart';
 
 class CartScreen extends StatefulWidget {
   /// Called after a quote request so the shell can switch to the quotes tab.
@@ -23,7 +24,15 @@ class _CartScreenState extends State<CartScreen> {
   final cart = CartStore.instance;
   bool _busy = false;
 
+  Future<void> _checkout() async {
+    if (!await ensureSignedIn(context)) return;
+    if (!mounted) return;
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => CheckoutScreen(items: List.of(cart.items))));
+  }
+
   Future<void> _requestQuote() async {
+    if (!await ensureSignedIn(context)) return;
+    if (!mounted) return;
     setState(() => _busy = true);
     try {
       final api = MedusaClient.instance;
@@ -154,11 +163,7 @@ class _CartScreenState extends State<CartScreen> {
                           SizedBox(
                             width: 170,
                             child: FilledButton(
-                              onPressed: _busy
-                                  ? null
-                                  : () => Navigator.of(context).push(MaterialPageRoute(
-                                        builder: (_) => CheckoutScreen(items: List.of(cart.items)),
-                                      )),
+                              onPressed: _busy ? null : _checkout,
                               child: Text('${S.t('checkout_short')} (${cart.count})'),
                             ),
                           ),

@@ -10,6 +10,7 @@ import '../widgets/brand.dart';
 import '../widgets/common.dart';
 import '../widgets/wangjia_logo.dart';
 import 'checkout_screen.dart';
+import 'login_screen.dart';
 import 'product_detail_screen.dart';
 import 'warranty_screen.dart';
 
@@ -18,7 +19,10 @@ class ProductsScreen extends StatefulWidget {
   /// Pre-select the category whose name contains this text (e.g. spare parts
   /// opened from a registered machine).
   final String? initialCategoryName;
-  const ProductsScreen({super.key, this.onOpenCart, this.initialCategoryName});
+  /// Prices can differ per customer, so the catalogue is loaded again when
+  /// this changes.
+  final String? customerId;
+  const ProductsScreen({super.key, this.onOpenCart, this.initialCategoryName, this.customerId});
   @override
   State<ProductsScreen> createState() => _ProductsScreenState();
 }
@@ -44,6 +48,15 @@ class _ProductsScreenState extends State<ProductsScreen> {
       _groupBuys = MedusaClient.instance.groupBuys().catchError((_) => <GroupBuy>[]);
     });
     await _future;
+  }
+
+  @override
+  void didUpdateWidget(ProductsScreen old) {
+    super.didUpdateWidget(old);
+    if (old.customerId != widget.customerId) {
+      _future = MedusaClient.instance.products();
+      _groupBuys = MedusaClient.instance.groupBuys().catchError((_) => <GroupBuy>[]);
+    }
   }
 
   Future<void> _pickCategory(String contains) async {
@@ -725,6 +738,8 @@ class _JoinGroupBuySheetState extends State<_JoinGroupBuySheet> {
   }
 
   Future<void> _join() async {
+    if (!await ensureSignedIn(context)) return;
+    if (!mounted) return;
     setState(() {
       _busy = true;
       _error = null;

@@ -11,6 +11,7 @@ import '../models.dart';
 import '../widgets/brand.dart';
 import '../widgets/common.dart';
 import '../widgets/wangjia_logo.dart';
+import 'login_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
@@ -26,6 +27,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   bool _busy = false;
 
   Future<void> _requestQuote() async {
+    if (!await ensureSignedIn(context)) return;
+    if (!mounted) return;
     setState(() => _busy = true);
     try {
       final cartId = await MedusaClient.instance.createCartWithItem(_variant.id, _qty);
@@ -184,8 +187,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     children: [
                       const Icon(Icons.request_quote_outlined, size: 18, color: Brand.navy),
                       const SizedBox(width: 6),
-                      Text(S.t('wholesale_quote'), style: const TextStyle(color: Brand.navy, fontWeight: FontWeight.w600, fontSize: 13)),
-                      const Spacer(),
+                      Expanded(
+                        child: Text(S.t('wholesale_quote'), style: const TextStyle(color: Brand.navy, fontWeight: FontWeight.w600, fontSize: 13)),
+                      ),
                       const Icon(Icons.chevron_right, color: Brand.navy),
                     ],
                   ),

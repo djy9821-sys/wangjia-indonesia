@@ -208,7 +208,7 @@ class S {
     'err_too_many': 'Terlalu banyak percobaan. Tunggu sebentar.',
     'err_server': 'Server bermasalah. Tim kami sudah diberi tahu, coba lagi nanti.',
     'err_generic': 'Terjadi kesalahan. Silakan coba lagi.',
-    'err_login': 'Email atau kata sandi salah.',
+    'err_login': 'Email atau kata sandi salah. Belum punya akun? Pilih Daftar.',
     'err_email_taken': 'Email ini sudah terdaftar. Silakan masuk.',
     'err_signup_incomplete': 'Pendaftaran belum selesai. Lengkapi data lalu tekan Daftar.',
     'err_fill_login': 'Isi email dan kata sandi.',
@@ -274,6 +274,12 @@ class S {
     'services': 'Layanan',
     'settings': 'Pengaturan',
     'help': 'Bantuan',
+    'login_or_register': 'Masuk / Daftar',
+    'orders_guest': 'Masuk untuk melihat pesanan dan penawaran Anda.',
+    'account_guest': 'Belum masuk',
+    'account_guest_hint': 'Masuk atau daftar untuk memesan, minta penawaran, dan melacak pesanan.',
+    'units_guest': 'Masuk untuk melihat mesin Anda',
+    'registered_guest': 'Mesin ini sudah terdaftar. Masuk untuk memeriksa apakah atas nama Anda.',
   };
 
   static const _en = <String, String>{
@@ -475,7 +481,7 @@ class S {
     'err_too_many': 'Too many attempts. Please wait a moment.',
     'err_server': 'Server problem. Our team has been notified, please try again later.',
     'err_generic': 'Something went wrong. Please try again.',
-    'err_login': 'Wrong email or password.',
+    'err_login': 'Wrong email or password. No account yet? Choose Register.',
     'err_email_taken': 'This email is already registered. Please sign in.',
     'err_signup_incomplete': 'Your registration is not finished. Complete the details and tap Register.',
     'err_fill_login': 'Enter your email and password.',
@@ -541,5 +547,11 @@ class S {
     'services': 'Services',
     'settings': 'Settings',
     'help': 'Help',
+    'login_or_register': 'Sign in / Register',
+    'orders_guest': 'Sign in to see your orders and quotes.',
+    'account_guest': 'Not signed in',
+    'account_guest_hint': 'Sign in or register to order, request quotes and track your orders.',
+    'units_guest': 'Sign in to see your machines',
+    'registered_guest': 'This machine is already registered. Sign in to check whether it is in your name.',
   };
 }

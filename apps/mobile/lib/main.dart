@@ -9,6 +9,7 @@ import 'push.dart';
 import 'screens/order_detail_screen.dart';
 import 'l10n/strings.dart';
 import 'widgets/brand.dart';
+import 'widgets/common.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
 import 'screens/warranty_screen.dart';
@@ -117,7 +118,9 @@ class TrukAirApp extends StatelessWidget {
       );
 }
 
-/// Shows the login screen until a customer session exists.
+/// The shop is open to guests; a customer session adds orders, quotes and the
+/// account. The shell stays mounted while the session changes, so a page that
+/// asked for a sign-in can carry on afterwards.
 class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
   @override
@@ -125,35 +128,59 @@ class AuthGate extends StatefulWidget {
 }
 
 class _AuthGateState extends State<AuthGate> {
-  late Future<Map<String, dynamic>?> _me = MedusaClient.instance.me();
+  Map<String, dynamic>? _customer;
+  // Only the first check of a saved login blocks the screen.
+  bool _loading = MedusaClient.instance.isLoggedIn;
+  int _refreshes = 0;
 
   @override
   void initState() {
     super.initState();
-    // Expired or revoked session anywhere in the app -> back to login.
-    MedusaClient.instance.onUnauthorized = () {
-      if (mounted) _refresh();
-    };
+    MedusaClient.instance.onSessionChanged = _refresh;
+    if (_loading) _refresh();
   }
 
-  void _refresh() => setState(() {
-      _me = MedusaClient.instance.me();
+  @override
+  void dispose() {
+    MedusaClient.instance.onSessionChanged = null;
+    super.dispose();
+  }
+
+  /// Loads the customer behind the current session. Returns what went wrong
+  /// when the session could not be checked (no signal), otherwise null.
+  Future<Object?> _refresh() async {
+    final turn = ++_refreshes;
+    Map<String, dynamic>? customer;
+    Object? error;
+    try {
+      customer = await MedusaClient.instance.me();
+    } catch (e) {
+      error = e;
+    }
+    // The latest refresh wins: a slow answer must not undo a newer one.
+    if (!mounted || turn != _refreshes) return error;
+    setState(() {
+      _customer = customer;
+      _loading = false;
     });
+    if (customer != null) PushService.instance.registerForCurrentUser();
+    setMonitoredUser(customer?['id'] as String?);
+    return error;
+  }
+
+  Future<void> _signIn() async {
+    // A saved login that could not be checked earlier (no signal): try again.
+    final error = MedusaClient.instance.isLoggedIn ? await _refresh() : null;
+    if (!mounted || _customer != null) return;
+    if (MedusaClient.instance.isLoggedIn) {
+      showSnack(context, friendlyError(error));
+    } else {
+      await ensureSignedIn(context);
+    }
+  }
 
   @override
-  Widget build(BuildContext context) => FutureBuilder(
-        future: _me,
-        builder: (context, snap) {
-          if (snap.connectionState != ConnectionState.done) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
-          }
-          if (snap.data == null) {
-            return LoginScreen(onLoggedIn: _refresh);
-          }
-          // Logged in: make sure this device receives order notifications.
-          PushService.instance.registerForCurrentUser();
-          setMonitoredUser(snap.data!['id'] as String?);
-          return HomeShell(customer: snap.data!, onLoggedOut: _refresh);
-        },
-      );
+  Widget build(BuildContext context) => _loading
+      ? const Scaffold(body: Center(child: CircularProgressIndicator()))
+      : HomeShell(customer: _customer, onSignIn: _signIn);
 }

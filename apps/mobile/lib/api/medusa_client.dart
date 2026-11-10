@@ -41,8 +41,9 @@ class MedusaClient {
   String? _token;
   Region? _region;
 
-  /// Called when the backend rejects the stored token (expired / revoked).
-  void Function()? onUnauthorized;
+  /// Called after the session changed: signed in, signed out, or the backend
+  /// rejected the stored token (expired / revoked). Must not throw.
+  Future<void> Function()? onSessionChanged;
 
   bool get isLoggedIn => _token != null;
 
@@ -64,6 +65,7 @@ class MedusaClient {
   }
 
   Future<void> _saveToken(String? token) async {
+    final changed = token != _token;
     _token = token;
     try {
       if (token == null) {
@@ -72,6 +74,7 @@ class MedusaClient {
         await _secure.write(key: _tokenKey, value: token);
       }
     } catch (_) {}
+    if (changed) await onSessionChanged?.call();
   }
 
   Map<String, String> get _headers => {
@@ -87,9 +90,8 @@ class MedusaClient {
   Map<String, dynamic> _decode(http.Response res) {
     final body = res.body.isEmpty ? <String, dynamic>{} : jsonDecode(res.body);
     if (res.statusCode == 401 && _token != null && !res.request!.url.path.startsWith('/auth/')) {
-      // Session is gone: drop the token and send the app back to login.
+      // Session is gone: drop the token; the app is told through onSessionChanged.
       _saveToken(null);
-      onUnauthorized?.call();
     }
     if (res.statusCode >= 400) {
       final msg = body is Map && body['message'] != null
