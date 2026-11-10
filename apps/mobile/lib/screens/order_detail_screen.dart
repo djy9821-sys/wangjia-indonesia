@@ -326,9 +326,12 @@ class _PaymentPlanView extends StatelessWidget {
           const SizedBox(height: 6),
           Row(
             children: [
-              Text('${S.t('paid_at').split(' ').first} ${money(plan.paidAmount, plan.currency)}',
-                  style: const TextStyle(fontSize: 12.5, color: Brand.accentDark, fontWeight: FontWeight.w700)),
-              const Spacer(),
+              // Wraps when a large amount and large text leave no room for both on one line.
+              Expanded(
+                child: Text('${S.t('paid_at').split(' ').first} ${money(plan.paidAmount, plan.currency)}',
+                    style: const TextStyle(fontSize: 12.5, color: Brand.accentDark, fontWeight: FontWeight.w700)),
+              ),
+              const SizedBox(width: 8),
               Text(money(plan.totalAmount, plan.currency), style: const TextStyle(fontSize: 12.5, color: Colors.black54)),
             ],
           ),

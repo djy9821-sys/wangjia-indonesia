@@ -87,6 +87,10 @@ void main() {
       expect(accountNumber("Mandiri 142-00-1234567-8 a.n. CV Maju 88"), "1420012345678");
       expect(accountNumber("BCA, hubungi sales"), isNull);
     });
+
+    test("a year or a house number in the line is not taken for an account", () {
+      expect(accountNumber("BCA a.n. PT Tambak 2024, Jl. Raya 12"), isNull);
+    });
   });
 
   group("TrackingInfo", () {

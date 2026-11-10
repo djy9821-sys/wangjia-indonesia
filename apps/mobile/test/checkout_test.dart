@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wangjia_app/api/medusa_client.dart';
@@ -13,9 +14,11 @@ import 'package:wangjia_app/cart.dart';
 import 'package:wangjia_app/l10n/strings.dart';
 import 'package:wangjia_app/screens/checkout_screen.dart';
 import 'package:wangjia_app/screens/order_detail_screen.dart';
+import 'package:wangjia_app/screens/upload_proof_sheet.dart';
 
 const _cart = '/store/carts/cart_1';
 const _order = '/store/orders/order_1';
+const _proofs = '/store/payment-installments/inst_1/proofs';
 
 // Nothing checks these: the backend below is a stand-in.
 const _email = 'budi@tambak.id';
@@ -61,11 +64,41 @@ const _plan = {
     {'id': 'inst_1', 'sequence': 1, 'label': 'Pelunasan', 'amount': 4500000, 'status': 'unpaid'}
   ],
 };
+const _paid = {
+  'id': 'plan_1',
+  'currency_code': 'idr',
+  'total_amount': 4500000,
+  'status': 'completed',
+  'installments': [
+    {'id': 'inst_1', 'sequence': 1, 'label': 'Pelunasan', 'amount': 4500000, 'status': 'paid'}
+  ],
+};
+// What the shop answers to a receipt for an instalment that is settled.
+const _settled = 'Tagihan ini sudah lunas atau dibatalkan. Bukti transfer tidak perlu dikirim lagi.';
 
 String _token(String customerId) =>
     'h.${base64Url.encode(utf8.encode(jsonEncode({'actor_id': customerId}))).replaceAll('=', '')}.s';
 
 http.Response _ok(Map<String, dynamic> body) => http.Response(jsonEncode(body), 200);
+
+/// Stands in for the phone's camera and gallery.
+class _Phone extends ImagePickerPlatform {
+  /// Where each photo was asked from, in order.
+  final asked = <ImageSource>[];
+
+  /// A phone without a camera, or one where the permission was refused.
+  bool refuses = false;
+
+  @override
+  Future<XFile?> getImageFromSource({
+    required ImageSource source,
+    ImagePickerOptions options = const ImagePickerOptions(),
+  }) async {
+    asked.add(source);
+    if (refuses) throw PlatformException(code: 'camera_access_denied');
+    return XFile.fromData(Uint8List.fromList([1, 2, 3]), path: '/photos/bukti.jpg');
+  }
+}
 
 void main() {
   // Made before the test binding: afterwards a real HTTP client can only be
@@ -78,8 +111,12 @@ void main() {
   late bool regionsDown;
   // How the shop says an instalment can be paid. Null: a backend that does not say.
   Map<String, dynamic>? methods;
-  // False for an order whose payment plan the staff have not made yet.
-  late bool planned;
+  // The order's payment plan. Null while the staff have not made one yet.
+  Map<String, dynamic>? plan;
+  // The addresses the customer has saved.
+  late List<Map<String, dynamic>> saved;
+  // While set, the shop takes no receipt: the instalment is settled already.
+  late bool proofRefused;
 
   int requests(String path) => calls.where((c) => c.url.path == path).length;
 
@@ -98,7 +135,9 @@ void main() {
     CartStore.instance.clear();
     regionsDown = false;
     methods = null;
-    planned = true;
+    plan = _plan;
+    saved = [_home];
+    proofRefused = false;
     calls = [];
     // A shop with one customer, one saved address and one delivery option.
     http.Response answer(String path) {
@@ -108,9 +147,7 @@ void main() {
         case '/store/customers/me':
           return _ok({'customer': _budi});
         case '/store/customers/me/addresses':
-          return _ok({
-            'addresses': [_home]
-          });
+          return _ok({'addresses': saved});
         case '/store/wilayah':
           return _ok({
             'provinces': [
@@ -163,8 +200,10 @@ void main() {
           return _ok({'shipments': []});
         case '$_order/payment-plan':
           return _ok({
-            'payment_plan': planned ? {..._plan, if (methods != null) 'payment_methods': methods} : null
+            'payment_plan': plan == null ? null : {...?plan, if (methods != null) 'payment_methods': methods}
           });
+        case _proofs:
+          return proofRefused ? http.Response(jsonEncode({'message': _settled}), 400) : _ok({'payment_plan': plan});
         case '$_order/warranty-units':
           return _ok({'units': []});
         case _cart:
@@ -266,11 +305,13 @@ void main() {
       await openCheckout(tester);
       await type(tester, 'first_name', '');
       await type(tester, 'phone', '0812');
+      await type(tester, 'email', 'budi@tambak');
       await press(tester, 'shipping_method');
 
       expect(requests('/store/carts'), 0);
       expect(find.text(S.t('err_required')), findsOneWidget);
       expect(find.text(S.t('err_phone_invalid')), findsOneWidget);
+      expect(find.text(S.t('err_email_invalid')), findsOneWidget);
       // The button is at the end of the form, the name at its start: the page
       // goes back up to it.
       final name = tester.getRect(field('first_name'));
@@ -288,6 +329,16 @@ void main() {
       expect(sentAddresses(), ['Jl. Tambak 1']);
       expect(requests('$_cart/shipping-methods'), 0);
       expect(find.byType(OrderDetailScreen), findsNothing);
+    });
+
+    testWidgets('a first order names the street and each region that was not picked', (tester) async {
+      saved = [];
+      await openCheckout(tester);
+      await press(tester, 'shipping_method');
+
+      // The street, the province, the regency and the district.
+      expect(find.text(S.t('err_required')), findsNWidgets(4));
+      expect(requests('/store/carts'), 0);
     });
 
     testWidgets('a region list that did not load says why and can be asked for again', (tester) async {
@@ -338,7 +389,7 @@ void main() {
     });
 
     testWidgets('an order still waiting for its payment plan offers a chat with sales', (tester) async {
-      planned = false;
+      plan = null;
       await openOrder(tester);
       // The page asks for the plan once more before it says there is none yet.
       await tester.pump(const Duration(seconds: 1));
@@ -347,11 +398,64 @@ void main() {
       expect(find.text(S.t('chat_whatsapp')), findsOneWidget);
     });
 
-    testWidgets('the receipt can come from the camera or the gallery', (tester) async {
+    testWidgets('an order paid in full no longer shows where to transfer', (tester) async {
+      plan = _paid;
+      methods = {'bank_transfer': account, 'online': false};
+      await openOrder(tester);
+      expect(find.text('1. Pelunasan'), findsOneWidget);
+      expect(find.text(account), findsNothing);
+      expect(find.text(S.t('upload_proof')), findsNothing);
+    });
+
+    final sheet = find.byType(UploadProofSheet);
+    Finder inSheet(Finder what) => find.descendant(of: sheet, matching: what);
+
+    /// Puts a stand-in in place of the phone's camera and gallery.
+    _Phone usePhone() {
+      final real = ImagePickerPlatform.instance;
+      addTearDown(() => ImagePickerPlatform.instance = real);
+      final phone = _Phone();
+      ImagePickerPlatform.instance = phone;
+      return phone;
+    }
+
+    testWidgets('the receipt is photographed or picked, shown, and sent with the amount', (tester) async {
+      final phone = usePhone();
       await openOrder(tester);
       await press(tester, 'upload_proof');
-      expect(find.text(S.t('take_photo')), findsOneWidget);
-      expect(find.text(S.t('from_gallery')), findsOneWidget);
+      // Nothing to send before there is a photo.
+      expect(tester.widget<FilledButton>(inSheet(find.byType(FilledButton))).onPressed, isNull);
+
+      await press(tester, 'take_photo');
+      await press(tester, 'from_gallery');
+      expect(phone.asked, [ImageSource.camera, ImageSource.gallery]);
+      expect(inSheet(find.byType(Image)), findsOneWidget);
+
+      await press(tester, 'submit');
+      final sent = jsonDecode(calls.lastWhere((c) => c.url.path == _proofs).body) as Map;
+      expect(sent['file'], {'name': 'bukti.jpg', 'mime_type': 'image/jpeg', 'content': base64Encode([1, 2, 3])});
+      expect(sent['amount'], 4500000);
+      expect(sheet, findsNothing);
+      expect(find.text(S.t('proof_sent')), findsOneWidget);
+    });
+
+    testWidgets('a camera that will not open says so in the sheet', (tester) async {
+      usePhone().refuses = true;
+      await openOrder(tester);
+      await press(tester, 'upload_proof');
+      await press(tester, 'take_photo');
+      expect(inSheet(find.text(S.t('err_photo'))), findsOneWidget);
+      expect(inSheet(find.byType(Image)), findsNothing);
+    });
+
+    testWidgets('a receipt the shop does not take says why in the sheet, which stays open', (tester) async {
+      usePhone();
+      proofRefused = true;
+      await openOrder(tester);
+      await press(tester, 'upload_proof');
+      await press(tester, 'from_gallery');
+      await press(tester, 'submit');
+      expect(inSheet(find.text(_settled)), findsOneWidget);
     });
   });
 }
