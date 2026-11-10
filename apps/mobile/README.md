@@ -36,7 +36,8 @@ builds one against the backend you name, for example a dev machine on the same W
   `usesCleartextTraffic` stays off.
 - Photo URLs stored as `http://localhost:9000/...` are re-based onto `MEDUSA_URL` by `AppConfig.reachableUrl`.
 - Every CI build is signed with a fresh debug key, so uninstall the previous build before installing a newer one.
-- The app opens on the sign-in screen; register a customer or use the example one from `infra/smoke-order.sh`.
+- The app opens on the catalogue; checkout and quote requests ask for a sign-in, and the orders and account tabs
+  carry a sign-in button. Register a customer or use the example one from `infra/smoke-order.sh`.
 
 ## Release (Fastlane)
 
@@ -85,3 +86,4 @@ maestro test maestro/ -e EMAIL=budi@contoh.id -e PASSWORD=rahasia123
 
 The flows were written from the screens but not yet executed here (no Maestro on this machine): expect to
 adjust a selector or two on the first run. They are meant for a real device before each store release.
+The `appId` in them is the iOS bundle id; on Android change it to `id.co.wangjia.wangjia_app`.

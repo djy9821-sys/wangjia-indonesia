@@ -202,7 +202,7 @@ App 填地址时可以在地图（OpenStreetMap，免密钥）上把图钉拖到
 1. 电脑和手机连同一个 Wi-Fi，查电脑的局域网地址：`ipconfig getifaddr en0`。
 2. GitHub → Actions → CI → Run workflow，填 `medusa_url`（`http://<电脑地址>:9000`）、`publishable_key`（`apps/storefront/.env.local` 里那个）、`storefront_url`（`http://<电脑地址>:8000`）。命令行等价写法：`gh workflow run ci.yml -f medusa_url=… -f publishable_key=… -f storefront_url=…`。十几分钟后在该次运行的 Artifacts 下载 APK。
 3. 把 APK 传到手机上安装（数据线、网盘，或在电脑上 `python3 -m http.server 8899 --directory <APK 所在文件夹>` 后用手机浏览器打开 `http://<电脑地址>:8899/`）。手机要允许「安装未知应用」；华为/荣耀先关「纯净模式」；微信里打不开安装包，要用浏览器；HarmonyOS 5 及以上装不了 APK。
-4. App 第一屏是登录页：点 Daftar 注册一个账号（本地默认 `OTP_REQUIRED` 关闭，不需要验证码），或用上面的顾客示例账号。
+4. App 打开就是商品页，不用先登录；结账、询价时会弹出登录页，订单页和账户页上也有「Masuk / Daftar」按钮。没有账号就在登录页点 Daftar 注册（本地默认 `OTP_REQUIRED` 关闭，不需要验证码），或用上面的顾客示例账号。
 
 要知道的限制：这个包只在电脑开着、手机在同一个 Wi-Fi 时能用，电脑的局域网地址变了要重新打包；每次打包的调试签名不同，装新包前先卸载旧包；后端地址是 `http://` 时构建才允许明文流量，`https://` 的包不允许。数据库里的图片地址存的是 `http://localhost:9000/...`，App 会自动换成它所连后端的地址；用手机浏览器直接开本地的网页商城则看不到图，这只影响本地开发。
 

@@ -2,10 +2,14 @@
 # simulator with the app installed:
 #   maestro test maestro/ -e EMAIL=budi@contoh.id -e PASSWORD=rahasia123
 # Texts are the Indonesian UI strings (lib/l10n/strings.dart).
+# appId is the iOS bundle id; on Android change it to id.co.wangjia.wangjia_app.
 appId: id.co.wangjia.wangjiaApp
 ---
 - launchApp:
     clearState: true
+# The app opens on the catalogue as a guest; the sign-in page is reached from the account tab.
+- tapOn: "Akun"
+- tapOn: "Masuk / Daftar"
 - assertVisible: "Masuk"
 - tapOn:
     id: "email"
@@ -19,6 +23,7 @@ appId: id.co.wangjia.wangjiaApp
     text: "Masuk"
     index: 1
 - assertVisible: "Produk"
+- tapOn: "Produk"
 - tapOn: "Suku Cadang"
 - assertVisible:
     text: ".*WANGJIA.*"
