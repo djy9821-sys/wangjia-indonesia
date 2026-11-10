@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../api/medusa_client.dart';
 import '../l10n/strings.dart';
 import '../models.dart';
+import 'common.dart';
 
 /// Province → regency → district dropdowns backed by /store/wilayah.
 class RegionSelection {
@@ -37,29 +38,39 @@ class _RegionPickerState extends State<RegionPicker> {
   List<Wilayah> _regencies = [];
   List<Wilayah> _districts = [];
   final api = MedusaClient.instance;
+  // Why the last list could not be loaded, and how to ask for it again.
+  String? _error;
+  VoidCallback? _retry;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    _run(_load);
+  }
+
+  /// One request for a list. A failure says why and offers to try again,
+  /// instead of leaving dropdowns that cannot be opened.
+  Future<void> _run(Future<void> Function() job) async {
+    try {
+      await job();
+      _error = null;
+    } catch (e) {
+      _error = friendlyError(e);
+      _retry = () => _run(job);
+    }
+    if (mounted) setState(() {});
   }
 
   Future<void> _load() async {
-    try {
-      _provinces = await api.provinces();
-      if (widget.provinceCode != null) {
-        widget.selection.province = _provinces.where((p) => p.code == widget.provinceCode).firstOrNull;
-        if (widget.selection.province != null) {
-          _regencies = await api.regencies(widget.selection.province!.code);
-          widget.selection.regency = _regencies.where((r) => r.code == widget.regencyCode).firstOrNull;
-          if (widget.selection.regency != null) {
-            _districts = await api.districts(widget.selection.regency!.code);
-            widget.selection.district = _districts.where((d) => d.code == widget.districtCode).firstOrNull;
-          }
-        }
-      }
-      if (mounted) setState(() {});
-    } catch (_) {}
+    _provinces = await api.provinces();
+    if (widget.provinceCode == null) return;
+    widget.selection.province = _provinces.where((p) => p.code == widget.provinceCode).firstOrNull;
+    if (widget.selection.province == null) return;
+    _regencies = await api.regencies(widget.selection.province!.code);
+    widget.selection.regency = _regencies.where((r) => r.code == widget.regencyCode).firstOrNull;
+    if (widget.selection.regency == null) return;
+    _districts = await api.districts(widget.selection.regency!.code);
+    widget.selection.district = _districts.where((d) => d.code == widget.districtCode).firstOrNull;
   }
 
   Future<void> _pickProvince(Wilayah? p) async {
@@ -73,8 +84,11 @@ class _RegionPickerState extends State<RegionPicker> {
     });
     widget.onChanged(widget.selection);
     if (p == null) return;
-    final r = await api.regencies(p.code);
-    if (mounted) setState(() => _regencies = r);
+    await _run(() async {
+      final r = await api.regencies(p.code);
+      // Another province may have been picked while this one was loading.
+      if (widget.selection.province == p) _regencies = r;
+    });
   }
 
   Future<void> _pickRegency(Wilayah? r) async {
@@ -86,8 +100,10 @@ class _RegionPickerState extends State<RegionPicker> {
     });
     widget.onChanged(widget.selection);
     if (r == null) return;
-    final d = await api.districts(r.code);
-    if (mounted) setState(() => _districts = d);
+    await _run(() async {
+      final d = await api.districts(r.code);
+      if (widget.selection.regency == r) _districts = d;
+    });
   }
 
   Widget _dropdown(String label, List<Wilayah> items, Wilayah? value, ValueChanged<Wilayah?> onChanged) =>
@@ -98,12 +114,19 @@ class _RegionPickerState extends State<RegionPicker> {
         decoration: InputDecoration(labelText: label),
         items: items.map((w) => DropdownMenuItem(value: w, child: Text(w.name, overflow: TextOverflow.ellipsis))).toList(),
         onChanged: items.isEmpty ? null : onChanged,
-        validator: (v) => v == null ? '*' : null,
+        validator: (v) => v == null ? S.t('err_required') : null,
       );
 
   @override
   Widget build(BuildContext context) => Column(
         children: [
+          if (_error != null)
+            Row(
+              children: [
+                Expanded(child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12.5))),
+                TextButton(onPressed: _retry, child: Text(S.t('retry'))),
+              ],
+            ),
           _dropdown(S.t('province'), _provinces, widget.selection.province, _pickProvince),
           const SizedBox(height: 12),
           _dropdown(S.t('city'), _regencies, widget.selection.regency, _pickRegency),

@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import PDFDocument from "pdfkit";
 import { MedusaContainer } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils";
+import { transferAccount } from "./payment-methods";
 
 /*
   Invoice / proforma PDF for an order (Indonesian), including the payment
@@ -16,7 +17,7 @@ const company = () => ({
   npwp: process.env.COMPANY_NPWP ?? "-",
   phone: process.env.COMPANY_PHONE ?? "",
   email: process.env.COMPANY_EMAIL ?? "",
-  bank: process.env.COMPANY_BANK ?? "",
+  bank: transferAccount() ?? "",
 });
 
 // Helvetica has no CJK glyphs: keep the Indonesian part of bilingual labels

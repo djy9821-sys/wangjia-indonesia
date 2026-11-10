@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -7,7 +9,7 @@ import '../l10n/strings.dart';
 import '../models.dart';
 import '../widgets/common.dart';
 
-/// Bottom sheet: pick a photo of the bank transfer receipt and submit it.
+/// Bottom sheet: photograph or pick the bank transfer receipt and submit it.
 class UploadProofSheet extends StatefulWidget {
   final Installment installment;
   final String currency;
@@ -25,15 +27,29 @@ class _UploadProofSheetState extends State<UploadProofSheet> {
   XFile? _file;
   bool _busy = false;
 
-  Future<void> _pick() async {
-    final picker = ImagePicker();
-    final x = await picker.pickImage(source: ImageSource.gallery, maxWidth: 1600, imageQuality: 85);
-    if (x != null) setState(() => _file = x);
+  /// Shown in the sheet itself: a snack bar would come up behind it.
+  String? _error;
+
+  Future<void> _pick(ImageSource source) async {
+    try {
+      final x = await ImagePicker().pickImage(source: source, maxWidth: 1600, imageQuality: 85);
+      if (x == null || !mounted) return;
+      setState(() {
+        _file = x;
+        _error = null;
+      });
+    } catch (_) {
+      // No camera on this phone, or the permission was refused.
+      if (mounted) setState(() => _error = S.t('err_photo'));
+    }
   }
 
   Future<void> _submit() async {
     if (_file == null) return;
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
     try {
       final bytes = await _file!.readAsBytes();
       final name = _file!.name;
@@ -51,7 +67,7 @@ class _UploadProofSheetState extends State<UploadProofSheet> {
       );
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
-      if (mounted) showSnack(context, friendlyError(e));
+      if (mounted) setState(() => _error = friendlyError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -71,11 +87,40 @@ class _UploadProofSheetState extends State<UploadProofSheet> {
               Text('${widget.installment.label} · ${money(widget.installment.amount, widget.currency)}',
                   style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: 16),
-              OutlinedButton.icon(
-                onPressed: _pick,
-                icon: const Icon(Icons.photo_library_outlined),
-                label: Text(_file == null ? S.t('choose_photo') : _file!.name),
+              Text(S.t('choose_photo'), style: Theme.of(context).textTheme.bodyMedium),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _busy ? null : () => _pick(ImageSource.camera),
+                      icon: const Icon(Icons.photo_camera_outlined),
+                      label: Text(S.t('take_photo')),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _busy ? null : () => _pick(ImageSource.gallery),
+                      icon: const Icon(Icons.photo_library_outlined),
+                      label: Text(S.t('from_gallery')),
+                    ),
+                  ),
+                ],
               ),
+              if (_file != null) ...[
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.file(
+                    File(_file!.path),
+                    height: 120,
+                    fit: BoxFit.cover,
+                    cacheHeight: 360,
+                    errorBuilder: (_, __, ___) => Text(_file!.name),
+                  ),
+                ),
+              ],
               const SizedBox(height: 12),
               TextField(controller: _bank, decoration: InputDecoration(labelText: S.t('bank_name'), hintText: 'BCA / Mandiri / BNI / BRI')),
               const SizedBox(height: 12),
@@ -100,6 +145,10 @@ class _UploadProofSheetState extends State<UploadProofSheet> {
               ),
               TextField(controller: _note, maxLines: 2, decoration: InputDecoration(labelText: S.t('note'))),
               const SizedBox(height: 16),
+              if (_error != null) ...[
+                Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                const SizedBox(height: 8),
+              ],
               FilledButton(
                 onPressed: _busy || _file == null ? null : _submit,
                 child: _busy

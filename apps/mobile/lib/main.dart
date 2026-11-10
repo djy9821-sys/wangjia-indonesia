@@ -19,6 +19,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   installDevProxy();
   await initializeDateFormatting('id_ID');
+  await S.load();
   await MedusaClient.instance.init();
   await CartStore.instance.load();
   await PushService.instance.init();

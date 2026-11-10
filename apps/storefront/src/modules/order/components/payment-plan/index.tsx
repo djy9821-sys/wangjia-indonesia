@@ -28,6 +28,8 @@ const fmtDate = (d?: string | null) => {
   return `${dt.getUTCDate()} ${MONTHS_ID[dt.getUTCMonth()]} ${dt.getUTCFullYear()}`
 }
 
+const isOpen = (i: StoreInstallment) => i.status === "unpaid" || i.status === "awaiting_confirmation"
+
 const fileToBase64 = (file: File) =>
   new Promise<string>((resolve, reject) => {
     const reader = new FileReader()
@@ -136,7 +138,9 @@ const InstallmentCard = ({
   const st = STATUS[installment.status]
   const currency = plan.currency_code
   const latestProof = installment.proofs?.[installment.proofs.length - 1]
-  const open = installment.status === "unpaid" || installment.status === "awaiting_confirmation"
+  const open = isOpen(installment)
+  // A backend that does not say is an older one, which always showed the button.
+  const online = plan.payment_methods?.online !== false
 
   const payOnline = () => {
     setError(null)
@@ -181,10 +185,12 @@ const InstallmentCard = ({
       {error && <Text className="text-ui-fg-error txt-small">{error}</Text>}
       {open && !uploading && (
         <div className="flex flex-wrap gap-2">
-          <Button size="small" onClick={payOnline} isLoading={paying}>
-            Bayar online (QRIS / VA / e-Wallet)
-          </Button>
-          <Button size="small" variant="secondary" onClick={() => setUploading(true)}>
+          {online && (
+            <Button size="small" onClick={payOnline} isLoading={paying}>
+              Bayar online (QRIS / VA / e-Wallet)
+            </Button>
+          )}
+          <Button size="small" variant={online ? "secondary" : "primary"} onClick={() => setUploading(true)}>
             Upload bukti transfer
           </Button>
         </div>
@@ -226,6 +232,7 @@ const PaymentPlan = ({ plan, orderId, invoiceUrl = null }: { plan: StorePaymentP
     .filter((i) => i.status === "paid" || i.status === "refunded")
     .reduce((s, i) => s + Number(i.amount) - Number(i.refunded_amount ?? 0), 0)
   const released = Boolean(plan.released_at)
+  const account = plan.payment_methods?.bank_transfer
 
   return (
     <div className="flex flex-col gap-y-4">
@@ -249,6 +256,15 @@ const PaymentPlan = ({ plan, orderId, invoiceUrl = null }: { plan: StorePaymentP
               : "Pesanan dikirim setelah uang muka dikonfirmasi keuangan."}
       </div>
       {plan.note && <Text className="txt-small text-ui-fg-subtle whitespace-pre-line">{plan.note}</Text>}
+      {account && installments.some(isOpen) && (
+        <div className="rounded-lg border border-ui-border-base p-3">
+          <Text className="txt-small text-ui-fg-subtle">Bayar lewat transfer bank ke</Text>
+          <Text className="txt-medium-plus">{account}</Text>
+          <Text className="txt-small text-ui-fg-subtle">
+            Setelah transfer, upload bukti transfer di bawah. Tim keuangan kami akan mengonfirmasi.
+          </Text>
+        </div>
+      )}
       {installments.map((i) => (
         <InstallmentCard key={i.id} installment={i} plan={plan} orderId={orderId} />
       ))}

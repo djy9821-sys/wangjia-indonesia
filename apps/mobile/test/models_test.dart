@@ -1,5 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:wangjia_app/config.dart";
+import "package:wangjia_app/format.dart";
 import "package:wangjia_app/models.dart";
 
 void main() {
@@ -58,6 +59,33 @@ void main() {
     test("omits the pin when not set", () {
       const a = Address(firstName: "Budi");
       expect(a.toJson()["metadata"].containsKey("lat"), isFalse);
+    });
+  });
+
+  group("PaymentPlan", () {
+    const base = {"id": "plan_1", "currency_code": "idr", "total_amount": 100, "installments": []};
+
+    test("reads how the shop takes payment", () {
+      final plan = PaymentPlan.fromJson({
+        ...base,
+        "payment_methods": {"bank_transfer": "BCA 8850123456 a.n. PT Contoh", "online": false},
+      });
+      expect(plan.bankTransfer, "BCA 8850123456 a.n. PT Contoh");
+      expect(plan.onlinePayment, isFalse);
+    });
+
+    test("a backend that does not say keeps the online button and names no account", () {
+      final plan = PaymentPlan.fromJson(base);
+      expect(plan.bankTransfer, isNull);
+      expect(plan.onlinePayment, isTrue);
+    });
+  });
+
+  group("accountNumber", () {
+    test("is the longest run of digits in the bank line, without separators", () {
+      expect(accountNumber("BCA 8850123456 a.n. PT Contoh Tambak"), "8850123456");
+      expect(accountNumber("Mandiri 142-00-1234567-8 a.n. CV Maju 88"), "1420012345678");
+      expect(accountNumber("BCA, hubungi sales"), isNull);
     });
   });
 

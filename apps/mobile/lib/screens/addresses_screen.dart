@@ -92,10 +92,8 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
   final _region = RegionSelection();
   bool _busy = false;
 
-  String? _required(String? v) => (v == null || v.trim().isEmpty) ? '*' : null;
-
   Future<void> _save() async {
-    if (!_form.currentState!.validate()) return;
+    if (!validateForm(_form)) return;
     setState(() => _busy = true);
     try {
       await MedusaClient.instance.saveAddress(Address(
@@ -148,53 +146,57 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
         ),
         body: Form(
           key: _form,
-          child: ListView(
+          // Not a ListView: see validateForm.
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-            children: [
-              Row(children: [
-                Expanded(child: TextFormField(controller: _first, validator: _required, decoration: InputDecoration(labelText: S.t('first_name')))),
-                const SizedBox(width: 12),
-                Expanded(child: TextFormField(controller: _last, decoration: InputDecoration(labelText: S.t('last_name')))),
-              ]),
-              const SizedBox(height: 12),
-              TextFormField(controller: _company, decoration: InputDecoration(labelText: S.t('company'))),
-              const SizedBox(height: 12),
-              TextFormField(controller: _phone, validator: _required, keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: S.t('phone'))),
-              const SizedBox(height: 12),
-              TextFormField(controller: _address, validator: _required, maxLines: 2, decoration: InputDecoration(labelText: S.t('address'))),
-              const SizedBox(height: 12),
-              RegionPicker(
-                selection: _region,
-                onChanged: (_) => setState(() {}),
-                provinceCode: a.provinceCode,
-                regencyCode: a.regencyCode,
-                districtCode: a.districtCode,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(controller: _postal, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: S.t('postal_code'))),
-              MapPinTile(
-                lat: _lat,
-                lng: _lng,
-                addressHint: [
-                  _region.district?.name ?? a.district,
-                  _region.regency?.name ?? a.city,
-                  _region.province?.name ?? a.province,
-                ].where((e) => e.isNotEmpty).join(', '),
-                onChanged: (p) => setState(() {
-                  _lat = p?.latitude;
-                  _lng = p?.longitude;
-                }),
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(S.t('set_default')),
-                value: _default,
-                onChanged: (v) => setState(() => _default = v),
-              ),
-              const SizedBox(height: 8),
-              FilledButton(onPressed: _busy ? null : _save, child: Text(S.t('save'))),
-              const SizedBox(height: 32),
-            ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(children: [
+                  Expanded(child: TextFormField(controller: _first, validator: requiredField, decoration: InputDecoration(labelText: S.t('first_name')))),
+                  const SizedBox(width: 12),
+                  Expanded(child: TextFormField(controller: _last, decoration: InputDecoration(labelText: S.t('last_name')))),
+                ]),
+                const SizedBox(height: 12),
+                TextFormField(controller: _company, decoration: InputDecoration(labelText: S.t('company'))),
+                const SizedBox(height: 12),
+                TextFormField(controller: _phone, validator: phoneField, keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: S.t('phone'))),
+                const SizedBox(height: 12),
+                TextFormField(controller: _address, validator: requiredField, maxLines: 2, decoration: InputDecoration(labelText: S.t('address'))),
+                const SizedBox(height: 12),
+                RegionPicker(
+                  selection: _region,
+                  onChanged: (_) => setState(() {}),
+                  provinceCode: a.provinceCode,
+                  regencyCode: a.regencyCode,
+                  districtCode: a.districtCode,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(controller: _postal, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: S.t('postal_code'))),
+                MapPinTile(
+                  lat: _lat,
+                  lng: _lng,
+                  addressHint: [
+                    _region.district?.name ?? a.district,
+                    _region.regency?.name ?? a.city,
+                    _region.province?.name ?? a.province,
+                  ].where((e) => e.isNotEmpty).join(', '),
+                  onChanged: (p) => setState(() {
+                    _lat = p?.latitude;
+                    _lng = p?.longitude;
+                  }),
+                ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(S.t('set_default')),
+                  value: _default,
+                  onChanged: (v) => setState(() => _default = v),
+                ),
+                const SizedBox(height: 8),
+                FilledButton(onPressed: _busy ? null : _save, child: Text(S.t('save'))),
+                const SizedBox(height: 32),
+              ],
+            ),
           ),
         ),
       );

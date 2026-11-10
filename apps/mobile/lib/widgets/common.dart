@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../api/medusa_client.dart';
+import '../format.dart';
 import '../l10n/strings.dart';
 
 /// Turns exceptions into short Indonesian/English messages for farmers,
@@ -157,3 +158,20 @@ Color paymentColor(String? status) => switch (status) {
       'canceled' => const Color(0xFFB3261E),
       _ => const Color(0xFF6B7280),
     };
+
+// Checks for the fields of the address forms.
+String? requiredField(String? v) => (v == null || v.trim().isEmpty) ? S.t('err_required') : null;
+String? phoneField(String? v) => looksLikePhone((v ?? '').trim()) ? null : S.t('err_phone_invalid');
+String? emailField(String? v) => looksLikeEmail((v ?? '').trim()) ? null : S.t('err_email_invalid');
+
+/// Checks every field of [form] and scrolls to the topmost one that needs
+/// fixing. Only fields that are built get checked, so the form belongs in a
+/// Column: a lazily built list drops the fields that are scrolled away.
+bool validateForm(GlobalKey<FormState> form) {
+  final invalid = form.currentState!.validateGranularly();
+  if (invalid.isEmpty) return true;
+  double top(FormFieldState<Object?> f) => (f.context.findRenderObject() as RenderBox).localToGlobal(Offset.zero).dy;
+  final first = invalid.reduce((a, b) => top(a) <= top(b) ? a : b);
+  Scrollable.ensureVisible(first.context, alignment: 0.2, duration: const Duration(milliseconds: 250));
+  return false;
+}

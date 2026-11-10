@@ -73,7 +73,7 @@
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>Galeri dipakai untuk memilih foto bukti transfer yang akan diunggah.</string>
 		<key>NSCameraUsageDescription</key>
-		<string>Kamera dipakai untuk memindai QR di mesin WANGJIA (cek keaslian dan daftar garansi).</string>
+		<string>Kamera dipakai untuk memindai QR di mesin WANGJIA (cek keaslian dan daftar garansi) dan memotret bukti transfer.</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>Lokasi dipakai untuk menandai titik pengiriman tambak Anda di peta.</string>
 		<key>FlutterDeepLinkingEnabled</key>

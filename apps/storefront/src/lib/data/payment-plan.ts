@@ -49,6 +49,9 @@ export type StorePaymentPlan = {
   released_at?: string | null
   note?: string | null
   installments: StoreInstallment[]
+  // How the shop takes payment right now: the account for a bank transfer
+  // (null until one is set) and whether paying online is on offer.
+  payment_methods?: { bank_transfer: string | null; online: boolean }
 }
 
 export const retrievePaymentPlan = async (orderId: string) => {

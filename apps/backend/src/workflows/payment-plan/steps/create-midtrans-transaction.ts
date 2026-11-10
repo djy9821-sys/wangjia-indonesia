@@ -37,7 +37,7 @@ export const createMidtransTransactionStep = createStep(
     if (installment.status === "paid" || installment.status === "cancelled") {
       throw new MedusaError(
         MedusaError.Types.NOT_ALLOWED,
-        "该期款项已支付或已取消"
+        "Tagihan ini sudah lunas atau dibatalkan."
       );
     }
 

@@ -2,6 +2,8 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework";
+import { MedusaError } from "@medusajs/framework/utils";
+import { midtransConfigured } from "../../../../../utils/midtrans";
 import { createMidtransTransactionWorkflow } from "../../../../../workflows/payment-plan/workflows";
 import { assertInstallmentOwnedByCustomer } from "../../../payment-plans/utils";
 import { StoreCreateMidtransType } from "../../../payment-plans/validators";
@@ -20,6 +22,14 @@ export const POST = async (
     req.params.id,
     customerId
   );
+
+  // The app and the web hide the button then; an older build still asks.
+  if (!midtransConfigured()) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      "Pembayaran online belum tersedia. Silakan transfer bank, lalu upload bukti transfer."
+    );
+  }
 
   const { result } = await createMidtransTransactionWorkflow(req.scope).run({
     input: {

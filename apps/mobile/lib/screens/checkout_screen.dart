@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import '../api/medusa_client.dart';
@@ -43,6 +45,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   bool _saveAddress = true;
 
   String? _cartId;
+  // What the server's cart holds, to notice an edit made after the delivery
+  // options were loaded.
+  String? _sentAddress;
   List<ShippingOption>? _options;
   String? _optionId;
   bool _busy = false;
@@ -103,15 +108,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         lng: _lng,
       );
 
-  Map<String, dynamic> get _addressJson => _currentAddress.toJson();
+  /// Puts the form's email and address on the server's cart, unless that is
+  /// what the cart already holds.
+  Future<void> _sendAddress() async {
+    final email = _email.text.trim();
+    final address = _currentAddress.toJson();
+    final key = jsonEncode([email, address]);
+    if (key == _sentAddress) return;
+    await MedusaClient.instance.setCartAddress(_cartId!, email: email, address: address);
+    _sentAddress = key;
+  }
 
   Future<void> _loadShipping() async {
-    if (!_form.currentState!.validate()) return;
+    if (!validateForm(_form)) return;
     setState(() => _busy = true);
     try {
       final api = MedusaClient.instance;
       _cartId ??= await api.createCartFromItems(widget.items);
-      await api.setCartAddress(_cartId!, email: _email.text.trim(), address: _addressJson);
+      await _sendAddress();
       final options = await api.shippingOptions(_cartId!);
       setState(() {
         _options = options;
@@ -126,9 +140,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> _placeOrder() async {
     if (_cartId == null || _optionId == null) return;
+    if (!validateForm(_form)) return;
     setState(() => _busy = true);
     try {
       final api = MedusaClient.instance;
+      // The address may have been corrected after the options were loaded.
+      await _sendAddress();
       await api.addShippingMethod(_cartId!, _optionId!);
       final order = await api.completeCart(_cartId!);
       if (_saveAddress) {
@@ -149,8 +166,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
-  String? _required(String? v) => (v == null || v.trim().isEmpty) ? '*' : null;
-
   @override
   Widget build(BuildContext context) {
     final subtotal = widget.items.fold<num>(0, (s, i) => s + i.lineTotal);
@@ -159,119 +174,124 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       appBar: AppBar(title: Text(S.t('checkout'))),
       body: Form(
         key: _form,
-        child: ListView(
+        // Not a ListView: that builds lazily, and a field scrolled out of
+        // view would be skipped by the form check.
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          children: [
-            Card(
-              child: Column(
-                children: [
-                  ...widget.items.map((it) => ListTile(
-                        dense: true,
-                        leading: const Icon(Icons.water_outlined),
-                        title: Text(it.productTitle),
-                        subtitle: Text('${variantLabel(it.variantTitle) == null ? '' : '${variantLabel(it.variantTitle)} · '}× ${it.quantity}'),
-                        trailing: Text(money(it.lineTotal, it.currency)),
-                      )),
-                  ListTile(
-                    title: Text(S.t('subtotal'), style: Theme.of(context).textTheme.titleSmall),
-                    trailing: Text(money(subtotal, currency), style: const TextStyle(color: Brand.accent, fontSize: 17, fontWeight: FontWeight.w800)),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(S.t('shipping_address'), style: Theme.of(context).textTheme.titleMedium),
-            if (_saved.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              DropdownButtonFormField<Address>(
-                key: ValueKey('saved-${_picked?.id}'),
-                initialValue: _picked,
-                isExpanded: true,
-                decoration: InputDecoration(labelText: S.t('saved_address')),
-                items: _saved
-                    .map((a) => DropdownMenuItem(
-                          value: a,
-                          child: Text('${a.fullName} · ${a.oneLine}', overflow: TextOverflow.ellipsis),
-                        ))
-                    .toList(),
-                onChanged: (a) => a == null ? null : _applyAddress(a),
-              ),
-            ],
-            const SizedBox(height: 12),
-            Row(children: [
-              Expanded(child: TextFormField(controller: _first, validator: _required, decoration: InputDecoration(labelText: S.t('first_name')))),
-              const SizedBox(width: 12),
-              Expanded(child: TextFormField(controller: _last, decoration: InputDecoration(labelText: S.t('last_name')))),
-            ]),
-            const SizedBox(height: 12),
-            TextFormField(controller: _company, decoration: InputDecoration(labelText: S.t('company'))),
-            const SizedBox(height: 12),
-            TextFormField(controller: _phone, validator: _required, keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: S.t('phone'))),
-            const SizedBox(height: 12),
-            TextFormField(controller: _email, validator: _required, keyboardType: TextInputType.emailAddress, decoration: InputDecoration(labelText: S.t('email'))),
-            const SizedBox(height: 12),
-            TextFormField(controller: _address, validator: _required, maxLines: 2, decoration: InputDecoration(labelText: S.t('address'))),
-            const SizedBox(height: 12),
-            RegionPicker(
-              key: _regionKey,
-              selection: _region,
-              onChanged: (_) => setState(() {}),
-              provinceCode: _picked?.provinceCode,
-              regencyCode: _picked?.regencyCode,
-              districtCode: _picked?.districtCode,
-            ),
-            const SizedBox(height: 12),
-            TextFormField(controller: _postal, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: S.t('postal_code'))),
-            MapPinTile(
-              lat: _lat,
-              lng: _lng,
-              addressHint: [
-                _region.district?.name ?? _picked?.district ?? '',
-                _region.regency?.name ?? _picked?.city ?? '',
-                _region.province?.name ?? _picked?.province ?? '',
-              ].where((e) => e.isNotEmpty).join(', '),
-              onChanged: (p) => setState(() {
-                _lat = p?.latitude;
-                _lng = p?.longitude;
-              }),
-            ),
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-              title: Text(S.t('save_this_address')),
-              value: _saveAddress,
-              onChanged: (v) => setState(() => _saveAddress = v ?? false),
-            ),
-            const SizedBox(height: 8),
-            if (_options == null)
-              FilledButton(
-                onPressed: _busy ? null : _loadShipping,
-                child: Text(S.t('shipping_method')),
-              )
-            else ...[
-              Text(S.t('shipping_method'), style: Theme.of(context).textTheme.titleMedium),
-              RadioGroup<String>(
-                groupValue: _optionId,
-                onChanged: (v) => setState(() => _optionId = v),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Card(
                 child: Column(
-                  children: _options!
-                      .map((o) => RadioListTile<String>(
-                            value: o.id,
-                            title: Text(o.name),
-                            subtitle: Text(o.amount == 0 ? '-' : money(o.amount, currency)),
-                          ))
-                      .toList(),
+                  children: [
+                    ...widget.items.map((it) => ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.water_outlined),
+                          title: Text(it.productTitle),
+                          subtitle: Text('${variantLabel(it.variantTitle) == null ? '' : '${variantLabel(it.variantTitle)} · '}× ${it.quantity}'),
+                          trailing: Text(money(it.lineTotal, it.currency)),
+                        )),
+                    ListTile(
+                      title: Text(S.t('subtotal'), style: Theme.of(context).textTheme.titleSmall),
+                      trailing: Text(money(subtotal, currency), style: const TextStyle(color: Brand.accent, fontSize: 17, fontWeight: FontWeight.w800)),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 16),
+              Text(S.t('shipping_address'), style: Theme.of(context).textTheme.titleMedium),
+              if (_saved.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                DropdownButtonFormField<Address>(
+                  key: ValueKey('saved-${_picked?.id}'),
+                  initialValue: _picked,
+                  isExpanded: true,
+                  decoration: InputDecoration(labelText: S.t('saved_address')),
+                  items: _saved
+                      .map((a) => DropdownMenuItem(
+                            value: a,
+                            child: Text('${a.fullName} · ${a.oneLine}', overflow: TextOverflow.ellipsis),
+                          ))
+                      .toList(),
+                  onChanged: (a) => a == null ? null : _applyAddress(a),
+                ),
+              ],
               const SizedBox(height: 12),
-              FilledButton.icon(
-                onPressed: _busy || _optionId == null ? null : _placeOrder,
-                icon: const Icon(Icons.check),
-                label: Text(S.t('place_order')),
+              Row(children: [
+                Expanded(child: TextFormField(controller: _first, validator: requiredField, decoration: InputDecoration(labelText: S.t('first_name')))),
+                const SizedBox(width: 12),
+                Expanded(child: TextFormField(controller: _last, decoration: InputDecoration(labelText: S.t('last_name')))),
+              ]),
+              const SizedBox(height: 12),
+              TextFormField(controller: _company, decoration: InputDecoration(labelText: S.t('company'))),
+              const SizedBox(height: 12),
+              TextFormField(controller: _phone, validator: phoneField, keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: S.t('phone'))),
+              const SizedBox(height: 12),
+              TextFormField(controller: _email, validator: emailField, keyboardType: TextInputType.emailAddress, decoration: InputDecoration(labelText: S.t('email'))),
+              const SizedBox(height: 12),
+              TextFormField(controller: _address, validator: requiredField, maxLines: 2, decoration: InputDecoration(labelText: S.t('address'))),
+              const SizedBox(height: 12),
+              RegionPicker(
+                key: _regionKey,
+                selection: _region,
+                onChanged: (_) => setState(() {}),
+                provinceCode: _picked?.provinceCode,
+                regencyCode: _picked?.regencyCode,
+                districtCode: _picked?.districtCode,
               ),
+              const SizedBox(height: 12),
+              TextFormField(controller: _postal, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: S.t('postal_code'))),
+              MapPinTile(
+                lat: _lat,
+                lng: _lng,
+                addressHint: [
+                  _region.district?.name ?? _picked?.district ?? '',
+                  _region.regency?.name ?? _picked?.city ?? '',
+                  _region.province?.name ?? _picked?.province ?? '',
+                ].where((e) => e.isNotEmpty).join(', '),
+                onChanged: (p) => setState(() {
+                  _lat = p?.latitude;
+                  _lng = p?.longitude;
+                }),
+              ),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                title: Text(S.t('save_this_address')),
+                value: _saveAddress,
+                onChanged: (v) => setState(() => _saveAddress = v ?? false),
+              ),
+              const SizedBox(height: 8),
+              if (_options == null)
+                FilledButton(
+                  onPressed: _busy ? null : _loadShipping,
+                  child: Text(S.t('shipping_method')),
+                )
+              else ...[
+                Text(S.t('shipping_method'), style: Theme.of(context).textTheme.titleMedium),
+                RadioGroup<String>(
+                  groupValue: _optionId,
+                  onChanged: (v) => setState(() => _optionId = v),
+                  child: Column(
+                    children: _options!
+                        .map((o) => RadioListTile<String>(
+                              value: o.id,
+                              title: Text(o.name),
+                              subtitle: Text(o.amount == 0 ? '-' : money(o.amount, currency)),
+                            ))
+                        .toList(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                FilledButton.icon(
+                  onPressed: _busy || _optionId == null ? null : _placeOrder,
+                  icon: const Icon(Icons.check),
+                  label: Text(S.t('place_order')),
+                ),
+              ],
+              const SizedBox(height: 32),
             ],
-            const SizedBox(height: 32),
-          ],
+          ),
         ),
       ),
     );

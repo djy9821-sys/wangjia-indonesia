@@ -227,6 +227,12 @@ class PaymentPlan {
   final String? releasedAt;
   final String? note;
   final List<Installment> installments;
+
+  /// The shop's bank account ("BCA 123 a.n. PT ..."), once the shop has set one.
+  final String? bankTransfer;
+
+  /// False while the shop has no online payment to offer.
+  final bool onlinePayment;
   PaymentPlan({
     required this.id,
     required this.currency,
@@ -236,8 +242,11 @@ class PaymentPlan {
     this.releasedAt,
     this.note,
     this.installments = const [],
+    this.bankTransfer,
+    this.onlinePayment = true,
   });
   factory PaymentPlan.fromJson(Map<String, dynamic> j) {
+    final methods = j['payment_methods'] as Map<String, dynamic>?;
     final list = ((j['installments'] as List?) ?? [])
         .map((e) => Installment.fromJson(e as Map<String, dynamic>))
         .toList()
@@ -251,6 +260,9 @@ class PaymentPlan {
       releasedAt: j['released_at'] as String?,
       note: j['note'] as String?,
       installments: list,
+      bankTransfer: methods?['bank_transfer'] as String?,
+      // A backend that does not say is an older one, which always showed the button.
+      onlinePayment: methods?['online'] != false,
     );
   }
 

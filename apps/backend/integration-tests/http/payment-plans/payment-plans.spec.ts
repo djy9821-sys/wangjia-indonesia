@@ -24,7 +24,14 @@ const PNG_BASE64 =
 medusaIntegrationTestRunner({
   // @ts-expect-error inApp is honoured at runtime but missing from the runner's types
   inApp: true,
-  env: { ADMIN_DEFAULT_ROLE: "owner", OTP_DEV_CODE: "000000", RATE_LIMIT_DISABLED: "true" },
+  env: {
+    ADMIN_DEFAULT_ROLE: "owner",
+    OTP_DEV_CODE: "000000",
+    RATE_LIMIT_DISABLED: "true",
+    // A shop that takes bank transfers and has no online payment set up.
+    COMPANY_BANK: "BCA 8850123456 a.n. PT Truk Air",
+    MIDTRANS_SERVER_KEY: "",
+  },
   testSuite: ({ api, getContainer }) => {
     let storeHeaders, region, salesChannel, product;
 
@@ -127,6 +134,22 @@ medusaIntegrationTestRunner({
         expect(storePlan.data.payment_plan.note).toEqual(
           "BCA 123456 a.n. PT Truk Air"
         );
+        // and is told where to transfer, and that paying online is not on offer
+        expect(storePlan.data.payment_plan.payment_methods).toEqual({
+          bank_transfer: "BCA 8850123456 a.n. PT Truk Air",
+          online: false,
+        });
+
+        // an older app build still shows the online button: it is told why not
+        const online = await api
+          .post(
+            `/store/payment-installments/${deposit.id}/midtrans`,
+            {},
+            storeHeaders
+          )
+          .catch((e) => e.response);
+        expect(online.status).toEqual(400);
+        expect(online.data.message).toContain("Pembayaran online belum tersedia");
 
         // the warehouse cannot fulfill yet
         const {

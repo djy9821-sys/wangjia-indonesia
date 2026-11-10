@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../api/medusa_client.dart';
 import '../config.dart';
+import '../format.dart';
 import '../l10n/strings.dart';
+import '../update_check.dart';
 import '../widgets/common.dart';
 import '../widgets/wangjia_logo.dart';
 
-// Same shape the backend validator accepts, so nothing passes here and
-// then fails there after the login was already created.
-final _emailShape = RegExp(r"^(?!\.)(?!.*\.\.)[A-Za-z0-9_'+\-.]*[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9-]*\.)+[A-Za-z]{2,}$");
 
 /// String key of the first problem with the form, or null when it can be
 /// sent. Fields are checked in the order they appear on screen.
@@ -22,9 +21,8 @@ String? authFormError({
 }) {
   if (!register) return email.isEmpty || password.isEmpty ? 'err_fill_login' : null;
   if (firstName.isEmpty) return 'err_name_required';
-  final digits = phone.replaceAll(RegExp(r'\D'), '');
-  if (digits.length < 8 || phone.length > 20) return 'err_phone_invalid';
-  if (!_emailShape.hasMatch(email)) return 'err_email_invalid';
+  if (!looksLikePhone(phone)) return 'err_phone_invalid';
+  if (!looksLikeEmail(email)) return 'err_email_invalid';
   if (password.length < 8) return 'err_password_short';
   return null;
 }
@@ -239,10 +237,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           hintText: '+62…',
                           suffixIcon: _verifiedPhone == _phone.text.trim() && _verificationToken != null
                               ? const Icon(Icons.verified, color: Color(0xFF1B8A5A))
-                              : TextButton(
-                                  onPressed: _phone.text.trim().length >= 9 && _resendIn == 0 ? _sendCode : null,
-                                  child: Text(_resendIn > 0 ? '${S.t('resend_in')} ${_resendIn}s' : S.t('send_code')),
-                                ),
+                              : phoneCodes
+                                  ? TextButton(
+                                      onPressed: _phone.text.trim().length >= 9 && _resendIn == 0 ? _sendCode : null,
+                                      child: Text(_resendIn > 0 ? '${S.t('resend_in')} ${_resendIn}s' : S.t('send_code')),
+                                    )
+                                  : null,
                         ),
                       ),
                       if (_codeSent && _verificationToken == null) ...[

@@ -23,6 +23,15 @@ export const normalizePhone = (raw: string): string => {
   return p;
 };
 
+/*
+  Whether a code can reach a phone: WhatsApp is connected, or sign-up insists
+  on a code. The app offers "Kirim kode" only then, so nobody waits for a
+  message that is never sent.
+*/
+export const phoneCodesOffered = (): boolean =>
+  process.env.OTP_REQUIRED === "true" ||
+  Boolean(process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID);
+
 type Entry = { code: string; attempts: number };
 
 export async function requestOtp(container: MedusaContainer, rawPhone: string) {

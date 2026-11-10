@@ -44,7 +44,13 @@ medusaIntegrationTestRunner({
     it("serves the app version policy publicly", async () => {
       const res = await api.get("/store/app-version", publicHeaders);
       expect(res.data).toEqual(
-        expect.objectContaining({ min_version: "1.2.0", latest_version: "1.3.0", android_url: "https://example.com/app.apk" })
+        expect.objectContaining({
+          min_version: "1.2.0",
+          latest_version: "1.3.0",
+          android_url: "https://example.com/app.apk",
+          // WhatsApp is not connected here, so the app must not offer a phone code
+          phone_codes: false,
+        })
       );
     });
 

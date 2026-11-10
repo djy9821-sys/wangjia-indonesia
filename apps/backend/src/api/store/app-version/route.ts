@@ -1,4 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
+import { phoneCodesOffered } from "../../../utils/otp";
 
 /*
   GET /store/app-version — version policy for the mobile app, independent of
@@ -6,6 +7,8 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
     APP_MIN_VERSION     below this the app blocks until updated
     APP_LATEST_VERSION  below this the app shows a dismissible banner
     APP_ANDROID_URL / APP_IOS_URL  where to get the update
+  It is the one thing the app asks at start-up, so it also says whether the
+  sign-up form should offer a phone code (phone_codes).
 */
 export const GET = async (_req: MedusaRequest, res: MedusaResponse) => {
   res.setHeader("Cache-Control", "public, max-age=300");
@@ -15,5 +18,6 @@ export const GET = async (_req: MedusaRequest, res: MedusaResponse) => {
     android_url: process.env.APP_ANDROID_URL || null,
     ios_url: process.env.APP_IOS_URL || null,
     message: process.env.APP_UPDATE_MESSAGE || null,
+    phone_codes: phoneCodesOffered(),
   });
 };

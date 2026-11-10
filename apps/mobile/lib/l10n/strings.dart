@@ -1,8 +1,18 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Tiny in-app localisation: Indonesian first, English fallback.
 class S {
   static final ValueNotifier<String> locale = ValueNotifier('id');
+
+  /// Brings back the language chosen last time and saves each later change.
+  static Future<void> load() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getString('wangjia_locale') == 'en') locale.value = 'en';
+      locale.addListener(() => prefs.setString('wangjia_locale', locale.value));
+    } catch (_) {}
+  }
 
   static String t(String key) {
     final table = locale.value == 'en' ? _en : _id;
@@ -55,6 +65,12 @@ class S {
     'transfer_date': 'Tanggal transfer',
     'note': 'Catatan',
     'choose_photo': 'Pilih foto bukti transfer',
+    'take_photo': 'Kamera',
+    'from_gallery': 'Galeri',
+    'transfer_to': 'Bayar lewat transfer bank ke',
+    'transfer_hint': 'Setelah transfer, upload bukti transfer di bawah. Tim keuangan kami akan mengonfirmasi.',
+    'copy_account': 'Salin nomor rekening',
+    'account_copied': 'Nomor rekening disalin',
     'submit': 'Kirim',
     'cancel': 'Batal',
     'proof_sent': 'Bukti transfer terkirim. Menunggu konfirmasi bagian keuangan.',
@@ -215,6 +231,8 @@ class S {
     'err_name_required': 'Isi nama depan.',
     'err_phone_invalid': 'Isi nomor HP / WhatsApp yang benar.',
     'err_email_invalid': 'Format email salah. Contoh: nama@gmail.com',
+    'err_required': 'Wajib diisi',
+    'err_photo': 'Kamera atau galeri tidak bisa dibuka. Periksa izin aplikasi di pengaturan HP.',
     'err_password_short': 'Kata sandi minimal 8 karakter.',
     'notifications': 'Notifikasi',
     'no_notifications': 'Belum ada pesan. Pembaruan pembayaran, pengiriman dan garansi akan muncul di sini.',
@@ -328,6 +346,12 @@ class S {
     'transfer_date': 'Transfer date',
     'note': 'Note',
     'choose_photo': 'Choose receipt photo',
+    'take_photo': 'Camera',
+    'from_gallery': 'Gallery',
+    'transfer_to': 'Pay by bank transfer to',
+    'transfer_hint': 'After the transfer, upload the receipt below. Our finance team will confirm it.',
+    'copy_account': 'Copy account number',
+    'account_copied': 'Account number copied',
     'submit': 'Submit',
     'cancel': 'Cancel',
     'proof_sent': 'Receipt sent. Waiting for finance confirmation.',
@@ -488,6 +512,8 @@ class S {
     'err_name_required': 'Enter your first name.',
     'err_phone_invalid': 'Enter a valid phone / WhatsApp number.',
     'err_email_invalid': 'That email does not look right. Example: name@gmail.com',
+    'err_required': 'Required',
+    'err_photo': 'Could not open the camera or gallery. Check the app permissions in your phone settings.',
     'err_password_short': 'Password must be at least 8 characters.',
     'notifications': 'Notifications',
     'no_notifications': 'No messages yet. Payment, shipping and warranty updates will appear here.',

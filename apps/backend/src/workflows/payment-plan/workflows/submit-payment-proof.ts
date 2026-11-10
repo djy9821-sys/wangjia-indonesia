@@ -36,6 +36,8 @@ export const submitPaymentProofWorkflow = createWorkflow(
       installment,
       allowed: ["unpaid", "awaiting_confirmation"],
       action: "上传付款凭证",
+      message:
+        "Tagihan ini sudah lunas atau dibatalkan. Bukti transfer tidak perlu dikirim lagi.",
     });
 
     const proofInput = transform({ input }, ({ input }) => ({

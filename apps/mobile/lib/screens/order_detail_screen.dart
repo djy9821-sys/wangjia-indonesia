@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../api/medusa_client.dart';
+import '../config.dart';
 import '../format.dart';
 import '../l10n/strings.dart';
 import '../models.dart';
@@ -77,6 +79,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> with WidgetsBindi
       if (mounted) showSnack(context, friendlyError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// Opens a WhatsApp chat with sales, the order number already written.
+  Future<void> _askSales(Order order) async {
+    final text = Uri.encodeComponent('Halo WANGJIA, saya ingin bertanya tentang pesanan #${order.displayId}.');
+    final uri = Uri.parse('https://wa.me/${AppConfig.whatsappNumber}?text=$text');
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication) && mounted) {
+      showSnack(context, S.t('error'));
     }
   }
 
@@ -199,9 +210,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> with WidgetsBindi
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _section(context, S.t('payment_plan')),
-                        if (plan == null)
-                          Text(S.t('no_payment_plan'))
-                        else
+                        if (plan == null) ...[
+                          Text(S.t('no_payment_plan')),
+                          const SizedBox(height: 8),
+                          OutlinedButton.icon(
+                            onPressed: () => _askSales(order),
+                            icon: const Icon(Icons.chat_outlined),
+                            label: Text(S.t('chat_whatsapp')),
+                          ),
+                        ] else
                           _PaymentPlanView(
                             plan: plan,
                             busy: _busy,
@@ -319,10 +336,15 @@ class _PaymentPlanView extends StatelessWidget {
             const SizedBox(height: 8),
             Text(plan.note!, style: Theme.of(context).textTheme.bodySmall),
           ],
+          if (plan.bankTransfer != null && plan.installments.any((i) => i.isOpen)) ...[
+            const SizedBox(height: 10),
+            _TransferAccount(plan.bankTransfer!),
+          ],
           const SizedBox(height: 12),
           ...plan.installments.map((inst) => _InstallmentCard(
                 inst: inst,
                 currency: plan.currency,
+                online: plan.onlinePayment,
                 busy: busy,
                 onPay: () => onPay(inst),
                 onUpload: () => onUpload(inst),
@@ -331,13 +353,60 @@ class _PaymentPlanView extends StatelessWidget {
       );
 }
 
+/// Where to send a bank transfer, with the account number ready to copy.
+class _TransferAccount extends StatelessWidget {
+  final String account;
+  const _TransferAccount(this.account);
+
+  @override
+  Widget build(BuildContext context) {
+    final small = Theme.of(context).textTheme.bodySmall;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Brand.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(S.t('transfer_to'), style: small),
+          const SizedBox(height: 2),
+          SelectableText(account, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 2),
+          Text(S.t('transfer_hint'), style: small),
+          TextButton.icon(
+            style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: VisualDensity.compact),
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: accountNumber(account) ?? account));
+              if (context.mounted) showSnack(context, S.t('account_copied'));
+            },
+            icon: const Icon(Icons.copy, size: 16),
+            label: Text(S.t('copy_account')),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _InstallmentCard extends StatelessWidget {
   final Installment inst;
   final String currency;
+
+  /// Whether paying online can be offered next to the bank transfer.
+  final bool online;
   final bool busy;
   final VoidCallback onPay;
   final VoidCallback onUpload;
-  const _InstallmentCard({required this.inst, required this.currency, required this.busy, required this.onPay, required this.onUpload});
+  const _InstallmentCard({
+    required this.inst,
+    required this.currency,
+    required this.online,
+    required this.busy,
+    required this.onPay,
+    required this.onUpload,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -377,17 +446,24 @@ class _InstallmentCard extends StatelessWidget {
             ],
             if (inst.isOpen) ...[
               const SizedBox(height: 12),
-              FilledButton.icon(
-                onPressed: busy ? null : onPay,
-                icon: const Icon(Icons.qr_code_2),
-                label: Text(S.t('pay_midtrans')),
-              ),
-              const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: busy ? null : onUpload,
-                icon: const Icon(Icons.upload_file),
-                label: Text(S.t('upload_proof')),
-              ),
+              if (online) ...[
+                FilledButton.icon(
+                  onPressed: busy ? null : onPay,
+                  icon: const Icon(Icons.qr_code_2),
+                  label: Text(S.t('pay_midtrans')),
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: busy ? null : onUpload,
+                  icon: const Icon(Icons.upload_file),
+                  label: Text(S.t('upload_proof')),
+                ),
+              ] else
+                FilledButton.icon(
+                  onPressed: busy ? null : onUpload,
+                  icon: const Icon(Icons.upload_file),
+                  label: Text(S.t('upload_proof')),
+                ),
             ],
           ],
         ),

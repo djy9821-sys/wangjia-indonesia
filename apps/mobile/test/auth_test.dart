@@ -8,6 +8,7 @@ import 'package:http/testing.dart';
 import 'package:wangjia_app/api/medusa_client.dart';
 import 'package:wangjia_app/l10n/strings.dart';
 import 'package:wangjia_app/screens/login_screen.dart';
+import 'package:wangjia_app/update_check.dart';
 
 const _register = '/auth/customer/emailpass/register';
 const _login = '/auth/customer/emailpass';
@@ -283,6 +284,19 @@ void main() {
       await press(tester, 'register');
       expect(find.text(S.t('err_phone_invalid')), findsOneWidget);
       expect(calls, isEmpty);
+    });
+
+    testWidgets('the phone code is offered only by a shop that can send one', (tester) async {
+      addTearDown(() => phoneCodes = true);
+      backend({});
+      for (final offered in [true, false]) {
+        phoneCodes = offered;
+        await tester.pumpWidget(const SizedBox());
+        await open(tester);
+        await tester.tap(find.text(S.t('register')));
+        await tester.pump();
+        expect(find.text(S.t('send_code')), offered ? findsOneWidget : findsNothing);
+      }
     });
 
     testWidgets('a taken email points to sign-in and opens that tab', (tester) async {

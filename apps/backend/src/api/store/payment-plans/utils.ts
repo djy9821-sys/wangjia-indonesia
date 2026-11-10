@@ -3,6 +3,7 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils";
+import { storePaymentMethods } from "../../../utils/payment-methods";
 import { signProofUrlsIn } from "../../../utils/proof-files";
 
 export const storePaymentPlanFields = [
@@ -99,5 +100,11 @@ export async function retrieveStorePaymentPlan(
   const current = [...pool].sort(
     (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   )[0];
-  return current ? await signProofUrlsIn(container, current) : null;
+  if (!current) {
+    return null;
+  }
+  return {
+    ...(await signProofUrlsIn(container, current)),
+    payment_methods: storePaymentMethods(),
+  };
 }
