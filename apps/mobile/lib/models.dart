@@ -1,3 +1,5 @@
+import 'config.dart';
+
 /// Thin typed wrappers over Medusa JSON. Only the fields the app uses.
 num _num(dynamic v) => v is num ? v : num.tryParse('${v ?? 0}') ?? 0;
 
@@ -63,9 +65,9 @@ class Product {
       handle: j['handle'] as String?,
       subtitle: j['subtitle'] as String?,
       description: j['description'] as String?,
-      thumbnail: j['thumbnail'] as String?,
+      thumbnail: reachableUrl(j['thumbnail'] as String?),
       images: ((j['images'] as List?) ?? [])
-          .map((e) => (e as Map<String, dynamic>)['url'] as String)
+          .map((e) => reachableUrl((e as Map<String, dynamic>)['url'] as String)!)
           .toList(),
       variants: ((j['variants'] as List?) ?? [])
           .map((e) => Variant.fromJson(e as Map<String, dynamic>))
@@ -97,7 +99,7 @@ class OrderItem {
         j['variant_title'] as String?,
         _num(j['quantity']).toInt(),
         _num(j['unit_price']),
-        thumbnail: j['thumbnail'] as String?,
+        thumbnail: reachableUrl(j['thumbnail'] as String?),
       );
 }
 
@@ -168,7 +170,7 @@ class PaymentProof {
   PaymentProof(this.id, this.fileUrl, this.status, this.reviewNote, this.createdAt);
   factory PaymentProof.fromJson(Map<String, dynamic> j) => PaymentProof(
         j['id'] as String,
-        (j['file_url'] ?? '') as String,
+        reachableUrl((j['file_url'] ?? '') as String)!,
         (j['status'] ?? 'pending') as String,
         j['review_note'] as String?,
         j['created_at'] as String?,
@@ -604,7 +606,7 @@ class GroupBuy {
         productTitle: j['product_title'] as String? ?? '',
         variantId: j['variant_id'] as String,
         variantTitle: j['variant_title'] as String?,
-        thumbnail: j['thumbnail'] as String?,
+        thumbnail: reachableUrl(j['thumbnail'] as String?),
         currency: (j['currency_code'] as String?) ?? 'idr',
         groupPrice: (j['group_price'] as num?) ?? 0,
         regularPrice: j['regular_price'] as num?,

@@ -393,7 +393,7 @@ class MedusaClient {
 
   Future<String> invoiceLink(String orderId) async {
     final res = await get('/store/orders/$orderId/invoice-link');
-    return res['url'] as String;
+    return reachableUrl(res['url'] as String)!;
   }
 
   // ---------- payment plan (custom routes) ----------

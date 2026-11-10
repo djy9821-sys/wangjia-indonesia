@@ -4,15 +4,29 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Manual run (Actions > CI > Run workflow): an installable Android APK that talks
+  # to the backend you name, e.g. a developer machine in the same Wi-Fi.
+  workflow_dispatch:
+    inputs:
+      medusa_url:
+        description: Backend URL the app talks to (http://192.168.x.x:9000 or https://...)
+        required: true
+      publishable_key:
+        description: Publishable API key of that backend
+        required: true
+      storefront_url:
+        description: Web store URL (share links, privacy page)
+        required: false
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
   backend:
     name: Backend (lint, types, integration tests)
     runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_dispatch'
     services:
       postgres:
         image: postgres:16-alpine
@@ -61,6 +75,7 @@ jobs:
   storefront:
     name: Storefront (types, lint)
     runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -97,13 +112,18 @@ jobs:
 
   # Installable Android build for testers (no Mac needed): download the APK from
   # the run's Artifacts. Signed with the debug key until android/key.properties exists.
+  # On push it targets the Actions variables below; a manual run targets its inputs.
   android-apk:
     name: Android APK (test build)
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     needs: [mobile]
     steps:
       - uses: actions/checkout@v4
+      # The key ships inside the app, so it is not a secret, but keep it out of the log.
+      - name: Mask the publishable key
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "::add-mask::$(jq -r '.inputs.publishable_key' "$GITHUB_EVENT_PATH")"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -116,14 +136,24 @@ jobs:
       - run: flutter pub get
         working-directory: apps/mobile
       - name: Build APK
-        run: >
-          flutter build apk --release
-          --dart-define=MEDUSA_URL=${{ vars.MEDUSA_URL || 'https://api.wangjia.co.id' }}
-          --dart-define=MEDUSA_PUBLISHABLE_KEY=${{ vars.MEDUSA_PUBLISHABLE_KEY || 'pk_test' }}
-          --dart-define=STOREFRONT_URL=${{ vars.STOREFRONT_URL || 'https://wangjia.co.id' }}
-          --dart-define=WHATSAPP_NUMBER=${{ vars.WHATSAPP_NUMBER || '6281200000000' }}
-          --dart-define=PRIVACY_URL=${{ vars.STOREFRONT_URL || 'https://wangjia.co.id' }}/id/privacy
-          --dart-define=APP_ENV=staging
+        env:
+          MEDUSA_URL: ${{ inputs.medusa_url || vars.MEDUSA_URL || 'https://api.wangjia.co.id' }}
+          MEDUSA_PUBLISHABLE_KEY: ${{ inputs.publishable_key || vars.MEDUSA_PUBLISHABLE_KEY || 'pk_test' }}
+          STOREFRONT_URL: ${{ inputs.storefront_url || vars.STOREFRONT_URL || 'https://wangjia.co.id' }}
+          WHATSAPP_NUMBER: ${{ vars.WHATSAPP_NUMBER || '6281200000000' }}
+        run: |
+          extra=()
+          # A plain-HTTP backend (developer machine on the LAN) needs cleartext allowed.
+          case "$MEDUSA_URL" in http://*) extra+=(--android-project-arg=allowCleartext=true) ;; esac
+          # Phones only (arm, arm64); the x86 slice is for emulators and doubles the wait.
+          flutter build apk --release --target-platform android-arm,android-arm64 \
+            --dart-define=MEDUSA_URL="$MEDUSA_URL" \
+            --dart-define=MEDUSA_PUBLISHABLE_KEY="$MEDUSA_PUBLISHABLE_KEY" \
+            --dart-define=STOREFRONT_URL="$STOREFRONT_URL" \
+            --dart-define=WHATSAPP_NUMBER="$WHATSAPP_NUMBER" \
+            --dart-define=PRIVACY_URL="$STOREFRONT_URL/id/privacy" \
+            --dart-define=APP_ENV=staging \
+            "${extra[@]}"
         working-directory: apps/mobile
       - uses: actions/upload-artifact@v4
         with:

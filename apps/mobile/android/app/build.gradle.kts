@@ -29,6 +29,10 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Plain HTTP (a backend on a developer machine in the same Wi-Fi) only for builds
+        // that ask for it: flutter build apk -P allowCleartext=true. Store builds stay HTTPS-only.
+        manifestPlaceholders["usesCleartextTraffic"] =
+            (project.findProperty("allowCleartext") ?: "false").toString()
     }
 
     buildTypes {

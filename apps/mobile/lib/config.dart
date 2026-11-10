@@ -49,3 +49,14 @@ class AppConfig {
     defaultValue: 'http://localhost:8000',
   );
 }
+
+/// A backend on a developer machine stores photos and invoice links as
+/// http://localhost:9000/...; a phone or emulator can't reach "localhost",
+/// so such URLs are re-based onto the backend this build talks to.
+String? reachableUrl(String? url, {String backend = AppConfig.backendUrl}) {
+  if (url == null || url.isEmpty) return url;
+  final u = Uri.tryParse(url);
+  if (u == null || !const {'localhost', '127.0.0.1', '::1'}.contains(u.host)) return url;
+  final b = Uri.parse(backend);
+  return u.replace(scheme: b.scheme, host: b.host, port: b.port).toString();
+}

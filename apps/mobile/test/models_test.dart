@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:wangjia_app/config.dart";
 import "package:wangjia_app/models.dart";
 
 void main() {
@@ -73,6 +74,38 @@ void main() {
       });
       expect(t.history.length, 2);
       expect(t.history.last.note, "Diterima");
+    });
+  });
+
+  group("reachableUrl", () {
+    const lan = "http://192.168.1.20:9000";
+
+    test("re-bases localhost URLs onto the backend the app talks to", () {
+      expect(reachableUrl("http://localhost:9000/static/products/a.jpg", backend: lan),
+          "http://192.168.1.20:9000/static/products/a.jpg");
+      expect(reachableUrl("http://127.0.0.1:9000/invoice?token=x", backend: "https://api.example.com"),
+          "https://api.example.com/invoice?token=x");
+    });
+
+    test("leaves public URLs and empty values alone", () {
+      expect(reachableUrl("https://cdn.example.com/a.jpg", backend: lan), "https://cdn.example.com/a.jpg");
+      expect(reachableUrl(null, backend: lan), isNull);
+      expect(reachableUrl("", backend: lan), "");
+    });
+
+    test("product photos go through it", () {
+      // Default build config talks to http://localhost:9000, so a photo stored
+      // under 127.0.0.1 comes out on that host.
+      final p = Product.fromJson({
+        "id": "prod_1",
+        "thumbnail": "http://127.0.0.1:9000/static/products/a.jpg",
+        "images": [
+          {"url": "http://127.0.0.1:9000/static/products/a.jpg"},
+          {"url": "https://cdn.example.com/b.jpg"},
+        ],
+      });
+      expect(p.thumbnail, "http://localhost:9000/static/products/a.jpg");
+      expect(p.images, ["http://localhost:9000/static/products/a.jpg", "https://cdn.example.com/b.jpg"]);
     });
   });
 }
