@@ -2,6 +2,7 @@ import { allowFields, errorHandler } from "@medusajs/framework/http";
 import { MedusaNextFunction, MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { defineMiddlewares } from "@medusajs/medusa";
 import { captureServerError } from "../utils/sentry";
+import { lowercaseEmail } from "./middlewares/lowercase-email";
 import { rejectDeletedCustomer } from "./middlewares/reject-deleted-customer";
 import { adminMiddlewares } from "./admin/middlewares";
 import { storeMiddlewares } from "./store/middlewares";
@@ -30,6 +31,15 @@ export default defineMiddlewares({
     { matcher: "/store/payment-installments/:id/proofs", method: ["POST"], middlewares: [uploadRateLimit] },
     { matcher: "/store/warranty/verify/*", method: ["GET"], middlewares: [verifyRateLimit] },
     { matcher: "/store/warranty/register", method: ["POST"], middlewares: [uploadRateLimit] },
+    // One spelling per customer email, whatever capitals were typed.
+    { matcher: "/auth/customer/emailpass", method: ["POST"], middlewares: [lowercaseEmail()] },
+    { matcher: "/auth/customer/emailpass/register", method: ["POST"], middlewares: [lowercaseEmail()] },
+    {
+      matcher: "/auth/customer/emailpass/reset-password",
+      method: ["POST"],
+      middlewares: [lowercaseEmail("identifier")],
+    },
+    { matcher: "/store/customers", method: ["POST"], middlewares: [lowercaseEmail()] },
     ...adminMiddlewares,
     ...storeMiddlewares,
     // After the route's own authenticate() so auth_context is populated.

@@ -48,6 +48,34 @@ medusaIntegrationTestRunner({
       );
     });
 
+    it("treats a customer email the same in any capitals", async () => {
+      const password = "kata-sandi-88";
+      const registerToken = (
+        await api.post("/auth/customer/emailpass/register", { email: " Budi@Tambak.ID ", password })
+      ).data.token;
+      const created = await api.post(
+        "/store/customers",
+        { email: "Budi@Tambak.ID", first_name: "Budi" },
+        { headers: { ...publicHeaders.headers, Authorization: `Bearer ${registerToken}` } }
+      );
+      expect(created.data.customer.email).toEqual("budi@tambak.id");
+
+      // sign-in in lower case and in capitals reaches the same customer
+      for (const email of ["budi@tambak.id", "BUDI@TAMBAK.ID"]) {
+        const token = (await api.post("/auth/customer/emailpass", { email, password })).data.token;
+        const me = await api.get("/store/customers/me", {
+          headers: { ...publicHeaders.headers, Authorization: `Bearer ${token}` },
+        });
+        expect(me.data.customer.id).toEqual(created.data.customer.id);
+      }
+
+      // and it cannot be signed up a second time in another spelling
+      const again = await api
+        .post("/auth/customer/emailpass/register", { email: "BUDI@tambak.id", password })
+        .catch((e) => e.response);
+      expect(again.status).toEqual(401);
+    });
+
     it("records a signed contract on the order from the DocuSeal webhook", async () => {
       const cart = await cartSeeder({
         api,

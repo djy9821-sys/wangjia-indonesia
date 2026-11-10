@@ -6,6 +6,29 @@ import '../l10n/strings.dart';
 import '../widgets/common.dart';
 import '../widgets/wangjia_logo.dart';
 
+// Same shape the backend validator accepts, so nothing passes here and
+// then fails there after the login was already created.
+final _emailShape = RegExp(r"^(?!\.)(?!.*\.\.)[A-Za-z0-9_'+\-.]*[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9-]*\.)+[A-Za-z]{2,}$");
+
+/// String key of the first problem with the form, or null when it can be
+/// sent. Fields are checked in the order they appear on screen.
+@visibleForTesting
+String? authFormError({
+  required bool register,
+  required String email,
+  required String password,
+  String firstName = '',
+  String phone = '',
+}) {
+  if (!register) return email.isEmpty || password.isEmpty ? 'err_fill_login' : null;
+  if (firstName.isEmpty) return 'err_name_required';
+  final digits = phone.replaceAll(RegExp(r'\D'), '');
+  if (digits.length < 8 || phone.length > 20) return 'err_phone_invalid';
+  if (!_emailShape.hasMatch(email)) return 'err_email_invalid';
+  if (password.length < 8) return 'err_password_short';
+  return null;
+}
+
 class LoginScreen extends StatefulWidget {
   final VoidCallback onLoggedIn;
   const LoginScreen({super.key, required this.onLoggedIn});
@@ -87,19 +110,35 @@ class _LoginScreenState extends State<LoginScreen> {
     if (ok != true || ctrl.text.trim().isEmpty) return;
     try {
       await MedusaClient.instance.requestPasswordReset(ctrl.text.trim());
-    } catch (_) {
-      // Always show the same message so emails cannot be enumerated.
+    } catch (e) {
+      // The server answers the same for known and unknown emails, so a failure
+      // here is the request itself: offline, timed out, too many tries.
+      if (mounted) showSnack(context, friendlyError(e));
+      return;
     }
+    // One message whether or not the email has an account.
     if (mounted) showSnack(context, S.t('reset_sent'));
   }
 
   Future<void> _submit() async {
+    final email = _email.text.trim();
+    final problem = authFormError(
+      register: _register,
+      email: email,
+      password: _password.text,
+      firstName: _first.text.trim(),
+      phone: _phone.text.trim(),
+    );
+    if (problem != null) {
+      showSnack(context, S.t(problem));
+      return;
+    }
     setState(() => _busy = true);
     try {
       final api = MedusaClient.instance;
       if (_register) {
         await api.register(
-          email: _email.text.trim(),
+          email: email,
           password: _password.text,
           firstName: _first.text.trim(),
           lastName: _last.text.trim(),
@@ -108,11 +147,19 @@ class _LoginScreenState extends State<LoginScreen> {
           phoneVerificationToken: _verifiedPhone == _phone.text.trim() ? _verificationToken : null,
         );
       } else {
-        await api.login(_email.text.trim(), _password.text);
+        await api.login(email, _password.text);
       }
       widget.onLoggedIn();
+    } on SignupIncomplete {
+      if (!mounted) return;
+      showSnack(context, S.t('err_signup_incomplete'));
+      setState(() => _register = true);
     } catch (e) {
-      if (mounted) showSnack(context, friendlyError(e));
+      if (!mounted) return;
+      // On this screen a 401 is about what was typed, not an expired session.
+      final rejected = e is MedusaException && e.status == 401;
+      showSnack(context, rejected ? S.t(_register ? 'err_email_taken' : 'err_login') : friendlyError(e));
+      if (rejected && _register) setState(() => _register = false);
     } finally {
       if (mounted) setState(() => _busy = false);
     }

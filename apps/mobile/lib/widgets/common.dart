@@ -91,8 +91,10 @@ Color fulfillmentColor(String? status) => switch (status) {
       _ => const Color(0xFF6B7280),
     };
 
-void showSnack(BuildContext context, String msg) =>
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+/// A new message replaces the one on screen instead of queueing behind it.
+void showSnack(BuildContext context, String msg) => ScaffoldMessenger.of(context)
+  ..clearSnackBars()
+  ..showSnackBar(SnackBar(content: Text(msg)));
 
 /// Friendly empty list: icon, one line, optional action (e.g. "Lihat produk").
 class EmptyState extends StatelessWidget {

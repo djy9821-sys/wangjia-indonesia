@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,12 +18,21 @@ class MedusaException implements Exception {
   String toString() => message;
 }
 
+/// The login exists but its customer profile was never created: a sign-up
+/// that stopped half way. Sending the sign-up form again finishes it.
+class SignupIncomplete implements Exception {}
+
 /// HTTP client for the Medusa store API plus this project's custom routes.
 class MedusaClient {
   MedusaClient._();
   static final MedusaClient instance = MedusaClient._();
 
-  final _http = http.Client();
+  http.Client _http = http.Client();
+
+  /// Lets tests answer requests without a network.
+  @visibleForTesting
+  set httpClient(http.Client client) => _http = client;
+
   // iOS Keychain / Android Keystore-backed storage for the session token.
   static const _secure = FlutterSecureStorage(
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device),
@@ -102,9 +112,22 @@ class MedusaClient {
 
   // ---------- auth ----------
 
+  /// Customer id inside a session token; empty while the login has no
+  /// customer profile.
+  static String _customerIdOf(String token) {
+    try {
+      final payload = jsonDecode(utf8.decode(base64Url.decode(base64Url.normalize(token.split('.')[1]))));
+      return (payload['actor_id'] ?? '').toString();
+    } catch (_) {
+      return '';
+    }
+  }
+
   Future<void> login(String email, String password) async {
     final res = await post('/auth/customer/emailpass', {'email': email, 'password': password});
-    await _saveToken(res['token'] as String);
+    final token = res['token'] as String;
+    if (_customerIdOf(token).isEmpty) throw SignupIncomplete();
+    await _saveToken(token);
   }
 
   Future<void> register({
@@ -116,29 +139,43 @@ class MedusaClient {
     String? company,
     String? phoneVerificationToken,
   }) async {
-    final reg = await post('/auth/customer/emailpass/register', {'email': email, 'password': password});
-    _token = reg['token'] as String;
-    final res = await _http.post(
-      _uri('/store/customers'),
-      headers: {
-        ..._headers,
-        if (phoneVerificationToken != null) 'x-phone-verification': phoneVerificationToken,
-      },
-      body: jsonEncode({
-        'email': email,
-        'first_name': firstName,
-        'last_name': lastName,
-        'phone': phone,
-        if (company != null && company.isNotEmpty) 'company_name': company,
-      }),
-    );
+    final credentials = {'email': email, 'password': password};
+    String token;
     try {
+      token = (await post('/auth/customer/emailpass/register', credentials))['token'] as String;
+    } on MedusaException catch (e) {
+      if (e.status != 401) rethrow;
+      // The email already has a login. Same password and no customer profile
+      // yet means an earlier sign-up stopped half way: finish it. A wrong
+      // password or an existing profile leaves the 401 to the caller.
+      token = (await post('/auth/customer/emailpass', credentials))['token'] as String;
+      if (_customerIdOf(token).isNotEmpty) rethrow;
+    }
+    _token = token;
+    try {
+      final res = await _http
+          .post(
+            _uri('/store/customers'),
+            headers: {
+              ..._headers,
+              if (phoneVerificationToken != null) 'x-phone-verification': phoneVerificationToken,
+            },
+            body: jsonEncode({
+              'email': email,
+              'first_name': firstName,
+              'last_name': lastName,
+              'phone': phone,
+              if (company != null && company.isNotEmpty) 'company_name': company,
+            }),
+          )
+          .timeout(_timeout);
       _decode(res);
-    } catch (e) {
+      await login(email, password);
+    } catch (_) {
+      // Wherever it stopped, a login without a customer is not a session.
       _token = null;
       rethrow;
     }
-    await login(email, password);
   }
 
   Future<Map<String, dynamic>?> me() async {
@@ -154,9 +191,19 @@ class MedusaClient {
 
   Future<void> logout() => _saveToken(null);
 
-  /// Sends the reset email (handled by the backend subscriber).
-  Future<void> requestPasswordReset(String email) =>
-      post('/auth/customer/emailpass/reset-password', {'identifier': email});
+  /// Sends the reset email (handled by the backend subscriber). The answer is
+  /// the plain word "Created", the same for known and unknown addresses, so
+  /// only the status is read.
+  Future<void> requestPasswordReset(String email) async {
+    final res = await _http
+        .post(
+          _uri('/auth/customer/emailpass/reset-password'),
+          headers: _headers,
+          body: jsonEncode({'identifier': email}),
+        )
+        .timeout(_timeout);
+    if (res.statusCode >= 400) throw MedusaException(res.statusCode, 'HTTP ${res.statusCode}');
+  }
 
   // ---------- phone verification (WhatsApp OTP) ----------
 
