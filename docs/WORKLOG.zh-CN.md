@@ -70,6 +70,16 @@
 - UI 第三轮：订单详情改为白卡分块（订单头 + 商品行带缩略图/单价×数量 + 橙红合计 + 发票按钮、付款计划带进度条与橙红金额、物流、机器序列号），订单/报价 Tab 指示条改橙红；结账页小计橙红。商城网页同步强调色：列表价、商品页价格、购物车合计和所有主按钮改橙红（顺手删掉按钮组件里遗留的 console.log）。
 - 修三个 UI bug：① 商城未登录访问 /account/orders 等账户子页返回 404（并行路由的 @login/default.tsx 原来直接 notFound），现在统一显示登录页；② 单规格商品的占位规格名「Standar」不再显示（商城 `variantLabel()` 用于购物车条目/行项目选项/机器列表，App `variantLabel()` 用于购物车、结账、订单详情、报价详情、拼团弹窗）；③ 轴和机架不再用整页目录截图当商品图，从目录扫描里裁出对应局部做成白底方图（`as-shaft.jpg`、`rangka.jpg`），目录整页降为第二张图。
 
+## 2026-11-10
+- `91c5751` 安卓试用包（米杰问“能不能装到我的安卓手机”）。本机没有 Android SDK，APK 只能由 GitHub Actions 打，所以给 CI 的手动运行（Run workflow）加了三个输入 `medusa_url` / `publishable_key` / `storefront_url`，可以打出连接任意后端的包。后端地址是 `http://` 时构建才带 `allowCleartext=true` 放开明文流量（Manifest 占位符，默认关，正式的 `https://` 包不受影响）。数据库里的图片地址是 `http://localhost:9000/...`，手机上打不开，App 新增 `AppConfig.reachableUrl` 把这类地址换成它所连后端的地址（带单元测试）。
+- 本地数据库里还有 77 处图片地址指着上次给 iPhone 试装时的旧局域网 IP（192.168.3.207），已全部改回 `http://localhost:9000`。以后电脑换 IP 只需要重新打包，不用再改库。
+- 打出的包（连 `http://192.168.1.253:9000`，即这台电脑当天的局域网地址）做了静态检查：包名 `id.co.wangjia.wangjia_app`、版本 0.1.0 (1)、minSdk 24、arm64-v8a + armeabi-v7a、明文流量已开、后端地址和可发布密钥已写进包里、占位值不在包里、v2/v3 签名有效。
+- 模拟器冒烟（GitHub Actions 上的 Android 14 x86_64 模拟器，用临时分支跑，远端分支验完已删，脚本留在本地分支 `android-smoke` 备用；连的是只回放固定数据的替身后端）：第一轮只验证到能装、能启动、登录页正常、明文 HTTP 带着密钥到了后端；补上登录步骤后第二轮六项全过：登录、带令牌取到顾客资料、首页请求商品、商品图加载（数据里存的是 `http://localhost:9000/...`，图能出来说明地址换算生效）、强制停止后重开仍保持登录、全程没有崩溃。截图逐张看过：首页轮播和商品网格有图，点进商品页正常，重开后直接到首页。没配置 Firebase 时推送自动关闭，不影响使用。局限：x86 模拟器加替身后端，不等于真机加真实后端。
+- 真实后端从局域网地址验证（在电脑自己上发的请求）：健康检查、区域、版本接口、示例顾客登录、取顾客资料、订单列表都正常。又按 App 的注册顺序走了一遍（注册身份 → 建顾客资料且不带手机验证码 → 登录 → 取资料 → 注销账号清理），全部成功，说明在手机上点 Daftar 注册不需要验证码。
+- 没做到的：① 手机扫码下载页需要在电脑上开一个局域网可见的文件服务，自动模式的安全检查不允许我开，留给米杰自己点一下运行（页面和二维码已生成在 `apps/mobile/build/test-apk/`，不进 git）；② 还没在真手机上跑过；③ 手机到电脑的连通性从这台电脑上测不了（默认路由走 VPN 隧道），下载页打开时会自己检查并显示结果。
+- 顺带发现，这轮没改，已记进路线图 1.10 上线前处理：15 件商品的印尼语描述末尾都带一句中文（种子数据 `initial-data-seed.ts`），商城、App 和搜索引擎用的 JSON-LD 里印尼顾客都能看到。
+- 说明文档：README「测试包」补了装到自己手机的四步和限制；`apps/mobile/README.md` 加 “Android test build for a real phone” 一节。
+
 ## 本机验证手段
 - 后端：`pnpm test:integration:http`（30 个用例）、tsc、medusa lint；curl 走接口；浏览器查后台页面。
 - 商城：tsc、lint；浏览器查页面；sitemap 检查。
@@ -79,7 +89,7 @@
 - 真实凭证：Midtrans、WhatsApp Cloud API、Resend、Firebase（iOS/Android 配置文件 + 服务账号）、R2/S3、Redis、Biteship、GlitchTip DSN。
 - 官方 WANGJIA logo 文件；确认公司全名、NPWP、收款账户（只放 `.env`）。
 - Apple Developer / Google Play 账号，域名与 VPS。
-- Android 真机/模拟器测试（本机无 Android SDK，只能靠 CI 产物）。
+- Android 真机测试（模拟器冒烟已在 CI 上跑通一轮，真手机上还没人工走过；本机无 Android SDK，只能靠 CI 产物）。
 - 印尼律师过一遍隐私政策与条款文案。
 - App 真机验证：相机扫码、FCM 推送、Midtrans 沙盒支付、Universal/App Links（安卓用 CI 产出的 APK，iOS 需开发者账号签名）。
 - 端到端自动化：用 Maestro 把“登录 → 下单 → 付款计划 → 扫码登记”写成脚本放进 CI。

@@ -197,6 +197,15 @@ App 填地址时可以在地图（OpenStreetMap，免密钥）上把图钉拖到
 
 每次推送到 `main`，GitHub Actions 会多跑一个「Android APK (test build)」任务，在该次运行的 Artifacts 里可以下载 `app-release.apk`（调试签名，可直接安装到安卓手机给 李总 的团队试用）。接口地址等参数来自仓库的 Actions Variables：`MEDUSA_URL`、`MEDUSA_PUBLISHABLE_KEY`、`STOREFRONT_URL`、`WHATSAPP_NUMBER`（没设就用默认值）。
 
+**服务器还没上线时，装到自己的安卓手机、连开发电脑上的后端：**
+
+1. 电脑和手机连同一个 Wi-Fi，查电脑的局域网地址：`ipconfig getifaddr en0`。
+2. GitHub → Actions → CI → Run workflow，填 `medusa_url`（`http://<电脑地址>:9000`）、`publishable_key`（`apps/storefront/.env.local` 里那个）、`storefront_url`（`http://<电脑地址>:8000`）。命令行等价写法：`gh workflow run ci.yml -f medusa_url=… -f publishable_key=… -f storefront_url=…`。十几分钟后在该次运行的 Artifacts 下载 APK。
+3. 把 APK 传到手机上安装（数据线、网盘，或在电脑上 `python3 -m http.server 8899 --directory <APK 所在文件夹>` 后用手机浏览器打开 `http://<电脑地址>:8899/`）。手机要允许「安装未知应用」；华为/荣耀先关「纯净模式」；微信里打不开安装包，要用浏览器；HarmonyOS 5 及以上装不了 APK。
+4. App 第一屏是登录页：点 Daftar 注册一个账号（本地默认 `OTP_REQUIRED` 关闭，不需要验证码），或用上面的顾客示例账号。
+
+要知道的限制：这个包只在电脑开着、手机在同一个 Wi-Fi 时能用，电脑的局域网地址变了要重新打包；每次打包的调试签名不同，装新包前先卸载旧包；后端地址是 `http://` 时构建才允许明文流量，`https://` 的包不允许。数据库里的图片地址存的是 `http://localhost:9000/...`，App 会自动换成它所连后端的地址；用手机浏览器直接开本地的网页商城则看不到图，这只影响本地开发。
+
 ## 获客与合同（可选服务）
 
 - **商城博客**（`apps/storefront/src/lib/blog/index.tsx`）：印尼语养殖知识文章（选型、每公顷台数、保养、验真），自动进 sitemap，文末带产品和验真入口。加文章只需在数组里追加一项，不需要 CMS。

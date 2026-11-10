@@ -25,6 +25,19 @@ Other `--dart-define`s: `WHATSAPP_NUMBER=62812…`, `MIDTRANS_FINISH_URL=…`, `
 project; empty = reporting off), `APP_ENV=production`, `APP_VERSION=1.0.0`, `PRIVACY_URL=https://wangjia.co.id/id/privacy` (account screen link, required by the stores), `DEV_PROXY=127.0.0.1:7890` (dev only:
 route map tiles / geocoding through a local proxy, since Dart ignores the system proxy).
 
+## Android test build for a real phone
+
+No Android SDK is needed locally: CI builds the APK. A push to `main` builds one against the repo's Actions
+variables. A manual run (Actions > CI > Run workflow, or
+`gh workflow run ci.yml -f medusa_url=http://<LAN IP>:9000 -f publishable_key=pk_xxx -f storefront_url=http://<LAN IP>:8000`)
+builds one against the backend you name, for example a dev machine on the same Wi-Fi as the phone.
+
+- An `http://` backend makes the build pass `--android-project-arg=allowCleartext=true`; otherwise
+  `usesCleartextTraffic` stays off.
+- Photo URLs stored as `http://localhost:9000/...` are re-based onto `MEDUSA_URL` by `AppConfig.reachableUrl`.
+- Every CI build is signed with a fresh debug key, so uninstall the previous build before installing a newer one.
+- The app opens on the sign-in screen; register a customer or use the example one from `infra/smoke-order.sh`.
+
 ## Release (Fastlane)
 
 ```bash
