@@ -19,6 +19,7 @@ import 'package:wangjia_app/screens/product_detail_screen.dart';
 import 'package:wangjia_app/screens/warranty_screen.dart';
 
 const _login = '/auth/customer/emailpass';
+const _renew = '/auth/token/refresh';
 const _me = '/store/customers/me';
 const _products = '/store/products';
 const _orders = '/store/orders';
@@ -31,9 +32,16 @@ const _secret = 'tambak-udang-2026';
 const _budi = {'id': 'cus_1', 'first_name': 'Budi', 'last_name': 'Santoso', 'email': _email};
 
 /// A session token shaped like the backend's: the payload carries the
-/// customer id.
-String _token(String customerId) =>
-    'h.${base64Url.encode(utf8.encode(jsonEncode({'actor_id': customerId}))).replaceAll('=', '')}.s';
+/// customer id and, when [age] is given, when the login was issued and when
+/// it ends.
+String _token(String customerId, {Duration? age, Duration life = const Duration(days: 60)}) {
+  final issued = age == null ? null : DateTime.now().subtract(age).millisecondsSinceEpoch ~/ 1000;
+  final payload = {
+    'actor_id': customerId,
+    if (issued != null) ...{'iat': issued, 'exp': issued + life.inSeconds},
+  };
+  return 'h.${base64Url.encode(utf8.encode(jsonEncode(payload))).replaceAll('=', '')}.s';
+}
 
 http.Response _ok(Map<String, dynamic> body) => http.Response(jsonEncode(body), 200);
 http.Response _refused(int status) => http.Response(jsonEncode({'message': 'Refused'}), status);
@@ -55,6 +63,11 @@ void main() {
   // The shop's catalogue, and a way to keep its answer waiting (slow network).
   late Map<String, dynamic> catalogue;
   Completer<void>? catalogueHeld;
+  // The token a sign-in hands out, and what a request for a fresh one gets
+  // (with a way to keep that answer waiting).
+  late String loginToken;
+  late http.Response renewal;
+  Completer<void>? renewalHeld;
 
   int requests(String path) => calls.where((c) => c.url.path == path).length;
 
@@ -69,12 +82,17 @@ void main() {
     sessionCheckHeld = null;
     catalogue = {'products': []};
     catalogueHeld = null;
+    loginToken = _token('cus_1');
+    renewal = _ok({'token': _token('cus_1', age: Duration.zero)});
+    renewalHeld = null;
     calls = [];
     // A shop with an empty catalogue and one customer.
     http.Response answer(String path) {
       switch (path) {
         case _login:
-          return _ok({'token': _token('cus_1')});
+          return _ok({'token': loginToken});
+        case _renew:
+          return renewal;
         case _me:
           return sessionAccepted ? _ok({'customer': _budi}) : _refused(401);
         case _orders:
@@ -119,7 +137,7 @@ void main() {
       calls.add(req);
       if (offline) throw http.ClientException('No route to host');
       final path = req.url.path;
-      final held = path == _me ? sessionCheckHeld : (path == _products ? catalogueHeld : null);
+      final held = {_me: sessionCheckHeld, _products: catalogueHeld, _renew: renewalHeld}[path];
       if (held != null) await held.future;
       final res = answer(req.url.path);
       // A real client hands the request back with the answer, and the app
@@ -280,6 +298,17 @@ void main() {
     testWidgets('opens the app as that customer', (tester) async {
       await savedLogin(tester);
       await openApp(tester);
+      expect(requests(_me), 1);
+      await tab(tester, 'account');
+      expect(find.text('Budi Santoso'), findsOneWidget);
+    });
+
+    testWidgets('that is a few days old is renewed while the app opens, and the customer stays', (tester) async {
+      loginToken = _token('cus_1', age: const Duration(days: 3));
+      await savedLogin(tester);
+      await openApp(tester);
+      expect(requests(_renew), 1);
+      // Only the token changed: no second check, no login page.
       expect(requests(_me), 1);
       await tab(tester, 'account');
       expect(find.text('Budi Santoso'), findsOneWidget);
@@ -534,6 +563,112 @@ void main() {
       await expectLater(api.orders(), throwsA(isA<MedusaException>()));
       await pumpEventQueue();
       expect(changes, 0);
+    });
+  });
+
+  group('MedusaClient.renewSession', () {
+    /// Signs in with a login that was issued [age] ago.
+    Future<String> signedIn({required Duration age, Duration life = const Duration(days: 60)}) async {
+      loginToken = _token('cus_1', age: age, life: life);
+      await api.login(_email, _secret);
+      return loginToken;
+    }
+
+    /// The login a request goes out with once the app has been started again.
+    Future<String?> afterRestart() async {
+      await api.init();
+      await api.me();
+      return calls.last.headers['Authorization'];
+    }
+
+    test('trades a login that is a day old for a fresh one, without a word', () async {
+      final old = await signedIn(age: const Duration(hours: 25));
+      final fresh = _token('cus_1', age: Duration.zero);
+      renewal = _ok({'token': fresh});
+      var changes = 0;
+      api.onSessionChanged = () async => changes++;
+
+      await api.renewSession();
+      expect(calls.singleWhere((c) => c.url.path == _renew).headers['Authorization'], 'Bearer $old');
+      // The app is not told: the customer is the same.
+      expect(changes, 0);
+      // The fresh login is the one in use, now and after the next start.
+      await api.me();
+      expect(calls.last.headers['Authorization'], 'Bearer $fresh');
+      expect(await afterRestart(), 'Bearer $fresh');
+    });
+
+    test('waits until a login is a day old, or half way through a short one', () async {
+      // Nothing to renew for a guest, nor for a login that does not say when it was issued.
+      await api.renewSession();
+      await api.login(_email, _secret);
+      await api.renewSession();
+      await signedIn(age: const Duration(hours: 23));
+      await api.renewSession();
+      await signedIn(age: const Duration(hours: 5), life: const Duration(hours: 12));
+      await api.renewSession();
+      expect(requests(_renew), 0);
+
+      await signedIn(age: const Duration(hours: 7), life: const Duration(hours: 12));
+      await api.renewSession();
+      expect(requests(_renew), 1);
+    });
+
+    test('keeps the login when the renewal is refused, empty or lost', () async {
+      final old = await signedIn(age: const Duration(days: 40));
+      renewal = _refused(401);
+      await api.renewSession();
+      renewal = _ok({});
+      await api.renewSession();
+      offline = true;
+      await api.renewSession();
+      offline = false;
+
+      expect(requests(_renew), 3);
+      expect(api.isLoggedIn, isTrue);
+      expect(await afterRestart(), 'Bearer $old');
+    });
+
+    test('does not take a login for someone else, or for nobody', () async {
+      final old = await signedIn(age: const Duration(days: 40));
+      renewal = _ok({'token': _token('cus_2', age: Duration.zero)});
+      await api.renewSession();
+      renewal = _ok({'token': _token('', age: Duration.zero)});
+      await api.renewSession();
+      renewal = _ok({'token': 'not a token'});
+      await api.renewSession();
+
+      expect(requests(_renew), 3);
+      expect(await afterRestart(), 'Bearer $old');
+    });
+
+    test('is dropped when the customer signed out while it was on its way', () async {
+      await signedIn(age: const Duration(days: 40));
+      final held = renewalHeld = Completer<void>();
+      final renewing = api.renewSession();
+      await pumpEventQueue();
+      await api.logout();
+      held.complete();
+      await renewing;
+
+      expect(api.isLoggedIn, isFalse);
+      await api.init();
+      expect(api.isLoggedIn, isFalse);
+    });
+
+    test('is dropped when someone else signed in while it was on its way', () async {
+      await signedIn(age: const Duration(days: 40));
+      final held = renewalHeld = Completer<void>();
+      final renewing = api.renewSession();
+      await pumpEventQueue();
+      loginToken = _token('cus_2');
+      await api.login(_email, _secret);
+      held.complete();
+      await renewing;
+
+      expect(api.customerId, 'cus_2');
+      await api.init();
+      expect(api.customerId, 'cus_2');
     });
   });
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' show min;
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -121,16 +122,19 @@ class MedusaClient {
 
   // ---------- auth ----------
 
-  /// Customer id inside a session token; empty while the login has no
-  /// customer profile.
-  static String _customerIdOf(String token) {
+  /// What a session token says about itself; empty when it cannot be read.
+  static Map<String, dynamic> _claims(String token) {
     try {
       final payload = jsonDecode(utf8.decode(base64Url.decode(base64Url.normalize(token.split('.')[1]))));
-      return (payload['actor_id'] ?? '').toString();
+      return payload as Map<String, dynamic>;
     } catch (_) {
-      return '';
+      return const {};
     }
   }
+
+  /// Customer id inside a session token; empty while the login has no
+  /// customer profile.
+  static String _customerIdOf(String token) => (_claims(token)['actor_id'] ?? '').toString();
 
   Future<void> login(String email, String password) async {
     final res = await post('/auth/customer/emailpass', {'email': email, 'password': password});
@@ -196,6 +200,27 @@ class MedusaClient {
       if (e.status == 401) await _saveToken(null);
       return null;
     }
+  }
+
+  /// Trades the saved login for a fresh one, so a customer who keeps coming
+  /// back is never sent to the login page. Quiet either way: a refusal or a
+  /// lost connection leaves the login as it is.
+  Future<void> renewSession() async {
+    final token = _token;
+    if (token == null) return;
+    final claims = _claims(token);
+    final issued = claims['iat'], expires = claims['exp'];
+    if (issued is! int || expires is! int) return;
+    // Once a day is plenty; a login that lasts under two days waits for half its life.
+    final age = DateTime.now().millisecondsSinceEpoch ~/ 1000 - issued;
+    if (age < min(Duration.secondsPerDay, (expires - issued) ~/ 2)) return;
+    try {
+      final fresh = (await post('/auth/token/refresh'))['token'];
+      // Only for the same customer, and only while the login that asked is still the one in use.
+      if (fresh is! String || _token != token || _customerIdOf(fresh) != _customerIdOf(token)) return;
+      _token = fresh;
+      await _secure.write(key: _tokenKey, value: fresh);
+    } catch (_) {}
   }
 
   Future<void> logout() => _saveToken(null);

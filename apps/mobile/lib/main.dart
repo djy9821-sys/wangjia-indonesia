@@ -165,7 +165,10 @@ class _AuthGateState extends State<AuthGate> {
       _customer = customer;
       _loading = false;
     });
-    if (customer != null) PushService.instance.registerForCurrentUser();
+    if (customer != null) {
+      PushService.instance.registerForCurrentUser();
+      MedusaClient.instance.renewSession();
+    }
     setMonitoredUser(customer?['id'] as String?);
     return error;
   }
