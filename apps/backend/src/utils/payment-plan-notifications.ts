@@ -89,7 +89,7 @@ async function staffEmails(container: MedusaContainer, role: "finance" | "wareho
 
 async function notify(
   container: MedusaContainer,
-  list: { to: string; channel: "whatsapp" | "email"; template: string; data: Record<string, unknown>; receiver_id?: string | null }[]
+  list: { to: string; channel: "whatsapp" | "email"; template: string; data: Record<string, unknown>; receiver_id?: string | null; resource_id?: string | null }[]
 ) {
   if (!list.length) return;
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
@@ -160,6 +160,11 @@ async function sendCustomer(container: MedusaContainer, ctx: PlanContext, templa
 /*
   Generic customer message outside the payment flow (e.g. warranty
   registration): WhatsApp + email + push, same fallbacks as above.
+
+  `once` names a message that may go out one time only (a reminder from a daily
+  job). The name is kept with the notifications, in the database, so a restart
+  or a server without Redis does not send it a second time. Answers whether the
+  message went out now.
 */
 export async function sendCustomerMessage(
   container: MedusaContainer,
@@ -167,14 +172,23 @@ export async function sendCustomerMessage(
   template: string,
   text: string,
   subject: string,
-  extra: Record<string, unknown> = {}
+  extra: Record<string, unknown> = {},
+  once?: string
 ) {
   const list: Parameters<typeof notify>[1] = [];
   const receiver_id = target.customer_id ?? null;
-  if (target.phone) list.push({ to: target.phone, channel: "whatsapp", template, data: { text, subject, ...extra }, receiver_id });
-  if (target.email) list.push({ to: target.email, channel: "email", template, data: { subject, text, ...extra }, receiver_id });
+  if (once) {
+    const [before] = await container
+      .resolve(Modules.NOTIFICATION)
+      .listNotifications({ resource_id: once, ...(receiver_id ? { receiver_id } : {}) }, { take: 1 });
+    if (before) return false;
+  }
+  const resource_id = once ?? null;
+  if (target.phone) list.push({ to: target.phone, channel: "whatsapp", template, data: { text, subject, ...extra }, receiver_id, resource_id });
+  if (target.email) list.push({ to: target.email, channel: "email", template, data: { subject, text, ...extra }, receiver_id, resource_id });
   await notify(container, list);
   await pushCustomer(container, target.customer_id, template, subject, text.split("\n")[0].slice(0, 180), extra);
+  return true;
 }
 
 async function sendStaff(container: MedusaContainer, role: "finance" | "warehouse", template: string, subject: string, text: string) {

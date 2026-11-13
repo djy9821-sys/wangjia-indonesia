@@ -1,5 +1,5 @@
 import { MedusaContainer } from "@medusajs/framework/types";
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { WARRANTY_MODULE } from "../modules/warranty";
 import WarrantyModuleService from "../modules/warranty/service";
 import { sendCustomerMessage } from "../utils/payment-plan-notifications";
@@ -7,12 +7,11 @@ import { sendCustomerMessage } from "../utils/payment-plan-notifications";
 /*
   Daily: tell owners whose warranty ends within WARRANTY_REMINDER_DAYS days
   (default 30) so they book a service check and order spare parts in time.
-  One message per unit per expiry date (cache key lives 60 days; with Redis in
-  production it survives restarts).
+  One message per unit per expiry date: the notification history keeps the
+  record, so it holds across restarts and on a server without Redis.
 */
 export default async function warrantyExpiryReminders(container: MedusaContainer) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
-  const cache = container.resolve(Modules.CACHE);
   const query = container.resolve(ContainerRegistrationKeys.QUERY);
   const service = container.resolve<WarrantyModuleService>(WARRANTY_MODULE);
 
@@ -30,30 +29,30 @@ export default async function warrantyExpiryReminders(container: MedusaContainer
     if (!u.customer_id || !u.warranty_expires_at) continue;
     const expiry = new Date(u.warranty_expires_at);
     const key = `warranty-reminder:${u.id}:${expiry.toISOString().slice(0, 10)}`;
-    if (await cache.get(key)) continue;
 
     const {
       data: [customer],
     } = await query.graph({
       entity: "customer",
-      fields: ["id", "first_name", "phone", "email"],
+      fields: ["id", "first_name", "phone", "email", "metadata"],
       filters: { id: u.customer_id },
     });
-    if (!customer) continue;
+    // a deleted account is left alone
+    if (!customer || customer.metadata?.deleted_at) continue;
 
     const until = expiry.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
     const product = [u.product_title, u.variant_title].filter(Boolean).join(" ");
     try {
-      await sendCustomerMessage(
+      const told = await sendCustomerMessage(
         container,
         { customer_id: customer.id, phone: customer.phone, email: customer.email },
         "warranty-expiring",
         `Halo ${customer.first_name ?? "Pelanggan"}, garansi ${product} (No. seri ${u.serial}) akan berakhir pada ${until}. Sebelum habis, jadwalkan pengecekan mesin dan pastikan suku cadang (impeller, gearbox, pelampung) tersedia. Balas pesan ini atau buka aplikasi WANGJIA untuk minta servis.`,
         `Garansi ${u.serial} berakhir ${until}`,
-        { warranty_unit_id: u.id }
+        { warranty_unit_id: u.id },
+        key
       );
-      await cache.set(key, true, 60 * 86400);
-      sent++;
+      if (told) sent++;
     } catch (e) {
       logger.error(`[warranty-reminder] ${u.serial}: ${(e as Error).message}`);
     }

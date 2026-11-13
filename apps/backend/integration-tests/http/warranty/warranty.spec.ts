@@ -1,6 +1,8 @@
 import { Modules } from "@medusajs/framework/utils";
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils";
 import { deletedCustomerCacheKey } from "../../../src/api/middlewares/reject-deleted-customer";
+import warrantyExpiryReminders from "../../../src/jobs/warranty-expiry-reminders";
+import { WARRANTY_MODULE } from "../../../src/modules/warranty";
 import {
   adminHeaders,
   createAdminUser,
@@ -311,6 +313,46 @@ medusaIntegrationTestRunner({
         const list = await api.get("/admin/customers?q=deleted%2B", adminHeaders);
         expect(list.data.customers.length).toBeGreaterThanOrEqual(1);
         expect(list.data.customers[0]).toEqual(expect.objectContaining({ first_name: "Akun", phone: null }));
+      });
+
+      it("reminds an owner once before the warranty ends, and leaves a deleted account alone", async () => {
+        const container = getContainer();
+        const gen = await api.post(
+          "/admin/warranty/units",
+          { product_id: product.id, quantity: 2, warranty_months: 12 },
+          adminHeaders
+        );
+        const [a, b] = gen.data.units;
+        for (const unit of [a, b]) {
+          await api.post("/store/warranty/register", { code: unit.code }, storeHeaders);
+        }
+        const endsIn = (id: string, days: number) =>
+          (container.resolve(WARRANTY_MODULE) as any).updateWarrantyUnits({
+            id,
+            warranty_expires_at: new Date(Date.now() + days * 86400000),
+          });
+        const reminders = async () =>
+          (await container.resolve(Modules.NOTIFICATION).listNotifications({ template: "warranty-expiring" }, { take: 50 }))
+            .length;
+
+        // nothing while the warranty still has a year to run
+        await warrantyExpiryReminders(container);
+        expect(await reminders()).toEqual(0);
+
+        await endsIn(a.id, 10);
+        await warrantyExpiryReminders(container);
+        const told = await reminders();
+        expect(told).toBeGreaterThan(0);
+
+        // the next night: nothing more. The record is in the database, not in a cache that forgets
+        await warrantyExpiryReminders(container);
+        expect(await reminders()).toEqual(told);
+
+        // the second unit comes due after the account is deleted: no message
+        await api.delete("/store/account", storeHeaders);
+        await endsIn(b.id, 11);
+        await warrantyExpiryReminders(container);
+        expect(await reminders()).toEqual(told);
       });
     });
   },
