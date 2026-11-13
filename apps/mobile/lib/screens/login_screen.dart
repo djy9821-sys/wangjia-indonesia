@@ -207,7 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          const WangjiaLogo(size: 64, withText: false),
+                          const WangjiaLogo(size: 64),
                         ],
                       ),
                     ),

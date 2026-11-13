@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../api/medusa_client.dart';
@@ -94,8 +93,8 @@ class _OrderCard extends StatelessWidget {
                   height: 64,
                   color: Colors.white,
                   child: thumb != null
-                      ? CachedNetworkImage(imageUrl: thumb, fit: BoxFit.contain)
-                      : const Center(child: WangjiaLogo(size: 36, withText: false)),
+                      ? productThumb(context, thumb, width: 64)
+                      : const Center(child: WangjiaLogo(size: 36)),
                 ),
               ),
               const SizedBox(width: 12),

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -96,6 +97,15 @@ Color fulfillmentColor(String? status) => switch (status) {
 void showSnack(BuildContext context, String msg) => ScaffoldMessenger.of(context)
   ..clearSnackBars()
   ..showSnackBar(SnackBar(content: Text(msg)));
+
+/// A product picture for a list, decoded for the box it is shown in and not at
+/// the size it is stored at: 1200 px takes 5.8 MB of memory, a 76-point box on
+/// a 3x screen 0.2 MB. [width] is the box, in logical pixels.
+Widget productThumb(BuildContext context, String url, {required double width}) => CachedNetworkImage(
+      imageUrl: url,
+      fit: BoxFit.contain,
+      memCacheWidth: (width * MediaQuery.devicePixelRatioOf(context)).ceil(),
+    );
 
 /// Friendly empty list: icon, one line, optional action (e.g. "Lihat produk").
 class EmptyState extends StatelessWidget {

@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -151,7 +150,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> with WidgetsBindi
                                       border: Border.all(color: Brand.line),
                                     ),
                                     child: i.thumbnail != null && i.thumbnail!.isNotEmpty
-                                        ? CachedNetworkImage(imageUrl: i.thumbnail!, fit: BoxFit.contain)
+                                        ? productThumb(context, i.thumbnail!, width: 52)
                                         : const Icon(Icons.water, color: Brand.blue),
                                   ),
                                   const SizedBox(width: 10),

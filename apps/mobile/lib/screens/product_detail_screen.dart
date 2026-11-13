@@ -358,7 +358,7 @@ class _GalleryState extends State<_Gallery> {
         aspectRatio: 1,
         child: Container(
           color: const Color(0xFFE3EEF5),
-          child: const Center(child: WangjiaLogo(size: 96, withText: false)),
+          child: const Center(child: WangjiaLogo(size: 96)),
         ),
       );
     }

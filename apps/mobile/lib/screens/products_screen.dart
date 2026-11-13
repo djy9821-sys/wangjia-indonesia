@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../api/medusa_client.dart';
@@ -209,7 +208,7 @@ class _Header extends StatelessWidget {
         padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 8, 16, 14),
         child: Row(
           children: [
-            const WangjiaLogo(size: 40, withText: false),
+            const WangjiaLogo(size: 40),
             const SizedBox(width: 10),
             Expanded(
               child: Container(
@@ -305,7 +304,7 @@ class _BannerState extends State<_Banner> {
                               height: 118,
                               color: Colors.white,
                               padding: const EdgeInsets.all(4),
-                              child: CachedNetworkImage(imageUrl: p.thumbnail!, fit: BoxFit.contain),
+                              child: productThumb(context, p.thumbnail!, width: 110),
                             ),
                           ),
                         ],
@@ -430,8 +429,9 @@ class _ProductCard extends StatelessWidget {
                     color: product.thumbnail != null ? Colors.white : const Color(0xFFE6F0F6),
                     padding: const EdgeInsets.all(6),
                     child: product.thumbnail != null
-                        ? CachedNetworkImage(imageUrl: product.thumbnail!, fit: BoxFit.contain)
-                        : const Center(child: WangjiaLogo(size: 56, withText: false)),
+                        // Two cards share the width of the screen.
+                        ? productThumb(context, product.thumbnail!, width: MediaQuery.sizeOf(context).width / 2)
+                        : const Center(child: WangjiaLogo(size: 56)),
                   ),
                 ),
                 if (product.variants.length > 1)
@@ -587,8 +587,8 @@ class _GroupBuyCard extends StatelessWidget {
                     height: 72,
                     color: Colors.white,
                     child: g.thumbnail == null
-                        ? const WangjiaLogo(size: 48, withText: false)
-                        : CachedNetworkImage(imageUrl: g.thumbnail!, fit: BoxFit.contain),
+                        ? const WangjiaLogo(size: 48)
+                        : productThumb(context, g.thumbnail!, width: 72),
                   ),
                 ),
                 const SizedBox(width: 10),

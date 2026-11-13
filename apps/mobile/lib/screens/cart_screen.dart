@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../api/medusa_client.dart';
@@ -89,8 +88,8 @@ class _CartScreenState extends State<CartScreen> {
                                 border: Border.all(color: Brand.line),
                               ),
                               child: it.thumbnail != null
-                                  ? CachedNetworkImage(imageUrl: it.thumbnail!, fit: BoxFit.contain)
-                                  : const WangjiaLogo(size: 56, withText: false),
+                                  ? productThumb(context, it.thumbnail!, width: 76)
+                                  : const WangjiaLogo(size: 56),
                             ),
                             const SizedBox(width: 10),
                             Expanded(

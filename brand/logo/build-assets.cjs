@@ -50,8 +50,8 @@ function ico(pngPath, out) {
   await tile('apps/mobile/assets/brand/icon.png', 1024, 0.68);
   await tile('apps/mobile/assets/brand/icon-adaptive.png', 1024, 0.5, { r: 0, g: 0, b: 0, alpha: 0 });
   await tile('apps/mobile/assets/brand/splash.png', 1024, 0.5, { r: 0, g: 0, b: 0, alpha: 0 });
-  fs.copyFileSync(MARK, 'apps/mobile/assets/brand/mark.png');
-  fs.copyFileSync(LOGO, 'apps/mobile/assets/brand/logo.png');
+  // The app shows the mark 96 points wide at most: 384 px is sharp on any phone.
+  await sharp(MARK).resize({ width: 384 }).png().toFile('apps/mobile/assets/brand/mark.png');
   // Open Graph 1200x630: lockup + tagline + product photo
   const lock = await sharp(`${B}/wangjia-logo-horizontal.png`).resize({ width: 560 }).toBuffer();
   const photo = await sharp('apps/backend/static/products/kincir-2hp.jpg').resize(430, 430).toBuffer();
