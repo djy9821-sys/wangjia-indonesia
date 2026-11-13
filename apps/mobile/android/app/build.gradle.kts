@@ -44,6 +44,14 @@ android {
     }
 }
 
+// Release packages go to ARM phones only: no x86_64 libraries in them (the ones the
+// plugins bring are 6 MB, mostly the barcode scanner). Debug builds keep them for emulators.
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        variant.packaging.jniLibs.excludes.add("**/x86_64/**")
+    }
+}
+
 kotlin {
     compilerOptions {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
