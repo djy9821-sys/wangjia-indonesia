@@ -130,7 +130,8 @@ class AuthGate extends StatefulWidget {
 
 class _AuthGateState extends State<AuthGate> {
   Map<String, dynamic>? _customer;
-  // Only the first check of a saved login blocks the screen.
+  // The first check of a saved login. The shop is open meanwhile; only the
+  // customer's own pages wait for it.
   bool _loading = MedusaClient.instance.isLoggedIn;
   int _refreshes = 0;
 
@@ -181,7 +182,5 @@ class _AuthGateState extends State<AuthGate> {
   }
 
   @override
-  Widget build(BuildContext context) => _loading
-      ? const Scaffold(body: Center(child: CircularProgressIndicator()))
-      : HomeShell(customer: _customer, onSignIn: _signIn);
+  Widget build(BuildContext context) => HomeShell(customer: _customer, checking: _loading, onSignIn: _signIn);
 }

@@ -52,6 +52,9 @@ void main() {
   late bool ordersRefused;
   // While set, the check of a saved login gets no answer.
   Completer<void>? sessionCheckHeld;
+  // The shop's catalogue, and a way to keep its answer waiting (slow network).
+  late Map<String, dynamic> catalogue;
+  Completer<void>? catalogueHeld;
 
   int requests(String path) => calls.where((c) => c.url.path == path).length;
 
@@ -64,6 +67,8 @@ void main() {
     sessionAccepted = true;
     ordersRefused = false;
     sessionCheckHeld = null;
+    catalogue = {'products': []};
+    catalogueHeld = null;
     calls = [];
     // A shop with an empty catalogue and one customer.
     http.Response answer(String path) {
@@ -87,7 +92,7 @@ void main() {
             ]
           });
         case _products:
-          return _ok({'products': []});
+          return _ok(catalogue);
         case '/store/group-buys':
           return _ok({'group_buys': []});
         case '/store/product-categories':
@@ -113,8 +118,9 @@ void main() {
     api.httpClient = MockClient((req) async {
       calls.add(req);
       if (offline) throw http.ClientException('No route to host');
-      final held = sessionCheckHeld;
-      if (held != null && req.url.path == _me) await held.future;
+      final path = req.url.path;
+      final held = path == _me ? sessionCheckHeld : (path == _products ? catalogueHeld : null);
+      if (held != null) await held.future;
       final res = answer(req.url.path);
       // A real client hands the request back with the answer, and the app
       // reads the path from it.
@@ -306,26 +312,46 @@ void main() {
       expect(find.text(S.t('account_guest')), findsOneWidget);
     });
 
+    testWidgets('has the shop open while it is still being checked', (tester) async {
+      await savedLogin(tester);
+      final held = sessionCheckHeld = Completer<void>();
+      await openApp(tester);
+      expect(find.text(S.t('no_products')), findsOneWidget);
+
+      // The customer's own pages wait: no guest page, no second check.
+      await tab(tester, 'orders');
+      expect(find.text(S.t('orders_guest')), findsNothing);
+      await tab(tester, 'account');
+      expect(find.text(S.t('account_guest')), findsNothing);
+      expect(find.byType(LoginScreen), findsNothing);
+      expect(requests(_me), 1);
+
+      held.complete();
+      await settle(tester);
+      expect(find.text('Budi Santoso'), findsOneWidget);
+      expect(find.byType(OrdersHubScreen, skipOffstage: false), findsOneWidget);
+      // The token already said whose prices to fetch: once was enough.
+      expect(requests(_products), 1);
+    });
+
     testWidgets('that ends while it is still being checked stays ended', (tester) async {
       await savedLogin(tester);
       final held = sessionCheckHeld = Completer<void>();
-      phone(tester);
-      await tester.pumpWidget(const MaterialApp(home: AuthGate()));
-      await settle(tester);
-      expect(find.byType(NavigationBar), findsNothing);
+      await openApp(tester);
 
       // Meanwhile another request is told that the session is over.
       ordersRefused = true;
       api.orders().then((_) {}, onError: (_) {});
       await settle(tester);
       expect(api.isLoggedIn, isFalse);
-      expect(find.byType(NavigationBar), findsOneWidget);
+      await tab(tester, 'account');
+      expect(find.text(S.t('account_guest')), findsOneWidget);
 
       // The late answer to the first check still names the customer.
       held.complete();
       await settle(tester);
-      await tab(tester, 'account');
       expect(find.text(S.t('account_guest')), findsOneWidget);
+      expect(find.text('Budi Santoso'), findsNothing);
     });
 
     testWidgets('that ends while the app is open becomes a guest', (tester) async {
@@ -337,6 +363,104 @@ void main() {
       expect(find.text(S.t('orders_guest')), findsOneWidget);
       await tab(tester, 'account');
       expect(find.text(S.t('account_guest')), findsOneWidget);
+    });
+  });
+
+  group('the catalogue kept on the device', () {
+    Map<String, dynamic> shelf(String title) => {
+          'products': [
+            {
+              'id': 'prod_1',
+              'title': title,
+              'variants': [
+                {
+                  'id': 'variant_1',
+                  'title': '1 HP',
+                  'calculated_price': {'calculated_amount': 4500000, 'currency_code': 'idr'}
+                }
+              ]
+            }
+          ]
+        };
+
+    /// Opens the shop once, so that it keeps a catalogue, and closes it.
+    Future<void> earlierVisit(WidgetTester tester) async {
+      catalogue = shelf('Kincir 1 HP');
+      await openApp(tester);
+      expect(find.text('Kincir 1 HP'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox());
+    }
+
+    /// Opens the shop again on a slow network: the new catalogue is held back.
+    Future<Completer<void>> slowStart(WidgetTester tester) async {
+      catalogue = shelf('Kincir 2 HP');
+      final held = catalogueHeld = Completer<void>();
+      await openApp(tester);
+      return held;
+    }
+
+    testWidgets('is on screen before the network answers, then gives way to the fresh one', (tester) async {
+      await earlierVisit(tester);
+      final held = await slowStart(tester);
+      expect(find.text('Kincir 1 HP'), findsOneWidget);
+
+      held.complete();
+      await settle(tester);
+      expect(find.text('Kincir 1 HP'), findsNothing);
+      expect(find.text('Kincir 2 HP'), findsOneWidget);
+    });
+
+    testWidgets('is there for a returning customer as well', (tester) async {
+      await savedLogin(tester);
+      await earlierVisit(tester);
+      final held = await slowStart(tester);
+      expect(find.text('Kincir 1 HP'), findsOneWidget);
+      held.complete();
+      await settle(tester);
+    });
+
+    testWidgets('is not shown after signing out: prices can differ per customer', (tester) async {
+      await savedLogin(tester);
+      await earlierVisit(tester);
+      await tester.runAsync(api.logout);
+      final held = await slowStart(tester);
+      expect(find.text('Kincir 1 HP'), findsNothing);
+
+      held.complete();
+      await settle(tester);
+      expect(find.text('Kincir 2 HP'), findsOneWidget);
+    });
+
+    testWidgets('goes away when the login it was kept for ends', (tester) async {
+      await savedLogin(tester);
+      await earlierVisit(tester);
+      sessionAccepted = false;
+      final held = await slowStart(tester);
+      // The saved login was refused meanwhile: this is a guest now.
+      expect(api.isLoggedIn, isFalse);
+      expect(find.text('Kincir 1 HP'), findsNothing);
+
+      held.complete();
+      await settle(tester);
+      expect(find.text('Kincir 2 HP'), findsOneWidget);
+    });
+
+    testWidgets('stands in for the shop without signal, and says so', (tester) async {
+      await earlierVisit(tester);
+      offline = true;
+      await openApp(tester);
+      expect(find.text('Kincir 1 HP'), findsOneWidget);
+      expect(find.text(S.t('offline_catalog')), findsOneWidget);
+    });
+
+    testWidgets('does not stand in for someone else, even without signal', (tester) async {
+      await savedLogin(tester);
+      await earlierVisit(tester);
+      await tester.runAsync(api.logout);
+      offline = true;
+      await openApp(tester);
+      expect(find.text('Kincir 1 HP'), findsNothing);
+      expect(find.text(S.t('err_offline')), findsOneWidget);
     });
   });
 

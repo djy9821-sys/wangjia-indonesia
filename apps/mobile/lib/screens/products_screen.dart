@@ -41,6 +41,18 @@ class _ProductsScreenState extends State<ProductsScreen> {
   String? _categoryId;
   String _query = '';
   final _groupBuyKey = GlobalKey();
+  // The catalogue kept from the last visit: on screen until the fresh one is.
+  List<Product>? _saved;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSaved();
+  }
+
+  void _loadSaved() => MedusaClient.instance.savedProducts().then((saved) {
+        if (mounted) setState(() => _saved = saved);
+      });
 
   Future<void> _reload() async {
     setState(() {
@@ -54,6 +66,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   void didUpdateWidget(ProductsScreen old) {
     super.didUpdateWidget(old);
     if (old.customerId != widget.customerId) {
+      _loadSaved();
       _future = MedusaClient.instance.products();
       _groupBuys = MedusaClient.instance.groupBuys().catchError((_) => <GroupBuy>[]);
     }
@@ -80,9 +93,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
         body: FutureBuilder<List<Product>>(
           future: _future,
           builder: (context, snap) {
-            if (snap.hasError) return SafeArea(child: ErrorRetry(error: snap.error!, onRetry: _reload));
-            if (!snap.hasData) return const Center(child: CircularProgressIndicator());
-            final all = snap.data!;
+            final all = snap.data ?? _saved;
+            if (all == null) {
+              if (snap.hasError) return SafeArea(child: ErrorRetry(error: snap.error!, onRetry: _reload));
+              return const Center(child: CircularProgressIndicator());
+            }
             final q = _query.trim().toLowerCase();
             final products = all.where((p) {
               if (_categoryId != null && !p.categoryIds.contains(_categoryId)) return false;
@@ -448,12 +463,18 @@ class _ProductCard extends StatelessWidget {
                       style: const TextStyle(color: Brand.accent, fontSize: 16, fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        _MiniTag(S.t('badge_warranty')),
-                        const SizedBox(width: 4),
-                        _MiniTag(S.t('tag_installment')),
-                      ],
+                    // Narrow phones and large system fonts: shrink the tags to
+                    // fit instead of cutting the second one off.
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        children: [
+                          _MiniTag(S.t('badge_warranty')),
+                          const SizedBox(width: 4),
+                          _MiniTag(S.t('tag_installment')),
+                        ],
+                      ),
                     ),
                   ],
                 ),

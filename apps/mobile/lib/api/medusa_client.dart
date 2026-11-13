@@ -47,6 +47,13 @@ class MedusaClient {
 
   bool get isLoggedIn => _token != null;
 
+  /// The customer behind the saved login, null for a guest. Read from the
+  /// token, so it is known before the backend has answered.
+  String? get customerId {
+    final id = _token == null ? '' : _customerIdOf(_token!);
+    return id.isEmpty ? null : id;
+  }
+
   Future<void> init() async {
     try {
       _token = await _secure.read(key: _tokenKey);
@@ -267,32 +274,58 @@ class MedusaClient {
   bool productsFromCache = false;
   static const _productsCacheKey = 'cache_products_v1';
 
-  /// Pond owners often have patchy signal: the last catalogue is kept on the
-  /// device and shown (with an offline banner) when the network fails.
-  Future<List<Product>> products() async {
-    final prefs = await SharedPreferences.getInstance();
-    Map<String, dynamic> res;
-    try {
-      final r = await region();
-      res = await get('/store/products', query: {
-        'region_id': r.id,
-        'fields': '*variants.calculated_price,+variants.inventory_quantity,*images,*categories,+metadata,+subtitle',
-        'limit': '50',
-      });
-      productsFromCache = false;
-      prefs.setString(_productsCacheKey, jsonEncode(res)).catchError((_) => false);
-    } catch (e) {
-      final cached = prefs.getString(_productsCacheKey);
-      if (cached == null) rethrow;
-      res = jsonDecode(cached) as Map<String, dynamic>;
-      productsFromCache = true;
-    }
+  static List<Product> _parseProducts(Map<String, dynamic> res) {
     final products = (res['products'] as List)
         .map((e) => Product.fromJson(e as Map<String, dynamic>))
         .toList();
     // Main machines first (highest price), spare parts after.
     products.sort((a, b) => (b.minPrice ?? 0).compareTo(a.minPrice ?? 0));
     return products;
+  }
+
+  /// The catalogue kept by the last visit. Prices can differ per customer:
+  /// null unless it was fetched for the current viewer.
+  List<Product>? _keptProducts(SharedPreferences prefs) {
+    try {
+      final res = jsonDecode(prefs.getString(_productsCacheKey) ?? 'null');
+      return res is Map<String, dynamic> && res['viewer'] == (customerId ?? '') ? _parseProducts(res) : null;
+    } catch (_) {
+      return null; // unreadable: as good as none
+    }
+  }
+
+  /// The kept catalogue, to show while the fresh one is on its way.
+  Future<List<Product>?> savedProducts() async {
+    try {
+      return _keptProducts(await SharedPreferences.getInstance());
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Pond owners often have patchy signal: the last catalogue is kept on the
+  /// device and shown (with an offline banner) when the network fails.
+  Future<List<Product>> products() async {
+    final prefs = await SharedPreferences.getInstance();
+    try {
+      final r = await region();
+      // The login this request goes out with decides whose prices come back.
+      final viewer = customerId ?? '';
+      final res = await get('/store/products', query: {
+        'region_id': r.id,
+        'fields': '*variants.calculated_price,+variants.inventory_quantity,*images,*categories,+metadata,+subtitle',
+        'limit': '50',
+      });
+      final products = _parseProducts(res);
+      productsFromCache = false;
+      prefs.setString(_productsCacheKey, jsonEncode({...res, 'viewer': viewer})).catchError((_) => false);
+      return products;
+    } catch (e) {
+      final kept = _keptProducts(prefs);
+      if (kept == null) rethrow;
+      productsFromCache = true;
+      return kept;
+    }
   }
 
   // ---------- regions (province / regency / district) ----------

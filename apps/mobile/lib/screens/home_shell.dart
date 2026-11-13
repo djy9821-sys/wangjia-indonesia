@@ -18,9 +18,12 @@ import 'notifications_screen.dart';
 class HomeShell extends StatefulWidget {
   /// Null while browsing as a guest.
   final Map<String, dynamic>? customer;
+  /// True while a saved login is checked for the first time: the shop is open
+  /// already, the customer's own pages wait for the answer.
+  final bool checking;
   /// Opens the login page, or checks a saved login again.
   final VoidCallback onSignIn;
-  const HomeShell({super.key, required this.customer, required this.onSignIn});
+  const HomeShell({super.key, required this.customer, this.checking = false, required this.onSignIn});
   @override
   State<HomeShell> createState() => _HomeShellState();
 }
@@ -33,7 +36,7 @@ class _HomeShellState extends State<HomeShell> {
     setState(() => _tab = tab);
     // A saved login that could not be checked at start (no signal): try again
     // when the customer's own pages are opened.
-    if (tab >= 2 && widget.customer == null && MedusaClient.instance.isLoggedIn) widget.onSignIn();
+    if (tab >= 2 && widget.customer == null && !widget.checking && MedusaClient.instance.isLoggedIn) widget.onSignIn();
   }
 
   void _goToQuotes() {
@@ -44,10 +47,19 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final customer = widget.customer;
+    final checking = widget.checking;
+    // While the login is checked the token already says whose prices to fetch,
+    // so the catalogue is not fetched again when the customer arrives.
+    final viewer = checking ? MedusaClient.instance.customerId : customer?['id'] as String?;
     final pages = <Widget>[
-      ProductsScreen(customerId: customer?['id'] as String?, onOpenCart: () => setState(() => _tab = 1)),
+      ProductsScreen(customerId: viewer, onOpenCart: () => setState(() => _tab = 1)),
       CartScreen(onQuoteRequested: _goToQuotes, onBrowse: () => setState(() => _tab = 0)),
-      if (customer == null)
+      if (checking)
+        Scaffold(
+          appBar: AppBar(title: Text(S.t('orders'))),
+          body: const Center(child: CircularProgressIndicator()),
+        )
+      else if (customer == null)
         Scaffold(
           appBar: AppBar(title: Text(S.t('orders'))),
           body: EmptyState(
@@ -59,7 +71,7 @@ class _HomeShellState extends State<HomeShell> {
         )
       else
         OrdersHubScreen(key: _ordersKey, onBrowse: () => setState(() => _tab = 0)),
-      _AccountScreen(customer: customer, onSignIn: widget.onSignIn),
+      _AccountScreen(customer: customer, checking: checking, onSignIn: widget.onSignIn),
     ];
     return Scaffold(
       body: IndexedStack(index: _tab, children: pages),
@@ -89,8 +101,9 @@ class _HomeShellState extends State<HomeShell> {
 
 class _AccountScreen extends StatelessWidget {
   final Map<String, dynamic>? customer;
+  final bool checking;
   final VoidCallback onSignIn;
-  const _AccountScreen({required this.customer, required this.onSignIn});
+  const _AccountScreen({required this.customer, required this.checking, required this.onSignIn});
 
   String get _name => '${customer?['first_name'] ?? ''} ${customer?['last_name'] ?? ''}'.trim();
 
@@ -161,7 +174,11 @@ class _AccountScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
         children: [
-          if (customer == null)
+          if (checking)
+            const Card(
+              child: Padding(padding: EdgeInsets.all(24), child: Center(child: CircularProgressIndicator())),
+            )
+          else if (customer == null)
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
