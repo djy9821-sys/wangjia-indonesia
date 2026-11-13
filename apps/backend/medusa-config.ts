@@ -153,6 +153,9 @@ module.exports = defineConfig({
       adminCors: process.env.ADMIN_CORS!,
       authCors: process.env.AUTH_CORS!,
       jwtSecret: process.env.JWT_SECRET,
+      // How long a login lasts. The app renews it when it is opened, and
+      // instalment customers come back about once a month.
+      jwtExpiresIn: process.env.JWT_EXPIRES_IN || "60d",
       cookieSecret: process.env.COOKIE_SECRET,
     },
   },

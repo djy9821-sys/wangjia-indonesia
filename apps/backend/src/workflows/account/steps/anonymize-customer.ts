@@ -3,7 +3,7 @@ import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
 import { PUSH_DEVICE_MODULE } from "../../../modules/push-device";
 import PushDeviceModuleService from "../../../modules/push-device/service";
 import {
-  DELETED_CUSTOMER_TTL_SECONDS,
+  CUSTOMER_CHECK_TTL_SECONDS,
   deletedCustomerCacheKey,
 } from "../../../api/middlewares/reject-deleted-customer";
 
@@ -54,7 +54,7 @@ export const anonymizeCustomerStep = createStep(
 
     // Outstanding JWTs of this customer are refused from now on.
     const cache = container.resolve(Modules.CACHE);
-    await cache.set(deletedCustomerCacheKey(customer.id), true, DELETED_CUSTOMER_TTL_SECONDS);
+    await cache.set(deletedCustomerCacheKey(customer.id), true, CUSTOMER_CHECK_TTL_SECONDS);
 
     return new StepResponse({ id: customer.id });
   }

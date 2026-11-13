@@ -1,4 +1,6 @@
+import { Modules } from "@medusajs/framework/utils";
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils";
+import { deletedCustomerCacheKey } from "../../../src/api/middlewares/reject-deleted-customer";
 import {
   adminHeaders,
   createAdminUser,
@@ -16,6 +18,9 @@ import {
 } from "../../utils/store";
 
 jest.setTimeout(600 * 1000);
+
+/* What a session token (or a "Bearer ..." header carrying one) says about itself. */
+const claims = (token: string) => JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString());
 
 medusaIntegrationTestRunner({
   // @ts-expect-error inApp is honoured at runtime but missing from the runner's types
@@ -251,6 +256,21 @@ medusaIntegrationTestRunner({
         expect(overview.data.warranty.registered).toBeGreaterThanOrEqual(1);
       });
 
+      it("keeps a customer signed in: a login lasts 60 days and can be renewed", async () => {
+        const first = claims(storeHeaders.headers["Authorization"]);
+        expect(first.exp - first.iat).toEqual(60 * 24 * 3600);
+
+        const renewed = await api.post("/auth/token/refresh", {}, storeHeaders);
+        const next = claims(renewed.data.token);
+        expect(next.actor_id).toEqual(first.actor_id);
+        expect(next.exp - next.iat).toEqual(60 * 24 * 3600);
+
+        const me = await api.get("/store/customers/me", {
+          headers: { ...storeHeaders.headers, Authorization: `Bearer ${renewed.data.token}` },
+        });
+        expect(me.data.customer.id).toEqual(first.actor_id);
+      });
+
       it("deletes the customer account: login revoked, token refused, records anonymised", async () => {
         const addr = await api.post(
           "/store/customers/me/addresses",
@@ -267,6 +287,17 @@ medusaIntegrationTestRunner({
         expect(me.status).toEqual(401);
         const units = await api.get("/store/warranty/units", storeHeaders).catch((e) => e.response);
         expect(units.status).toEqual(401);
+
+        // also once the cache has forgotten the deletion (restart, expiry): the record itself says so
+        const { actor_id } = claims(storeHeaders.headers["Authorization"]);
+        await getContainer().resolve(Modules.CACHE).invalidate(deletedCustomerCacheKey(actor_id));
+        const later = await api.get("/store/customers/me", storeHeaders).catch((e) => e.response);
+        expect(later.status).toEqual(401);
+
+        // and the login cannot be renewed
+        const renew = await api.post("/auth/token/refresh", {}, storeHeaders).catch((e) => e.response);
+        expect(renew.status).toBeGreaterThanOrEqual(400);
+        expect(renew.data?.token).toBeUndefined();
 
         // password login no longer works, but the email is free again
         const login = await api
