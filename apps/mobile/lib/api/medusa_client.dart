@@ -382,15 +382,17 @@ class MedusaClient {
   Future<String> createCartWithItem(String variantId, int quantity) =>
       createCartWithLines([(variantId, quantity)]);
 
-  /// Creates a Medusa cart holding every (variantId, quantity) pair.
+  /// Creates a Medusa cart holding every (variantId, quantity) pair, in one
+  /// request: a line the shop cannot sell fails the cart as a whole.
   Future<String> createCartWithLines(List<(String, int)> lines) async {
     final r = await region();
-    final cart = await post('/store/carts', {'region_id': r.id});
-    final cartId = (cart['cart'] as Map)['id'] as String;
-    for (final (variantId, qty) in lines) {
-      await post('/store/carts/$cartId/line-items', {'variant_id': variantId, 'quantity': qty});
-    }
-    return cartId;
+    final cart = await post('/store/carts', {
+      'region_id': r.id,
+      'items': [
+        for (final (variantId, qty) in lines) {'variant_id': variantId, 'quantity': qty},
+      ],
+    });
+    return (cart['cart'] as Map)['id'] as String;
   }
 
   Future<String> createCartFromItems(List<CartItem> items) =>

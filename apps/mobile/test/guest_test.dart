@@ -125,7 +125,6 @@ void main() {
           return _ok({
             'cart': {'id': 'cart_1'}
           });
-        case '/store/carts/cart_1/line-items':
         case _quotes:
           return _ok({});
         default:

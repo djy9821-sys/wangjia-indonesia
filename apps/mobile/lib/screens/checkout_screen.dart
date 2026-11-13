@@ -149,8 +149,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       await api.addShippingMethod(_cartId!, _optionId!);
       final order = await api.completeCart(_cartId!);
       if (_saveAddress) {
-        // Best effort: keep the address for the next order.
-        await api.saveAddress(_currentAddress).catchError((_) {});
+        // Kept for the next order. Best effort, and not waited for: the order
+        // is made, so its page opens now.
+        api.saveAddress(_currentAddress).catchError((_) {});
       }
       if (widget.cartId == null) CartStore.instance.clear();
       if (!mounted) return;

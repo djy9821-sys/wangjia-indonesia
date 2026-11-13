@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ import 'package:wangjia_app/screens/upload_proof_sheet.dart';
 const _cart = '/store/carts/cart_1';
 const _order = '/store/orders/order_1';
 const _proofs = '/store/payment-installments/inst_1/proofs';
+const _addresses = '/store/customers/me/addresses';
 
 // Nothing checks these: the backend below is a stand-in.
 const _email = 'budi@tambak.id';
@@ -117,8 +119,15 @@ void main() {
   late List<Map<String, dynamic>> saved;
   // While set, the shop takes no receipt: the instalment is settled already.
   late bool proofRefused;
+  // While set, the request that saves an address is left unanswered.
+  Completer<void>? saveHeld;
+  // While set, the shop does not save an address.
+  late bool saveRefused;
 
   int requests(String path) => calls.where((c) => c.url.path == path).length;
+
+  /// How many times the app asked the shop to keep an address.
+  int saves() => calls.where((c) => c.method == 'POST' && c.url.path == _addresses).length;
 
   /// The street lines put on the server's cart, in the order they were sent.
   List<String> sentAddresses() => [
@@ -138,6 +147,8 @@ void main() {
     plan = _plan;
     saved = [_home];
     proofRefused = false;
+    saveHeld = null;
+    saveRefused = false;
     calls = [];
     // A shop with one customer, one saved address and one delivery option.
     http.Response answer(String path) {
@@ -146,7 +157,7 @@ void main() {
           return _ok({'token': _token('cus_1')});
         case '/store/customers/me':
           return _ok({'customer': _budi});
-        case '/store/customers/me/addresses':
+        case _addresses:
           return _ok({'addresses': saved});
         case '/store/wilayah':
           return _ok({
@@ -207,7 +218,6 @@ void main() {
         case '$_order/warranty-units':
           return _ok({'units': []});
         case _cart:
-        case '$_cart/line-items':
         case '$_cart/shipping-methods':
         case '/store/payment-collections/paycol_1/payment-sessions':
           return _ok({});
@@ -219,7 +229,11 @@ void main() {
     api.httpClient = MockClient((req) async {
       calls.add(req);
       if (regionsDown && req.url.path.startsWith('/store/wilayah')) throw http.ClientException('No route to host');
-      final res = answer(req.url.path);
+      var res = answer(req.url.path);
+      if (req.method == 'POST' && req.url.path == _addresses) {
+        await saveHeld?.future;
+        if (saveRefused) res = http.Response(jsonEncode({'message': 'Tidak tersimpan'}), 500);
+      }
       return http.Response(res.body, res.statusCode, request: req);
     });
   });
@@ -242,20 +256,20 @@ void main() {
     await settle(tester);
   }
 
-  /// The checkout with one machine in the cart: a form longer than the screen.
-  Future<void> openCheckout(WidgetTester tester) => open(
-        tester,
-        CheckoutScreen(items: [
-          CartItem(
-            variantId: 'variant_1',
-            productId: 'prod_1',
-            productTitle: 'Kincir Air 1 HP',
-            variantTitle: '1 HP',
-            price: 4500000,
-            currency: 'idr',
-          ),
-        ]),
+  CartItem machine(int hp, {int quantity = 1}) => CartItem(
+        variantId: 'variant_$hp',
+        productId: 'prod_$hp',
+        productTitle: 'Kincir Air $hp HP',
+        variantTitle: '$hp HP',
+        price: 4500000 * hp,
+        currency: 'idr',
+        quantity: quantity,
       );
+
+  /// The checkout, with one machine in the cart unless told otherwise: a form
+  /// longer than the screen.
+  Future<void> openCheckout(WidgetTester tester, {List<CartItem>? items}) =>
+      open(tester, CheckoutScreen(items: items ?? [machine(1)]));
 
   Future<void> openOrder(WidgetTester tester) => open(tester, const OrderDetailScreen(orderId: 'order_1'));
 
@@ -298,6 +312,49 @@ void main() {
       await press(tester, 'shipping_method');
       await press(tester, 'place_order');
       expect(sentAddresses(), ['Jl. Tambak 1']);
+      expect(find.byType(OrderDetailScreen), findsOneWidget);
+      // It is one of the saved ones: it is not saved a second time.
+      expect(saves(), 0);
+    });
+
+    testWidgets('the cart is made in one request, with every machine and how many', (tester) async {
+      await openCheckout(tester, items: [machine(1), machine(2, quantity: 3)]);
+      await press(tester, 'shipping_method');
+
+      final made = calls.where((c) => c.url.path == '/store/carts').toList();
+      expect(made, hasLength(1));
+      expect(jsonDecode(made.single.body), {
+        'region_id': 'reg_1',
+        'items': [
+          {'variant_id': 'variant_1', 'quantity': 1},
+          {'variant_id': 'variant_2', 'quantity': 3},
+        ],
+      });
+      expect(calls.where((c) => c.url.path.endsWith('/line-items')), isEmpty);
+    });
+
+    testWidgets('the order page opens without waiting for the address to be saved', (tester) async {
+      saveHeld = Completer<void>();
+      await openCheckout(tester);
+      await press(tester, 'save_this_address');
+      await press(tester, 'shipping_method');
+      await press(tester, 'place_order');
+
+      // The address is on its way, and the customer is on the order already.
+      expect(saves(), 1);
+      expect(find.byType(OrderDetailScreen), findsOneWidget);
+      saveHeld!.complete();
+      await settle(tester);
+    });
+
+    testWidgets('an address the shop did not save does not disturb the order', (tester) async {
+      saveRefused = true;
+      await openCheckout(tester);
+      await press(tester, 'save_this_address');
+      await press(tester, 'shipping_method');
+      await press(tester, 'place_order');
+
+      expect(saves(), 1);
       expect(find.byType(OrderDetailScreen), findsOneWidget);
     });
 
