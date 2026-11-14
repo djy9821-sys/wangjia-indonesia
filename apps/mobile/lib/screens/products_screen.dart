@@ -28,36 +28,48 @@ class ProductsScreen extends StatefulWidget {
 
 class _ProductsScreenState extends State<ProductsScreen> {
   late Future<List<Product>> _future = MedusaClient.instance.products();
-  late Future<List<GroupBuy>> _groupBuys = MedusaClient.instance.groupBuys().catchError((_) => <GroupBuy>[]);
-  late final Future<List<Category>> _categories = MedusaClient.instance.categories().then((cats) {
-    final want = widget.initialCategoryName?.toLowerCase();
-    if (want != null && _categoryId == null) {
-      final hit = cats.where((c) => c.name.toLowerCase().contains(want)).firstOrNull;
-      if (hit != null && mounted) setState(() => _categoryId = hit.id);
-    }
-    return cats;
-  });
+  // The category on screen: the one picked from the row or, until one is
+  // picked, the one whose name holds [_wanted]. Categories come with the
+  // catalogue, so this works from the kept one as well.
   String? _categoryId;
+  String? _wanted;
   String _query = '';
   final _groupBuyKey = GlobalKey();
-  // The catalogue kept from the last visit: on screen until the fresh one is.
+  // Kept from the last visit and on screen until the fresh answers are: the
+  // catalogue and the patungan.
   List<Product>? _saved;
+  List<GroupBuy> _savedGroupBuys = const [];
+  List<GroupBuy>? _freshGroupBuys;
+  List<GroupBuy> get _groupBuys => _freshGroupBuys ?? _savedGroupBuys;
 
   @override
   void initState() {
     super.initState();
+    _wanted = widget.initialCategoryName?.toLowerCase();
     _loadSaved();
+    _loadGroupBuys();
   }
 
-  void _loadSaved() => MedusaClient.instance.savedProducts().then((saved) {
-        if (mounted) setState(() => _saved = saved);
-      });
+  /// Both kept lists come on screen in one frame: nothing moves under a finger.
+  Future<void> _loadSaved() async {
+    final api = MedusaClient.instance;
+    final products = await api.savedProducts();
+    final groupBuys = await api.savedGroupBuys();
+    if (!mounted) return;
+    setState(() {
+      _saved = products;
+      _savedGroupBuys = groupBuys;
+    });
+  }
+
+  Future<void> _loadGroupBuys() async {
+    final list = await MedusaClient.instance.groupBuys();
+    if (mounted) setState(() => _freshGroupBuys = list);
+  }
 
   Future<void> _reload() async {
-    setState(() {
-      _future = MedusaClient.instance.products();
-      _groupBuys = MedusaClient.instance.groupBuys().catchError((_) => <GroupBuy>[]);
-    });
+    setState(() => _future = MedusaClient.instance.products());
+    _loadGroupBuys();
     await _future;
   }
 
@@ -67,19 +79,20 @@ class _ProductsScreenState extends State<ProductsScreen> {
     if (old.customerId != widget.customerId) {
       _loadSaved();
       _future = MedusaClient.instance.products();
-      _groupBuys = MedusaClient.instance.groupBuys().catchError((_) => <GroupBuy>[]);
     }
   }
 
-  Future<void> _pickCategory(String contains) async {
-    final cats = await _categories;
-    final hit = cats.where((c) => c.name.toLowerCase().contains(contains)).firstOrNull;
-    if (mounted) setState(() => _categoryId = hit?.id);
-  }
+  /// Shows the category whose name holds [name]; all products when none does.
+  void _want(String name) => setState(() => _wanted = name);
+
+  void _pick(String? categoryId) => setState(() {
+        _wanted = null;
+        _categoryId = categoryId;
+      });
 
   void _scrollToGroupBuys() {
     final ctx = _groupBuyKey.currentContext;
-    if (ctx != null) {
+    if (ctx != null && _groupBuys.isNotEmpty) {
       Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 400), alignment: 0.1);
     } else {
       showSnack(context, S.t('no_group_buy'));
@@ -98,8 +111,15 @@ class _ProductsScreenState extends State<ProductsScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             final q = _query.trim().toLowerCase();
+            // The category to show: one that is gone from the catalogue counts as none.
+            final cats = Category.listedIn(all);
+            final wanted = _wanted;
+            final categoryId = cats
+                .where((c) => wanted == null ? c.id == _categoryId : c.name.toLowerCase().contains(wanted))
+                .firstOrNull
+                ?.id;
             final products = all.where((p) {
-              if (_categoryId != null && !p.categoryIds.contains(_categoryId)) return false;
+              if (categoryId != null && !p.categories.any((c) => c.id == categoryId)) return false;
               if (q.isNotEmpty && !p.title.toLowerCase().contains(q) && !(p.subtitle ?? '').toLowerCase().contains(q)) return false;
               return true;
             }).toList();
@@ -121,14 +141,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     if (featured.isNotEmpty) SliverToBoxAdapter(child: _Banner(products: featured, onOpenCart: widget.onOpenCart)),
                     SliverToBoxAdapter(
                       child: _QuickEntries(
-                        onAerator: () => _pickCategory('kincir'),
-                        onParts: () => _pickCategory('suku'),
+                        onAerator: () => _want('kincir'),
+                        onParts: () => _want('suku'),
                         onGroupBuy: _scrollToGroupBuys,
                         onWarranty: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WarrantyScreen())),
                       ),
                     ),
                     SliverToBoxAdapter(
-                      child: KeyedSubtree(key: _groupBuyKey, child: _GroupBuySection(future: _groupBuys, onJoined: _reload)),
+                      child: KeyedSubtree(key: _groupBuyKey, child: _GroupBuySection(list: _groupBuys, onJoined: _reload)),
                     ),
                   ],
                   SliverToBoxAdapter(
@@ -146,26 +166,20 @@ class _ProductsScreenState extends State<ProductsScreen> {
                       ),
                     ),
                   ),
-                  SliverToBoxAdapter(
-                    child: FutureBuilder<List<Category>>(
-                      future: _categories,
-                      builder: (context, cs) {
-                        final cats = cs.data ?? [];
-                        if (cats.isEmpty) return const SizedBox.shrink();
-                        return SizedBox(
-                          height: 44,
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            children: [
-                              _Pill(label: S.t('all'), selected: _categoryId == null, onTap: () => setState(() => _categoryId = null)),
-                              ...cats.map((c) => _Pill(label: c.name, selected: _categoryId == c.id, onTap: () => setState(() => _categoryId = c.id))),
-                            ],
-                          ),
-                        );
-                      },
+                  if (cats.isNotEmpty)
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: 44,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          children: [
+                            _Pill(label: S.t('all'), selected: categoryId == null, onTap: () => _pick(null)),
+                            ...cats.map((c) => _Pill(label: c.name, selected: categoryId == c.id, onTap: () => _pick(c.id))),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
                   if (products.isEmpty)
                     SliverToBoxAdapter(
                       child: Padding(padding: const EdgeInsets.all(40), child: Center(child: Text(S.t('no_products')))),
@@ -504,54 +518,50 @@ class _MiniTag extends StatelessWidget {
 
 /// Horizontal strip of open patungan; hidden when there are none.
 class _GroupBuySection extends StatelessWidget {
-  final Future<List<GroupBuy>> future;
+  final List<GroupBuy> list;
   final VoidCallback onJoined;
-  const _GroupBuySection({required this.future, required this.onJoined});
+  const _GroupBuySection({required this.list, required this.onJoined});
 
   @override
-  Widget build(BuildContext context) => FutureBuilder<List<GroupBuy>>(
-        future: future,
-        builder: (context, snap) {
-          final list = snap.data ?? const <GroupBuy>[];
-          if (list.isEmpty) return const SizedBox.shrink();
-          return Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) {
+    if (list.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            child: Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                  child: Row(
+                Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Brand.accentSoft, borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.groups_2_outlined, color: Brand.accent, size: 20)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Brand.accentSoft, borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.groups_2_outlined, color: Brand.accent, size: 20)),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(S.t('group_buy_running'), style: Theme.of(context).textTheme.titleMedium),
-                            Text(S.t('group_buy_sub'), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
-                          ],
-                        ),
-                      ),
+                      Text(S.t('group_buy_running'), style: Theme.of(context).textTheme.titleMedium),
+                      Text(S.t('group_buy_sub'), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
                     ],
-                  ),
-                ),
-                SizedBox(
-                  height: 196,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: list.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 12),
-                    itemBuilder: (context, i) => _GroupBuyCard(g: list[i], onJoined: onJoined),
                   ),
                 ),
               ],
             ),
-          );
-        },
-      );
+          ),
+          SizedBox(
+            height: 196,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: list.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              itemBuilder: (context, i) => _GroupBuyCard(g: list[i], onJoined: onJoined),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _GroupBuyCard extends StatelessWidget {
@@ -596,14 +606,20 @@ class _GroupBuyCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          _Tag(S.t('group_buy').toUpperCase(), Brand.accent),
-                          if (disc != null && disc > 0) ...[
-                            const SizedBox(width: 6),
-                            _Tag(S.t('save_pct').replaceFirst('{n}', '$disc'), const Color(0xFFD9342B)),
+                      // Wide text and large system fonts: the tags shrink to
+                      // fit their line.
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          children: [
+                            _Tag(S.t('group_buy').toUpperCase(), Brand.accent),
+                            if (disc != null && disc > 0) ...[
+                              const SizedBox(width: 6),
+                              _Tag(S.t('save_pct').replaceFirst('{n}', '$disc'), const Color(0xFFD9342B)),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(g.title, maxLines: 2, overflow: TextOverflow.ellipsis,
@@ -612,8 +628,12 @@ class _GroupBuyCard extends StatelessWidget {
                         crossAxisAlignment: WrapCrossAlignment.end,
                         spacing: 6,
                         children: [
-                          Text(money(g.groupPrice, g.currency),
-                              style: theme.textTheme.titleMedium?.copyWith(color: Brand.accent, fontWeight: FontWeight.w800)),
+                          // The price keeps to one line: it shrinks before it breaks.
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(money(g.groupPrice, g.currency),
+                                style: theme.textTheme.titleMedium?.copyWith(color: Brand.accent, fontWeight: FontWeight.w800)),
+                          ),
                           if (g.regularPrice != null)
                             Text(money(g.regularPrice, g.currency),
                                 style: theme.textTheme.bodySmall?.copyWith(decoration: TextDecoration.lineThrough, color: Colors.black45)),

@@ -16,12 +16,14 @@ import 'package:wangjia_app/screens/checkout_screen.dart';
 import 'package:wangjia_app/screens/login_screen.dart';
 import 'package:wangjia_app/screens/orders_hub_screen.dart';
 import 'package:wangjia_app/screens/product_detail_screen.dart';
+import 'package:wangjia_app/screens/products_screen.dart';
 import 'package:wangjia_app/screens/warranty_screen.dart';
 
 const _login = '/auth/customer/emailpass';
 const _renew = '/auth/token/refresh';
 const _me = '/store/customers/me';
 const _products = '/store/products';
+const _groupBuys = '/store/group-buys';
 const _orders = '/store/orders';
 const _quotes = '/store/quotes';
 const _units = '/store/warranty/units';
@@ -63,6 +65,9 @@ void main() {
   // The shop's catalogue, and a way to keep its answer waiting (slow network).
   late Map<String, dynamic> catalogue;
   Completer<void>? catalogueHeld;
+  // The patungan the shop is running, with the same way to keep them waiting.
+  late List<Map<String, dynamic>> patungan;
+  Completer<void>? patunganHeld;
   // The token a sign-in hands out, and what a request for a fresh one gets
   // (with a way to keep that answer waiting).
   late String loginToken;
@@ -82,6 +87,8 @@ void main() {
     sessionCheckHeld = null;
     catalogue = {'products': []};
     catalogueHeld = null;
+    patungan = [];
+    patunganHeld = null;
     loginToken = _token('cus_1');
     renewal = _ok({'token': _token('cus_1', age: Duration.zero)});
     renewalHeld = null;
@@ -111,10 +118,8 @@ void main() {
           });
         case _products:
           return _ok(catalogue);
-        case '/store/group-buys':
-          return _ok({'group_buys': []});
-        case '/store/product-categories':
-          return _ok({'product_categories': []});
+        case _groupBuys:
+          return _ok({'group_buys': patungan});
         case '/store/customers/me/addresses':
           return _ok({'addresses': []});
         case '/store/wilayah':
@@ -136,7 +141,7 @@ void main() {
       calls.add(req);
       if (offline) throw http.ClientException('No route to host');
       final path = req.url.path;
-      final held = {_me: sessionCheckHeld, _products: catalogueHeld, _renew: renewalHeld}[path];
+      final held = {_me: sessionCheckHeld, _products: catalogueHeld, _groupBuys: patunganHeld, _renew: renewalHeld}[path];
       if (held != null) await held.future;
       final res = answer(req.url.path);
       // A real client hands the request back with the answer, and the app
@@ -489,6 +494,165 @@ void main() {
       await openApp(tester);
       expect(find.text('Kincir 1 HP'), findsNothing);
       expect(find.text(S.t('err_offline')), findsOneWidget);
+    });
+  });
+
+  group('the shop page', () {
+    // Their names differ from the shortcut labels, and only one holds "kincir".
+    const Map<String, dynamic> parts = {'id': 'pcat_parts', 'name': 'Suku Cadang & Aksesori', 'rank': 1};
+    const Map<String, dynamic> aerators = {'id': 'pcat_aerator', 'name': 'Kincir Air (Aerator)', 'rank': 2};
+
+    Map<String, dynamic> product(String id, String title, num price, List<Map<String, dynamic>> categories) => {
+          'id': 'prod_$id',
+          'title': title,
+          'categories': categories,
+          'variants': [
+            {
+              'id': 'variant_$id',
+              'title': 'Default',
+              'calculated_price': {'calculated_amount': price, 'currency_code': 'idr'}
+            }
+          ]
+        };
+
+    /// A machine and a spare part, each in its own category and in one the
+    /// shop does not show. The dearer machine comes first on the page, while
+    /// the shop puts the spare parts category first.
+    Map<String, dynamic> shop() => {
+          'products': [
+            product('kincir', 'Kincir 1 HP', 4500000, [
+              aerators,
+              {'id': 'pcat_promo', 'name': 'Promo internal', 'rank': 0, 'is_internal': true}
+            ]),
+            product('impeller', 'Impeller', 150000, [
+              parts,
+              {'id': 'pcat_old', 'name': 'Arsip', 'rank': 0, 'is_active': false}
+            ]),
+          ]
+        };
+
+    Map<String, dynamic> groupBuy(String title, {Duration ends = const Duration(days: 3)}) => {
+          'id': 'gb_1',
+          'title': title,
+          'product_id': 'prod_kincir',
+          'variant_id': 'variant_kincir',
+          'group_price': 4000000,
+          'regular_price': 4500000,
+          'min_quantity': 10,
+          'joined_quantity': 4,
+          'participants': 2,
+          'ends_at': DateTime.now().add(ends).toIso8601String(),
+          'status': 'open',
+        };
+
+    setUp(() => catalogue = shop());
+
+    /// Opens the shop once, so that it keeps what it was sent, and closes it.
+    Future<void> visit(WidgetTester tester) async {
+      await openApp(tester);
+      await tester.pumpWidget(const SizedBox());
+    }
+
+    testWidgets('opens whole from the last visit: nothing moves when the fresh answers come', (tester) async {
+      patungan = [groupBuy('Patungan Kincir')];
+      await visit(tester);
+
+      final slowCatalogue = catalogueHeld = Completer<void>();
+      final slowPatungan = patunganHeld = Completer<void>();
+      await openApp(tester);
+      // The patungan, the list's title, a category and a product.
+      final landmarks = ['Patungan Kincir', S.t('all_products'), 'Kincir Air (Aerator)', 'Kincir 1 HP'];
+      // Some lie past the edge of the test phone: built all the same, and not to move.
+      List<Offset> places() => [for (final text in landmarks) tester.getTopLeft(find.text(text, skipOffstage: false))];
+      final before = places();
+
+      slowCatalogue.complete();
+      slowPatungan.complete();
+      await settle(tester);
+      expect(places(), before);
+    });
+
+    testWidgets('shows the patungan of the last visit until the fresh ones are in', (tester) async {
+      patungan = [groupBuy('Patungan Lama')];
+      await visit(tester);
+
+      patungan = [groupBuy('Patungan Baru')];
+      final held = patunganHeld = Completer<void>();
+      await openApp(tester);
+      expect(find.text('Patungan Lama'), findsOneWidget);
+
+      held.complete();
+      await settle(tester);
+      expect(find.text('Patungan Lama'), findsNothing);
+      expect(find.text('Patungan Baru'), findsOneWidget);
+    });
+
+    testWidgets('does not bring back a patungan whose time ran out', (tester) async {
+      // Only this stand-in hands out one that is over; the shop never does.
+      patungan = [groupBuy('Patungan Kincir', ends: const Duration(seconds: -1))];
+      await visit(tester);
+      offline = true;
+      await openApp(tester);
+      expect(find.text('Kincir 1 HP'), findsOneWidget);
+      expect(find.text('Patungan Kincir'), findsNothing);
+    });
+
+    testWidgets('keeps the patungan of the last visit without signal', (tester) async {
+      patungan = [groupBuy('Patungan Kincir')];
+      await visit(tester);
+      offline = true;
+      await openApp(tester);
+      expect(find.text('Patungan Kincir'), findsOneWidget);
+    });
+
+    testWidgets('says so when the Patungan shortcut finds none running', (tester) async {
+      await openApp(tester);
+      await tester.tap(find.text(S.t('group_buy')));
+      await settle(tester);
+      expect(find.text(S.t('no_group_buy')), findsOneWidget);
+    });
+
+    testWidgets('is quiet when the Patungan shortcut finds one running', (tester) async {
+      patungan = [groupBuy('Patungan Kincir')];
+      await openApp(tester);
+      await tester.tap(find.text(S.t('group_buy')));
+      await settle(tester);
+      expect(find.text(S.t('no_group_buy')), findsNothing);
+      expect(find.text('Patungan Kincir'), findsOneWidget);
+    });
+
+    testWidgets('takes its category row from the catalogue, in the order the shop gives', (tester) async {
+      await openApp(tester);
+      // The test font is wide: the last pill is built past the edge of the screen.
+      double left(String text) => tester.getTopLeft(find.text(text, skipOffstage: false)).dx;
+      expect(left(S.t('all')), lessThan(left('Suku Cadang & Aksesori')));
+      expect(left('Suku Cadang & Aksesori'), lessThan(left('Kincir Air (Aerator)')));
+      // Hidden and internal categories get no pill, and no list is asked for.
+      expect(find.text('Promo internal', skipOffstage: false), findsNothing);
+      expect(find.text('Arsip', skipOffstage: false), findsNothing);
+      expect(requests('/store/product-categories'), 0);
+    });
+
+    testWidgets('shows the category of a shortcut, also without signal, and Semua brings all back', (tester) async {
+      await visit(tester);
+      offline = true;
+      await openApp(tester);
+      await tester.tap(find.text(S.t('quick_parts')));
+      await settle(tester);
+      expect(find.text('Impeller'), findsOneWidget);
+      expect(find.text('Kincir 1 HP'), findsNothing);
+
+      await tester.tap(find.text(S.t('all')));
+      await settle(tester);
+      expect(find.text('Kincir 1 HP'), findsOneWidget);
+    });
+
+    testWidgets('opened for spare parts, shows those', (tester) async {
+      phone(tester);
+      await tester.pumpWidget(const MaterialApp(home: ProductsScreen(initialCategoryName: 'suku cadang')));
+      await settle(tester);
+      expect(find.text('Impeller'), findsOneWidget);
+      expect(find.text('Kincir 1 HP'), findsNothing);
     });
   });
 

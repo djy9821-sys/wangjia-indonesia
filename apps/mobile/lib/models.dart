@@ -39,7 +39,8 @@ class Product {
   final List<Variant> variants;
   /// Ordered (label, value) pairs from metadata keys "spec:<label>".
   final List<(String, String)> specs;
-  final List<String> categoryIds;
+  /// The categories the shop lists this product under.
+  final List<Category> categories;
   Product({
     required this.id,
     required this.title,
@@ -50,7 +51,7 @@ class Product {
     this.images = const [],
     this.variants = const [],
     this.specs = const [],
-    this.categoryIds = const [],
+    this.categories = const [],
   });
   factory Product.fromJson(Map<String, dynamic> j) {
     final meta = (j['metadata'] as Map<String, dynamic>?) ?? {};
@@ -73,8 +74,11 @@ class Product {
           .map((e) => Variant.fromJson(e as Map<String, dynamic>))
           .toList(),
       specs: specs,
-      categoryIds: ((j['categories'] as List?) ?? [])
-          .map((e) => (e as Map<String, dynamic>)['id'] as String)
+      // Hidden and internal categories are not the shop's to show.
+      categories: ((j['categories'] as List?) ?? [])
+          .cast<Map<String, dynamic>>()
+          .where((c) => c['is_active'] != false && c['is_internal'] != true)
+          .map(Category.fromJson)
           .toList(),
     );
   }
@@ -357,9 +361,19 @@ class Quote {
 class Category {
   final String id;
   final String name;
-  Category(this.id, this.name);
+  /// The admin's order among categories.
+  final int rank;
+  Category(this.id, this.name, [this.rank = 0]);
   factory Category.fromJson(Map<String, dynamic> j) =>
-      Category(j['id'] as String, (j['name'] ?? '') as String);
+      Category(j['id'] as String, (j['name'] ?? '') as String, (j['rank'] as num?)?.toInt() ?? 0);
+
+  /// The categories a catalogue has products in, in the admin's order. They
+  /// come with the catalogue: the shop page asks for no list of its own.
+  static List<Category> listedIn(List<Product> products) {
+    final byId = {for (final p in products) for (final c in p.categories) c.id: c};
+    return byId.values.toList()
+      ..sort((a, b) => a.rank != b.rank ? a.rank.compareTo(b.rank) : a.name.compareTo(b.name));
+  }
 }
 
 /// Saved customer address (Medusa customer address).

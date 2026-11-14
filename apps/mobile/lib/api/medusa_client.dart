@@ -370,13 +370,6 @@ class MedusaClient {
     return (res['districts'] as List).map((e) => Wilayah.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  Future<List<Category>> categories() async {
-    final res = await get('/store/product-categories', query: {'limit': '50', 'fields': 'id,name,rank'});
-    return (res['product_categories'] as List)
-        .map((e) => Category.fromJson(e as Map<String, dynamic>))
-        .toList();
-  }
-
   // ---------- cart & checkout ----------
 
   Future<String> createCartWithItem(String variantId, int quantity) =>
@@ -435,11 +428,40 @@ class MedusaClient {
   Future<void> requestQuote(String cartId) => post('/store/quotes', {'cart_id': cartId});
 
   // ---- Patungan (group buy) ----
+  static const _groupBuysCacheKey = 'cache_group_buys_v1';
+
+  static List<GroupBuy> _parseGroupBuys(Map<String, dynamic> res) => ((res['group_buys'] as List?) ?? [])
+      .map((e) => GroupBuy.fromJson(e as Map<String, dynamic>))
+      .toList();
+
+  /// The open patungan, the same for every visitor. The answer is kept on the
+  /// device: without signal the kept ones stand in.
   Future<List<GroupBuy>> groupBuys() async {
-    final res = await get('/store/group-buys');
-    return ((res['group_buys'] as List?) ?? [])
-        .map((e) => GroupBuy.fromJson(e as Map<String, dynamic>))
-        .toList();
+    try {
+      final res = await get('/store/group-buys');
+      final list = _parseGroupBuys(res);
+      SharedPreferences.getInstance()
+          .then((prefs) => prefs.setString(_groupBuysCacheKey, jsonEncode(res)))
+          .catchError((_) => false);
+      return list;
+    } catch (_) {
+      return savedGroupBuys();
+    }
+  }
+
+  /// The patungan kept by the last visit that are still running, to show while
+  /// the fresh list is on its way.
+  Future<List<GroupBuy>> savedGroupBuys() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final res = jsonDecode(prefs.getString(_groupBuysCacheKey) ?? 'null');
+      if (res is! Map<String, dynamic>) return [];
+      final kept = _parseGroupBuys(res);
+      final now = DateTime.now();
+      return kept.where((g) => g.endsAt.isAfter(now)).toList();
+    } catch (_) {
+      return []; // unreadable: as good as none
+    }
   }
 
   /// Creates a cart with [quantity] units at the group price; returns the cart
