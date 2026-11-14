@@ -698,6 +698,19 @@ void main() {
         await tester.pumpWidget(const SizedBox());
       }
     });
+
+    testWidgets('keeps its search bar at the top while the list scrolls under it', (tester) async {
+      catalogue = {
+        'products': [for (var i = 1; i <= 8; i++) product('p$i', 'Produk $i', 100000 * i, [parts])]
+      };
+      await openApp(tester);
+      final bar = tester.getRect(find.byType(TextField));
+      await tester.dragUntilVisible(find.text('Produk 8'), find.byType(CustomScrollView), const Offset(0, -300));
+      await settle(tester);
+      // The bar has not moved and still takes a tap.
+      expect(tester.getRect(find.byType(TextField)), bar);
+      expect(find.byType(TextField).hitTestable(), findsOneWidget);
+    });
   });
 
   testWidgets('ensureSignedIn asks only a guest and reports how it went', (tester) async {

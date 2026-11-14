@@ -124,11 +124,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
               return true;
             }).toList();
             final featured = all.where((p) => p.thumbnail != null && p.minPrice != null).take(3).toList();
-            return RefreshIndicator(
+            final list = RefreshIndicator(
               onRefresh: _reload,
               child: CustomScrollView(
                 slivers: [
-                  SliverToBoxAdapter(child: _Header(query: _query, onQuery: (v) => setState(() => _query = v))),
                   if (MedusaClient.instance.productsFromCache)
                     SliverToBoxAdapter(
                       child: MaterialBanner(
@@ -210,6 +209,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     ),
                 ],
               ),
+            );
+            // The search bar stays at the top, like the title bar of the other
+            // tabs: the list scrolls under the bar, not under the phone's clock.
+            return Column(
+              children: [
+                _Header(query: _query, onQuery: (v) => setState(() => _query = v)),
+                Expanded(child: list),
+              ],
             );
           },
         ),
