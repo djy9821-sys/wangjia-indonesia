@@ -158,9 +158,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
                         children: [
                           Container(width: 4, height: 18, decoration: BoxDecoration(color: Brand.accent, borderRadius: BorderRadius.circular(2))),
                           const SizedBox(width: 8),
-                          Text(q.isEmpty ? S.t('all_products') : '"$_query"',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-                          const Spacer(),
+                          // A long search text is cut short, not pushed off the screen.
+                          Expanded(
+                            child: Text(q.isEmpty ? S.t('all_products') : '"$_query"',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                          ),
+                          const SizedBox(width: 8),
                           Text('${products.length} ${S.t('items_unit')}', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
                         ],
                       ),
@@ -169,7 +174,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   if (cats.isNotEmpty)
                     SliverToBoxAdapter(
                       child: SizedBox(
-                        height: 44,
+                        height: 44 + 18 * _fontGrowth(context),
                         child: ListView(
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -188,11 +193,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
                       sliver: SliverGrid(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        // A card is a square picture with its text under it: two
+                        // title lines, the price and the tags. The text does not
+                        // get lower on a narrow phone, and grows with the font.
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           mainAxisSpacing: 10,
                           crossAxisSpacing: 10,
-                          childAspectRatio: 0.62,
+                          mainAxisExtent: (MediaQuery.sizeOf(context).width - 34) / 2 + 102 + 70 * _fontGrowth(context),
                         ),
                         delegate: SliverChildBuilderDelegate(
                           (context, i) => _ProductCard(product: products[i], onOpenCart: widget.onOpenCart),
@@ -206,6 +214,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
           },
         ),
       );
+}
+
+/// How far the system font is set above its normal size: 0 at normal and
+/// below, 1 at twice the size. The boxes of fixed height on this page grow
+/// with it, so that a larger font is not cut off at the bottom.
+double _fontGrowth(BuildContext context) {
+  final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
+  return scale > 1 ? scale - 1 : 0;
 }
 
 /// Blue header with the logo and a search field (filters the catalogue locally).
@@ -226,7 +242,7 @@ class _Header extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: Container(
-                height: 40,
+                height: 40 + 24 * _fontGrowth(context),
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(999)),
                 child: TextField(
                   onChanged: onQuery,
@@ -264,7 +280,7 @@ class _BannerState extends State<_Banner> {
         child: Column(
           children: [
             SizedBox(
-              height: 168,
+              height: 168 + 90 * _fontGrowth(context),
               child: PageView.builder(
                 itemCount: widget.products.length,
                 onPageChanged: (i) => setState(() => _index = i),
@@ -293,14 +309,24 @@ class _BannerState extends State<_Banner> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(S.t('official_store').toUpperCase(),
-                                    style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.2)),
+                                // The label and the price keep to one line each:
+                                // they shrink before they break.
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(S.t('official_store').toUpperCase(),
+                                      style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.2)),
+                                ),
                                 const SizedBox(height: 4),
                                 Text(p.title, maxLines: 2, overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800, height: 1.15)),
                                 const SizedBox(height: 6),
-                                Text('${S.t('from')} ${money(p.minPrice, p.variants.first.currency)}',
-                                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text('${S.t('from')} ${money(p.minPrice, p.variants.first.currency)}',
+                                      style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
+                                ),
                                 const SizedBox(height: 8),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
@@ -368,7 +394,7 @@ class _QuickEntries extends StatelessWidget {
                     child: Icon(icon, color: color, size: 26),
                   ),
                   const SizedBox(height: 6),
-                  Text(label, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
+                  Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),
@@ -470,15 +496,17 @@ class _ProductCard extends StatelessWidget {
                     Text(product.title, maxLines: 2, overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 13, height: 1.25, fontWeight: FontWeight.w600)),
                     const Spacer(),
-                    Text(
-                      min == null ? S.t('ask_price') : money(min, currency),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: Brand.accent, fontSize: 16, fontWeight: FontWeight.w800),
+                    // Narrow phones and large system fonts: the price and the
+                    // tags shrink to their line instead of being cut short.
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        min == null ? S.t('ask_price') : money(min, currency),
+                        style: const TextStyle(color: Brand.accent, fontSize: 16, fontWeight: FontWeight.w800),
+                      ),
                     ),
                     const SizedBox(height: 6),
-                    // Narrow phones and large system fonts: shrink the tags to
-                    // fit instead of cutting the second one off.
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
@@ -549,7 +577,7 @@ class _GroupBuySection extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: 196,
+            height: 196 + 110 * _fontGrowth(context),
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -636,6 +664,7 @@ class _GroupBuyCard extends StatelessWidget {
                           ),
                           if (g.regularPrice != null)
                             Text(money(g.regularPrice, g.currency),
+                                maxLines: 1,
                                 style: theme.textTheme.bodySmall?.copyWith(decoration: TextDecoration.lineThrough, color: Colors.black45)),
                         ],
                       ),
@@ -652,13 +681,27 @@ class _GroupBuyCard extends StatelessWidget {
             const SizedBox(height: 6),
             Row(
               children: [
+                // One line, shared two to one: each side shrinks to its share
+                // instead of pushing the other off the card.
                 Expanded(
-                  child: Text(
-                    S.t('collected_of').replaceFirst('{n}', '${g.joinedQuantity}').replaceFirst('{min}', '${g.minQuantity}'),
-                    style: theme.textTheme.bodySmall,
+                  flex: 2,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      S.t('collected_of').replaceFirst('{n}', '${g.joinedQuantity}').replaceFirst('{min}', '${g.minQuantity}'),
+                      style: theme.textTheme.bodySmall,
+                    ),
                   ),
                 ),
-                Text(S.t('days_left').replaceFirst('{n}', '${g.daysLeft}'), style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: Text(S.t('days_left').replaceFirst('{n}', '${g.daysLeft}'), style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                  ),
+                ),
               ],
             ),
           ],

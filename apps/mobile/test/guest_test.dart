@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -653,6 +654,49 @@ void main() {
       await settle(tester);
       expect(find.text('Impeller'), findsOneWidget);
       expect(find.text('Kincir 1 HP'), findsNothing);
+    });
+
+    testWidgets('holds when the system font is set larger: no box cuts its text', (tester) async {
+      // A picture brings the banner on, and long names fill their two lines.
+      catalogue = {
+        'products': [
+          {
+            ...product('kincir', 'Kincir Air WANGJIA 1 HP 3 Phase', 4500000, [aerators]),
+            'thumbnail': 'http://shop.test/kincir.jpg',
+          },
+          product('impeller', 'Impeller Kincir Air WANGJIA', 150000, [parts]),
+        ]
+      };
+      patungan = [groupBuy('Patungan Kincir 1 HP 3 Phase')];
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      // 1.3 is the largest step on most Android phones, 2 the largest there is.
+      for (final scale in [1.0, 1.3, 2.0]) {
+        tester.platformDispatcher.textScaleFactorTestValue = scale;
+        await openApp(tester);
+        expect(tester.takeException(), isNull, reason: 'the top of the page at $scale');
+        // The banner and the patungan card are among what was laid out.
+        expect(find.text(S.t('official_store').toUpperCase()), findsOneWidget);
+        expect(find.text('Patungan Kincir 1 HP 3 Phase', skipOffstage: false), findsOneWidget);
+
+        // Text in a box that is too low is cut without a word from Flutter. The
+        // search field has always taken 4 px off the empty part of its line and
+        // may take no more; a category pill has to give its text the whole line.
+        final field = tester.renderObject<RenderBox>(find.byType(EditableText));
+        expect(field.size.height, greaterThanOrEqualTo(field.getMaxIntrinsicHeight(field.size.width) - 4), reason: 'the search field at $scale');
+        await tester.dragUntilVisible(find.text(S.t('all')), find.byType(CustomScrollView), const Offset(0, -300));
+        final pill = tester.renderObject<RenderBox>(find.text(S.t('all')));
+        expect(pill.size.height, greaterThanOrEqualTo(pill.getMaxIntrinsicHeight(pill.size.width)), reason: 'a pill at $scale');
+
+        // The product cards lie further down the page.
+        await tester.dragUntilVisible(find.text('Impeller Kincir Air WANGJIA'), find.byType(CustomScrollView), const Offset(0, -300));
+        await settle(tester);
+        expect(tester.takeException(), isNull, reason: 'the page at $scale');
+        // A price shrinks to its line; it is not cut short with an ellipsis.
+        final price = tester.renderObject<RenderParagraph>(find.textContaining('150.000', skipOffstage: false));
+        expect(price.didExceedMaxLines, isFalse, reason: 'a price at $scale');
+
+        await tester.pumpWidget(const SizedBox());
+      }
     });
   });
 
