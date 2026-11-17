@@ -296,6 +296,8 @@ class S {
     'orders_guest': 'Masuk untuk melihat pesanan dan penawaran Anda.',
     'account_guest': 'Belum masuk',
     'account_guest_hint': 'Masuk atau daftar untuk memesan, minta penawaran, dan melacak pesanan.',
+    'account_guest_hint_closed': 'Masuk untuk memesan, minta penawaran, dan melacak pesanan.',
+    'signup_closed_hint': 'Pendaftaran akun baru belum dibuka. Belum punya akun? Hubungi WANGJIA.',
     'units_guest': 'Masuk untuk melihat mesin Anda',
     'registered_guest': 'Mesin ini sudah terdaftar. Masuk untuk memeriksa apakah atas nama Anda.',
   };
@@ -577,6 +579,8 @@ class S {
     'orders_guest': 'Sign in to see your orders and quotes.',
     'account_guest': 'Not signed in',
     'account_guest_hint': 'Sign in or register to order, request quotes and track your orders.',
+    'account_guest_hint_closed': 'Sign in to order, request quotes and track your orders.',
+    'signup_closed_hint': 'New accounts are not open yet. No account? Contact WANGJIA.',
     'units_guest': 'Sign in to see your machines',
     'registered_guest': 'This machine is already registered. Sign in to check whether it is in your name.',
   };

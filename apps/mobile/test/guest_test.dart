@@ -19,6 +19,7 @@ import 'package:wangjia_app/screens/orders_hub_screen.dart';
 import 'package:wangjia_app/screens/product_detail_screen.dart';
 import 'package:wangjia_app/screens/products_screen.dart';
 import 'package:wangjia_app/screens/warranty_screen.dart';
+import 'package:wangjia_app/update_check.dart';
 
 const _login = '/auth/customer/emailpass';
 const _renew = '/auth/token/refresh';
@@ -213,6 +214,20 @@ void main() {
       expect(find.text(S.t('account_guest')), findsOneWidget);
       await scrollTo(tester, find.textContaining(S.t('app_version')));
       expect(find.text(S.t('logout')), findsNothing);
+    });
+
+    testWidgets('is offered only sign-in while the shop takes no new accounts', (tester) async {
+      addTearDown(() => signupOpen = true);
+      signupOpen = false;
+      await openApp(tester);
+      await tab(tester, 'orders');
+      expect(find.text(S.t('login')), findsOneWidget);
+      expect(find.text(S.t('login_or_register')), findsNothing);
+
+      await tab(tester, 'account');
+      expect(find.widgetWithText(FilledButton, S.t('login')), findsOneWidget);
+      expect(find.text(S.t('account_guest_hint_closed')), findsOneWidget);
+      expect(find.text(S.t('login_or_register')), findsNothing);
     });
 
     testWidgets('who signs in from the account page comes back to it as the customer', (tester) async {

@@ -8,6 +8,7 @@ import '../api/medusa_client.dart';
 import '../l10n/strings.dart';
 import '../cart.dart';
 import '../push.dart';
+import '../update_check.dart';
 import 'cart_screen.dart';
 import 'orders_hub_screen.dart';
 import 'products_screen.dart';
@@ -65,7 +66,7 @@ class _HomeShellState extends State<HomeShell> {
           body: EmptyState(
             icon: Icons.receipt_long_outlined,
             title: S.t('orders_guest'),
-            actionLabel: S.t('login_or_register'),
+            actionLabel: S.t(signupOpen ? 'login_or_register' : 'login'),
             onAction: widget.onSignIn,
           ),
         )
@@ -187,9 +188,10 @@ class _AccountScreen extends StatelessWidget {
                   children: [
                     Text(S.t('account_guest'), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 4),
-                    Text(S.t('account_guest_hint'), style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                    Text(S.t(signupOpen ? 'account_guest_hint' : 'account_guest_hint_closed'),
+                        style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54)),
                     const SizedBox(height: 14),
-                    FilledButton(onPressed: onSignIn, child: Text(S.t('login_or_register'))),
+                    FilledButton(onPressed: onSignIn, child: Text(S.t(signupOpen ? 'login_or_register' : 'login'))),
                   ],
                 ),
               ),

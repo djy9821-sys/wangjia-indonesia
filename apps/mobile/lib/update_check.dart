@@ -37,6 +37,11 @@ class UpdatePolicy {
 /// the sign-up form keeps its "Kirim kode" button.
 bool phoneCodes = true;
 
+/// Whether the shop takes new customers. Before it opens the backend says no
+/// (SIGNUP_CLOSED) and the app only signs in; until it has answered, the
+/// sign-up form stays, and the backend refuses it anyway.
+bool signupOpen = true;
+
 /// Asks the backend for the version policy; blocks the app below the minimum
 /// version, otherwise shows a one-time banner when a newer build exists.
 class UpdateGate extends StatefulWidget {
@@ -60,6 +65,7 @@ class _UpdateGateState extends State<UpdateGate> {
     try {
       final res = await MedusaClient.instance.get('/store/app-version');
       phoneCodes = res['phone_codes'] != false;
+      signupOpen = res['signup'] != false;
       if (!mounted) return;
       setState(() => _policy = UpdatePolicy(
             (res['min_version'] ?? '0.0.0') as String,

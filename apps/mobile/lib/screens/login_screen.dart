@@ -212,15 +212,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    SegmentedButton<bool>(
-                      segments: [
-                        ButtonSegment(value: false, label: Text(S.t('login'))),
-                        ButtonSegment(value: true, label: Text(S.t('register'))),
-                      ],
-                      selected: {_register},
-                      onSelectionChanged: (s) => setState(() => _register = s.first),
-                    ),
-                    const SizedBox(height: 20),
+                    // Before the shop opens it takes no new accounts; a sign-up
+                    // that was started earlier can still be finished.
+                    if (signupOpen || _register) ...[
+                      SegmentedButton<bool>(
+                        segments: [
+                          ButtonSegment(value: false, label: Text(S.t('login'))),
+                          ButtonSegment(value: true, label: Text(S.t('register'))),
+                        ],
+                        selected: {_register},
+                        onSelectionChanged: (s) => setState(() => _register = s.first),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                     if (_register) ...[
                       Row(children: [
                         Expanded(child: TextField(controller: _first, decoration: InputDecoration(labelText: S.t('first_name')))),
@@ -287,6 +291,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     if (!_register)
                       TextButton(onPressed: _forgotPassword, child: Text(S.t('forgot_password'))),
+                    if (!signupOpen && !_register)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Text(
+                          S.t('signup_closed_hint'),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54),
+                        ),
+                      ),
                     const SizedBox(height: 4),
                     TextButton(
                       onPressed: () => S.locale.value = S.locale.value == 'id' ? 'en' : 'id',

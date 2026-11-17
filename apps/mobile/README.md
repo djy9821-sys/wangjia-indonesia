@@ -37,7 +37,7 @@ builds one against the backend you name, for example a dev machine on the same W
 - Photo URLs stored as `http://localhost:9000/...` are re-based onto `MEDUSA_URL` by `AppConfig.reachableUrl`.
 - Every CI build is signed with a fresh debug key, so uninstall the previous build before installing a newer one.
 - The app opens on the catalogue; checkout and quote requests ask for a sign-in, and the orders and account tabs
-  carry a sign-in button. Register a customer or use the example one from `infra/smoke-order.sh`.
+  carry a sign-in button. Use the example customer from `infra/smoke-order.sh`: until launch the dev backend sets `SIGNUP_CLOSED=true`, so the app hides the "Daftar" tab (it reads `signup` from `/store/app-version`).
 
 ## Release (Fastlane)
 

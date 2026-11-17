@@ -3,6 +3,7 @@ import { MedusaNextFunction, MedusaRequest, MedusaResponse } from "@medusajs/fra
 import { defineMiddlewares } from "@medusajs/medusa";
 import { captureServerError } from "../utils/sentry";
 import { lowercaseEmail } from "./middlewares/lowercase-email";
+import { refuseClosedSignup } from "./middlewares/signup-closed";
 import { rejectDeletedCustomer } from "./middlewares/reject-deleted-customer";
 import { adminMiddlewares } from "./admin/middlewares";
 import { storeMiddlewares } from "./store/middlewares";
@@ -31,6 +32,8 @@ export default defineMiddlewares({
     { matcher: "/store/payment-installments/:id/proofs", method: ["POST"], middlewares: [uploadRateLimit] },
     { matcher: "/store/warranty/verify/*", method: ["GET"], middlewares: [verifyRateLimit] },
     { matcher: "/store/warranty/register", method: ["POST"], middlewares: [uploadRateLimit] },
+    // Until the shop opens (SIGNUP_CLOSED=true) nobody new gets an account.
+    { matcher: "/auth/customer/emailpass/register", method: ["POST"], middlewares: [refuseClosedSignup] },
     // One spelling per customer email, whatever capitals were typed.
     { matcher: "/auth/customer/emailpass", method: ["POST"], middlewares: [lowercaseEmail()] },
     { matcher: "/auth/customer/emailpass/register", method: ["POST"], middlewares: [lowercaseEmail()] },

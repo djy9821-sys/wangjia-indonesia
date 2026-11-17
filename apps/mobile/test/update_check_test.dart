@@ -20,18 +20,23 @@ void main() {
     expect(compareVersions("2", "1.9.9"), 1);
   });
 
-  testWidgets("the shop says at start-up whether it can send a phone code", (tester) async {
-    addTearDown(() => phoneCodes = true);
+  testWidgets("the shop says at start-up whether it takes new accounts and can send a phone code", (tester) async {
+    addTearDown(() {
+      phoneCodes = true;
+      signupOpen = true;
+    });
     Future<void> start(Map<String, dynamic> answer) async {
       api.httpClient = MockClient((_) async => http.Response(jsonEncode(answer), 200));
       await tester.pumpWidget(MaterialApp(home: UpdateGate(key: UniqueKey(), child: const SizedBox())));
       await tester.pumpAndSettle();
     }
 
-    await start({"min_version": "0.0.0", "latest_version": "0.0.0", "phone_codes": false});
+    await start({"min_version": "0.0.0", "latest_version": "0.0.0", "phone_codes": false, "signup": false});
     expect(phoneCodes, isFalse);
+    expect(signupOpen, isFalse);
     // A backend that does not say is an older one: its sign-up form kept the button.
     await start({"min_version": "0.0.0", "latest_version": "0.0.0"});
     expect(phoneCodes, isTrue);
+    expect(signupOpen, isTrue);
   });
 }

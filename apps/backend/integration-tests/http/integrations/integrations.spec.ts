@@ -50,8 +50,36 @@ medusaIntegrationTestRunner({
           android_url: "https://example.com/app.apk",
           // WhatsApp is not connected here, so the app must not offer a phone code
           phone_codes: false,
+          // and sign-up is open unless SIGNUP_CLOSED=true
+          signup: true,
         })
       );
+    });
+
+    it("takes no new accounts while sign-up is closed, and lets existing ones in", async () => {
+      const password = `pw-${Date.now()}`;
+      const signUp = (email: string) =>
+        api.post("/auth/customer/emailpass/register", { email, password }).catch((e) => e.response);
+      const before = (await signUp("sebelum@example.com")).data.token;
+      await api.post(
+        "/store/customers",
+        { email: "sebelum@example.com", first_name: "Sari" },
+        { headers: { ...publicHeaders.headers, Authorization: `Bearer ${before}` } }
+      );
+
+      process.env.SIGNUP_CLOSED = "true";
+      try {
+        expect((await api.get("/store/app-version", publicHeaders)).data.signup).toBe(false);
+        const refused = await signUp("baru@example.com");
+        expect(refused.status).toEqual(400);
+        expect(refused.data.message).toContain("belum dibuka");
+        // whoever has an account still signs in
+        const login = await api.post("/auth/customer/emailpass", { email: "sebelum@example.com", password });
+        expect(login.data.token).toBeTruthy();
+      } finally {
+        delete process.env.SIGNUP_CLOSED;
+      }
+      expect((await signUp("baru@example.com")).status).toEqual(200);
     });
 
     it("treats a customer email the same in any capitals", async () => {

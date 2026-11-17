@@ -326,6 +326,35 @@ void main() {
       expect(loggedIn, 0);
     });
 
+    testWidgets('while the shop takes no new accounts the page only signs in', (tester) async {
+      addTearDown(() => signupOpen = true);
+      signupOpen = false;
+      backend({});
+      await open(tester);
+      expect(find.byType(SegmentedButton<bool>), findsNothing);
+      expect(find.text(S.t('register')), findsNothing);
+      expect(find.text(S.t('signup_closed_hint')), findsOneWidget);
+      await press(tester, 'login');
+      expect(find.text(S.t('err_fill_login')), findsOneWidget);
+    });
+
+    testWidgets('a sign-up started before the shop closed it can still be finished', (tester) async {
+      addTearDown(() => signupOpen = true);
+      signupOpen = false;
+      backend({
+        _login: [_ok({'token': _token('')})],
+      });
+      await open(tester);
+      await type(tester, 'email', 'sari@example.com');
+      await type(tester, 'password', 'x' * 10);
+      await press(tester, 'login');
+      expect(find.text(S.t('err_signup_incomplete')), findsOneWidget);
+      expect(find.text(S.t('first_name')), findsOneWidget);
+      // The tabs are back, so signing in stays one tap away.
+      expect(find.byType(SegmentedButton<bool>), findsOneWidget);
+      expect(find.text(S.t('signup_closed_hint')), findsNothing);
+    });
+
     Future<void> askForReset(WidgetTester tester) async {
       await open(tester);
       final link = find.text(S.t('forgot_password'));

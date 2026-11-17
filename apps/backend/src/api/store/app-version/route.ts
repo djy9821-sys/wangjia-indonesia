@@ -1,5 +1,6 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { phoneCodesOffered } from "../../../utils/otp";
+import { signupOpen } from "../../middlewares/signup-closed";
 
 /*
   GET /store/app-version — version policy for the mobile app, independent of
@@ -8,7 +9,8 @@ import { phoneCodesOffered } from "../../../utils/otp";
     APP_LATEST_VERSION  below this the app shows a dismissible banner
     APP_ANDROID_URL / APP_IOS_URL  where to get the update
   It is the one thing the app asks at start-up, so it also says whether the
-  sign-up form should offer a phone code (phone_codes).
+  sign-up form should offer a phone code (phone_codes) and whether new
+  customers can sign up at all (signup, off with SIGNUP_CLOSED=true).
 */
 export const GET = async (_req: MedusaRequest, res: MedusaResponse) => {
   res.setHeader("Cache-Control", "public, max-age=300");
@@ -19,5 +21,6 @@ export const GET = async (_req: MedusaRequest, res: MedusaResponse) => {
     ios_url: process.env.APP_IOS_URL || null,
     message: process.env.APP_UPDATE_MESSAGE || null,
     phone_codes: phoneCodesOffered(),
+    signup: signupOpen(),
   });
 };
