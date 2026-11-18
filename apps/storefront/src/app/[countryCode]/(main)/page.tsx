@@ -2,10 +2,14 @@ import { listRegions } from "@/lib/data/regions"
 import { toJsonLd } from "@/lib/util/product-structured-data"
 import { getSiteOrigin, listCountryCodes, STORE_NAME } from "@/lib/util/site"
 import { buildRegionsReturnPolicies } from "@/lib/util/store-policies"
+import BenefitMarquee from "@/modules/home/components/benefit-marquee"
+import CtaBand from "@/modules/home/components/cta-band"
 import FeaturedProducts from "@/modules/home/components/featured-products"
 import GroupBuyStrip from "@/modules/home/components/group-buy-strip"
 import Hero from "@/modules/home/components/hero"
+import HowToOrder from "@/modules/home/components/how-to-order"
 import ProductGrid from "@/modules/home/components/product-grid"
+import WhyWangjia from "@/modules/home/components/why-wangjia"
 import SkeletonFeaturedProducts from "@/modules/skeletons/templates/skeleton-featured-products"
 import { Metadata } from "next"
 import { Suspense } from "react"
@@ -82,15 +86,19 @@ export default async function Home(props: {
         dangerouslySetInnerHTML={{ __html: toJsonLd(structuredData) }}
       />
       <Hero />
+      <BenefitMarquee />
       <Suspense fallback={null}>
         <GroupBuyStrip countryCode={countryCode} />
       </Suspense>
       <Suspense fallback={<SkeletonFeaturedProducts />}>
         <ProductGrid countryCode={countryCode} />
       </Suspense>
+      <WhyWangjia />
+      <HowToOrder />
       <Suspense fallback={null}>
         <FeaturedProducts countryCode={countryCode} />
       </Suspense>
+      <CtaBand />
     </div>
   )
 }

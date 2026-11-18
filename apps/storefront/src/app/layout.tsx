@@ -15,7 +15,9 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <head>
         <link rel="ucp" href="/.well-known/ucp" />
       </head>
-      <body>
+      {/* An explicit white page: a browser in dark mode would otherwise put
+          the sections without their own background on a dark canvas. */}
+      <body className="bg-white">
         <main className="relative">{props.children}</main>
         <Toaster className="z-[99999]" position="bottom-left" />
         <Analytics />
