@@ -10,8 +10,9 @@ export const PRODUCT_INDEX_NAME = "product"
 /**
  * The currencies the product index holds prices in, one field set each. Keep in
  * sync with `PRICE_CURRENCIES` in the backend's `src/search/helpers/pricing.ts`.
+ * The shop sells in rupiah only.
  */
-export const SEARCH_PRICE_CURRENCIES = ["eur", "usd"]
+export const SEARCH_PRICE_CURRENCIES = ["idr"]
 
 export type PriceField =
   | "min_price"

@@ -8,7 +8,7 @@ import { Text, clx } from "@medusajs/ui"
 import type { Hit as HitType } from "instantsearch.js"
 
 /**
- * The price fields are per currency, e.g. `min_price_eur`, so they're read
+ * The price fields are per currency, e.g. `min_price_idr`, so they're read
  * through `priceAttribute` rather than declared one by one.
  */
 export type ProductHit = HitType<
