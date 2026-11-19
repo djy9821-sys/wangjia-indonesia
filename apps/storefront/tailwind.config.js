@@ -61,6 +61,15 @@ module.exports = {
           "0%, 100%": { opacity: 0.55 },
           "50%": { opacity: 0.9 },
         },
+        // Home hero slides: the words rise into place, then the machine lands in front.
+        "hero-word": {
+          from: { opacity: 0, transform: "translateY(45%)" },
+          to: { opacity: 1, transform: "translateY(0)" },
+        },
+        "hero-product": {
+          from: { opacity: 0, transform: "scale(0.9) rotate(-4deg)" },
+          to: { opacity: 1, transform: "scale(1) rotate(0deg)" },
+        },
       },
       animation: {
         "accordion-open": "accordion-open 0.3s ease-out",
@@ -71,6 +80,8 @@ module.exports = {
         "pond-ripple": "pond-ripple 3.2s ease-out infinite",
         marquee: "marquee 45s linear infinite",
         "night-glow": "night-glow 5s ease-in-out infinite",
+        "hero-word": "hero-word 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards",
+        "hero-product": "hero-product 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both",
       },
     },
   },

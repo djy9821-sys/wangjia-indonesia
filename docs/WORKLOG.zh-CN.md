@@ -161,6 +161,8 @@
 
 - 设计拆解（米杰要我去找优秀独立站，能拿到源码就看源码，拿不到就拆网页，深度学习、深度思考）。用米杰的 Chrome 拆了 Teenage Engineering、Nothing（Shopify 独立站）、大疆 Mavic 4 Pro 产品页和 MotionSites，读出字体、字号、配色、动效时长、用的库和页面结构；另一路查了 GitHub。品牌官网都没有公开源码，能用的开源代码是 Lenis、GSAP、Motion、Codrops 的演示和 Your Next Store 模板。也读了米杰转来的 TikTok 视频文字稿（先挑现成的好设计，再换成自己的素材）。结论写在 `docs/DESIGN-TEARDOWN.zh-CN.md`：这些网站好看首先靠画面素材，其次是字体和克制的配色，动效很轻；我们最缺的是产品影棚照、塘里实拍、3D 模型，以及一条故事线。交接文档也指向了这份报告。
 
+- 首屏换成现成设计（米杰选了“先挑现成设计”）。在 MotionSites 上挑了三个候选（Design World、Blendy 冰沙滑块、Roadster 3D），米杰选了免费的 Design World：黑底、整屏巨大的字、主体压在字前面、右上角左右箭头、右侧圆点、左下一句话、中间按钮、右下镂空的大编号。原作的主体是一块会转的玻璃立方体，我们换成增氧机：用 Vision 把两张橙色桨叶的 1 HP、2 HP 正面照抠成透明底（各约 75 KB），每张一屏，字是“Kincir Air 2 HP”“Kincir Air 1 HP”，按钮进商品页，旁边写“mulai”加从商城读出来的价格，7 秒自动换一屏（鼠标指着或系统关了动效就不换）。字体用 Poppins，用 `@fontsource/poppins`（开源字体许可，可商用）随网站打包，因为本机连不上 Google 字体。提示词本身复制到了，但浏览器工具把那段文字拦了，我改写文字想绕过去，被系统拒绝，于是照预览做。本机电脑和手机宽度都看过，类型检查通过，lint 没有新问题。
+
 ## 本机验证手段
 - 后端：`pnpm test:integration:http`（38 个用例，CI 每次推送都跑，11-13 在本机也整套跑过）、`pnpm test:unit`（21 个）、tsc、medusa lint；curl 走接口；浏览器查后台页面。
 - 商城：tsc、lint；浏览器查页面；sitemap 检查。

@@ -85,7 +85,7 @@ export default async function Home(props: {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: toJsonLd(structuredData) }}
       />
-      <Hero />
+      <Hero countryCode={countryCode} />
       <BenefitMarquee />
       <Suspense fallback={null}>
         <GroupBuyStrip countryCode={countryCode} />
