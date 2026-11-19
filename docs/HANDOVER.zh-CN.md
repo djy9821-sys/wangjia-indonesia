@@ -18,8 +18,9 @@
 2. `README.zh-CN.md`：功能清单、本地运行、「测试包（不用 Mac）」一节。
 3. `docs/ROADMAP.zh-CN.md`：上线前清单（1.x）和以后的计划。
 4. `docs/WORKLOG.zh-CN.md`：从 11-07 起每天做了什么、怎么验证、哪些没做到。
-5. `apps/mobile/README.md`：App 的构建参数和测试方法。
-6. `deploy/README.md`：上服务器的步骤（docker compose：Postgres、Redis、后端、网页店、Caddy）。
+5. `docs/DESIGN-TEARDOWN.zh-CN.md`：优秀独立站的设计拆解和对 WANGJIA 的建议，做设计前必读。
+6. `apps/mobile/README.md`：App 的构建参数和测试方法。
+7. `deploy/README.md`：上服务器的步骤（docker compose：Postgres、Redis、后端、网页店、Caddy）。
 
 ## 3. 在这台 Mac 上运行
 
@@ -67,7 +68,7 @@
 ## 7. 还没做的（大致按重要性）
 
 1. 上线（路线图 1.4）：一台云服务器（建议新加坡或雅加达机房，2 核 4G，Ubuntu）加一个域名，按 `deploy/README.md` 部署。上线后 App 连固定地址，测试包的问题就没了，网页版谁都能打开。这一步要米杰或李总购买。
-2. 网页店设计：拿到米杰的参考再做；商品列表页、商品详情页、导航栏还没跟首页统一。
+2. 网页店设计：先读 `docs/DESIGN-TEARDOWN.zh-CN.md`（拆解了 Teenage Engineering、Nothing、大疆产品页和 X 上流行的设计来源，结论是先要画面素材，再按故事线排版）。拿到米杰的参考再做；商品列表页、商品详情页、导航栏还没跟首页统一。
 3. 路线图 1.10：每件商品描述末尾有一句中文摘要，顾客看得到，上线前要移到后台备注。
 4. 路线图 1.11、1.12、1.14、1.16、1.17：网页注册和 App 对齐；结算页的运费与合计、订单页的地址和取消；改密码后让其他设备下线；大字号排版；地址栏自动更正。
 5. 路线图 1.13、1.15：几条规则要李总定（自动建付款计划的金额、运费怎么收、登录时长、分期提醒频率等）。
