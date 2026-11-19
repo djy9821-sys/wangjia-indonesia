@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WANGJIA Kincir Air · Arah B: Bisa dicek</title>
+<style>
+@font-face { font-family: Geist; src: url(fonts/geist.woff2) format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url(fonts/geist-mono.woff2) format("woff2"); font-weight: 100 900; font-display: swap; }
+
+/* ---------- Tokens: warm paper, ink, one blue taken from the floats ---------- */
+:root {
+  --paper: #f2f0ea; --paper-2: #e9e6de; --white: #fbfaf7;
+  --ink: #121417; --ink-2: #4a4f57; --ink-3: #676c74;
+  --line: #d9d5cb; --line-2: #c4bfb3; --grid: #e6e2d8;
+  --blue: #1648d8; --blue-2: #0f3bb8; --on-blue: #ffffff;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --fast: 200ms; --med: 450ms; --slow: 900ms;
+  --pad: 20px; --max: 1360px;
+  --sans: Geist, ui-sans-serif, system-ui, sans-serif;
+  --mono: "Geist Mono", ui-monospace, Menlo, monospace;
+}
+@media (min-width: 640px) { :root { --pad: 32px; } }
+@media (min-width: 1024px) { :root { --pad: 40px; } }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 80px; }
+html, body { overflow-x: clip; }
+body { background: var(--paper); color: var(--ink); font: 400 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+@media (min-width: 1024px) { body { font-size: 17px; } }
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; text-decoration: none; }
+button, input { font: inherit; color: inherit; background: none; border: 0; }
+ul, ol { list-style: none; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
+.container { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--pad); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ---------- Type: one family, a mono for labels ---------- */
+.mono { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
+.label { color: var(--ink-3); display: flex; gap: 10px; align-items: center; }
+.label b { color: var(--blue); font-weight: 500; }
+.h1 { font-weight: 500; letter-spacing: -.045em; line-height: .98; font-size: clamp(44px, 5.6vw, 88px); text-wrap: balance; }
+.h2 { font-weight: 500; letter-spacing: -.04em; line-height: 1; font-size: clamp(36px, 4.4vw, 64px); text-wrap: balance; }
+.h3 { font-weight: 600; letter-spacing: -.015em; line-height: 1.2; font-size: 19px; }
+.lead { font-size: 18px; line-height: 1.5; color: var(--ink-2); max-width: 44ch; }
+@media (min-width: 1024px) { .lead { font-size: 20px; } }
+
+/* ---------- Buttons ---------- */
+.btn { white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 22px; border-radius: 10px; font-weight: 600; font-size: 16px; cursor: pointer; transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease), color var(--fast) var(--ease); }
+.btn svg { width: 18px; height: 18px; flex: none; transition: transform var(--fast) var(--ease); }
+.btn-primary { background: var(--blue); color: var(--on-blue); }
+.btn-primary:hover { background: var(--blue-2); }
+.btn-primary:hover svg { transform: translateX(3px); }
+.btn-ghost { border: 1px solid var(--line-2); background: var(--white); }
+.btn-ghost:hover { border-color: var(--ink-3); }
+.btn-ghost svg { color: #1faf55; }
+
+/* ---------- Header ---------- */
+.site-header { position: sticky; top: 0; z-index: 30; background: rgba(242, 240, 234, .9); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+.nav { display: flex; align-items: center; gap: 28px; height: 64px; }
+.nav .logo img { height: 26px; width: auto; }
+.nav-links { display: none; gap: 26px; font-size: 15px; color: var(--ink-2); }
+.nav-links a:hover { color: var(--ink); }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.icon-btn { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 10px; color: var(--ink-2); }
+.icon-btn:hover { background: var(--paper-2); color: var(--ink); }
+.icon-btn svg { width: 20px; height: 20px; }
+.nav .login { display: none; font-size: 15px; color: var(--ink-2); padding: 0 10px; }
+.hdr-buy { display: none; }
+@media (min-width: 1024px) {
+  .nav-links { display: flex; } .nav .login { display: inline; } .menu-btn { display: none; }
+  .hdr-buy { display: flex; align-items: center; gap: 14px; margin-left: auto; opacity: 0; transform: translateY(-6px); pointer-events: none; transition: opacity var(--med) var(--ease), transform var(--med) var(--ease); }
+  .site-header.buying .hdr-buy { opacity: 1; transform: none; pointer-events: auto; }
+  .site-header.buying .nav-right { margin-left: 8px; }
+  .hdr-buy .t { font-size: 14px; color: var(--ink-2); }
+  .hdr-buy b { font-weight: 600; font-size: 17px; letter-spacing: -.01em; }
+  .hdr-buy .btn { min-height: 40px; padding: 0 16px; font-size: 14px; }
+}
+
+/* ---------- Hero: the text, and the machine on a drawing board ---------- */
+.hero { padding: 40px 0 64px; }
+@media (min-width: 1024px) { .hero { padding: 56px 0 96px; } }
+.hero-grid { display: grid; gap: 32px; }
+@media (min-width: 1024px) { .hero-grid { grid-template-columns: 5fr 7fr; gap: 56px; align-items: center; } }
+.hero .h1 { margin-top: 20px; }
+.hero .lead { margin-top: 20px; }
+.tabs { display: inline-flex; gap: 0; margin-top: 32px; border: 1px solid var(--line-2); border-radius: 10px; padding: 3px; background: var(--white); }
+.tabs button { min-height: 44px; padding: 0 16px; border-radius: 8px; cursor: pointer; color: var(--ink-2); font-size: 15px; }
+.tabs button small { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-left: 6px; }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--white); }
+.tabs button[aria-selected="true"] small { color: #a9aeb6; }
+.price-line { display: flex; align-items: baseline; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+.price { font-weight: 500; font-size: 40px; letter-spacing: -.035em; line-height: 1; }
+.price-note { color: var(--ink-3); }
+.ctas { display: grid; gap: 10px; margin-top: 20px; }
+@media (min-width: 640px) { .ctas { grid-auto-flow: column; justify-content: start; } }
+
+.board { position: relative; background-color: var(--white); background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 24px 24px; background-position: -1px -1px; border: 1px solid var(--line); border-radius: 4px; aspect-ratio: 4 / 3; overflow: hidden; }
+.board .cap { position: absolute; left: 16px; right: 16px; top: 14px; display: flex; justify-content: space-between; gap: 12px; color: var(--ink-3); font-size: 11px; }
+.board .cap-b { top: auto; bottom: 14px; }
+.board .corner { position: absolute; width: 14px; height: 14px; border-color: var(--ink); border-style: solid; }
+.board .c1 { left: 8px; top: 8px; border-width: 1px 0 0 1px; } .board .c2 { right: 8px; top: 8px; border-width: 1px 1px 0 0; }
+.board .c3 { left: 8px; bottom: 8px; border-width: 0 0 1px 1px; } .board .c4 { right: 8px; bottom: 8px; border-width: 0 1px 1px 0; }
+.board .fig { position: absolute; left: 50%; top: 52%; translate: -50% -50%; width: 76%; transition: opacity var(--med) var(--ease); }
+.board .fig.off { opacity: 0; pointer-events: none; }
+.board .fig[data-model="1"] { width: 54%; }
+.board svg.leaders { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.leaders line, .leaders polyline { stroke: var(--ink); stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
+.leaders circle { fill: var(--blue); }
+.note { position: absolute; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink); background: var(--white); padding: 2px 6px; line-height: 1.35; white-space: nowrap; }
+.note i { font-style: normal; color: var(--blue); margin-right: 6px; }
+.board .pin { position: absolute; translate: -50% -50%; width: 9px; height: 9px; border-radius: 99px; background: var(--blue); box-shadow: 0 0 0 3px rgba(22, 72, 216, .18); }
+.board.one .leaders, .board.one .note, .board.one .pin, .board.one .dot-n { display: none; }
+.figcap { display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; color: var(--ink-3); font-size: 11px; }
+.legend { display: none; }
+@media (max-width: 639px) {
+  .note { display: none; }
+  .legend { display: grid; gap: 6px; margin-top: 12px; color: var(--ink-2); font-size: 14px; }
+  .legend li { display: flex; gap: 10px; } .legend li i { font: 500 11px/1.9 var(--mono); color: var(--blue); font-style: normal; }
+}
+.board .dot-n { position: absolute; translate: -50% -50%; width: 20px; height: 20px; border-radius: 99px; background: var(--blue); color: #fff; font: 600 10px/20px var(--mono); text-align: center; }
+@media (min-width: 640px) { .board .dot-n { display: none; } }
+@media (max-width: 639px) {
+  .board .pin, .board svg.leaders, .board #fig-type { display: none; }
+  .board .cap { font-size: 10px; }
+  .fact .big { font-size: 44px; }
+}
+
+/* ---------- Numbers band ---------- */
+.facts { border-block: 1px solid var(--line); background: var(--white); }
+.facts-grid { display: grid; grid-template-columns: 1fr 1fr; }
+@media (min-width: 1024px) { .facts-grid { grid-template-columns: repeat(4, 1fr); } }
+.fact { padding: 28px 20px 32px; border-left: 1px solid var(--line); }
+.fact:nth-child(odd) { border-left: 0; }
+@media (min-width: 1024px) { .fact { padding: 40px 32px 44px; } .fact:nth-child(odd) { border-left: 1px solid var(--line); } .fact:first-child { border-left: 0; padding-left: 0; } }
+@media (max-width: 1023px) { .fact:nth-child(n+3) { border-top: 1px solid var(--line); } }
+.fact .big { font-weight: 300; letter-spacing: -.055em; line-height: .9; font-size: clamp(52px, 6.4vw, 104px); }
+.fact .big sup { font-size: .38em; letter-spacing: -.02em; vertical-align: top; position: relative; top: .18em; margin-left: .06em; }
+.fact p { margin-top: 14px; color: var(--ink-2); font-size: 15px; max-width: 26ch; }
+
+/* ---------- Sections ---------- */
+section.block { padding-block: 88px; }
+@media (min-width: 1024px) { section.block { padding-block: 136px; } }
+.head { display: grid; gap: 16px; margin-bottom: 40px; }
+@media (min-width: 1024px) { .head { grid-template-columns: 7fr 5fr; gap: 40px; align-items: end; margin-bottom: 56px; } .head .lead { justify-self: end; } }
+
+/* Range */
+.cards { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 1100px) { .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; } }
+.card { position: relative; background: var(--white); border: 1px solid var(--line); border-radius: 8px; display: grid; grid-template-rows: auto 1fr; transition: border-color var(--fast) var(--ease); }
+.card:hover { border-color: var(--ink-3); }
+.card .pic { aspect-ratio: 4 / 3; display: grid; place-items: center; padding: 16px; border-bottom: 1px solid var(--line); }
+.card .pic img { max-height: 100%; max-width: 100%; width: auto; transition: transform var(--med) var(--ease); }
+.card:hover .pic img { transform: scale(1.03); }
+.card .info { padding: 16px; display: grid; gap: 10px; align-content: start; }
+.card .kv { display: grid; gap: 2px; font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
+.card .name { font-weight: 600; font-size: 17px; letter-spacing: -.01em; line-height: 1.25; }
+.card .p { font-weight: 500; font-size: 22px; letter-spacing: -.03em; margin-top: 6px; }
+.card .cover { position: absolute; inset: 0; }
+@media (min-width: 1024px) { .card .info { padding: 20px; } .card .name { font-size: 19px; } .card .p { font-size: 26px; } .card .kv { font-size: 12px; } }
+.spec { margin-top: 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); overflow-x: auto; }
+.spec table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 15px; }
+.spec th, .spec td { text-align: left; padding: 14px 16px; border-top: 1px solid var(--line); vertical-align: top; }
+.spec tr:first-child th, .spec tr:first-child td { border-top: 0; }
+.spec th { font: 500 11px/1.5 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); width: 14%; }
+.spec td { color: var(--ink-2); }
+.spec thead td { color: var(--ink); font-weight: 600; }
+.spec .price-tr td { color: var(--ink); font-weight: 600; }
+
+/* Check: QR */
+.check { background: var(--white); border-block: 1px solid var(--line); }
+.check-grid { display: grid; gap: 48px; }
+@media (min-width: 1024px) { .check-grid { grid-template-columns: 6fr 5fr; gap: 80px; align-items: center; } }
+.steps { margin-top: 36px; border-top: 1px solid var(--line); }
+.steps li { display: grid; grid-template-columns: 56px 1fr; gap: 4px 12px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+.steps li .n { color: var(--blue); padding-top: 3px; }
+.steps li p { grid-column: 2; color: var(--ink-2); }
+.phone { justify-self: center; width: min(320px, 82vw); aspect-ratio: 9 / 18.5; border-radius: 44px; border: 10px solid var(--ink); background: var(--paper); padding: 26px 18px; display: grid; align-content: start; gap: 14px; position: relative; }
+.phone::before { content: ""; position: absolute; top: 10px; left: 50%; translate: -50% 0; width: 84px; height: 22px; border-radius: 99px; background: var(--ink); }
+.phone .bar { margin-top: 26px; display: flex; justify-content: space-between; color: var(--ink-3); font-size: 10px; }
+.phone .okc { background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 10px; }
+.phone .tick { width: 44px; height: 44px; border-radius: 99px; background: var(--blue); color: #fff; display: grid; place-items: center; }
+.phone .tick svg { width: 22px; height: 22px; }
+.phone .okc h4 { font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
+.phone dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 13px; }
+.phone dt { color: var(--ink-3); font: 500 10px/1.9 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.phone dd { text-align: right; }
+.phone .demo { color: var(--ink-3); font-size: 11px; text-align: center; }
+
+/* Repair: parts index */
+.parts { border-top: 1px solid var(--ink); }
+.parts li a { display: grid; grid-template-columns: 44px 1fr auto; gap: 2px 12px; align-items: baseline; padding: 16px 4px; border-bottom: 1px solid var(--line); transition: background var(--fast) var(--ease); }
+.parts li a:hover { background: var(--white); }
+.parts .n { color: var(--ink-3); }
+.parts .nm { font-weight: 600; letter-spacing: -.01em; }
+.parts .ds { grid-column: 2; color: var(--ink-3); font-size: 14px; }
+.parts .pr { grid-row: 1; grid-column: 3; font-weight: 500; letter-spacing: -.02em; }
+@media (min-width: 1024px) {
+  .parts li a { grid-template-columns: 64px 4fr 4fr 2fr 24px; padding: 18px 8px; align-items: center; }
+  .parts .ds { grid-column: auto; font-size: 15px; }
+  .parts .pr { grid-row: auto; grid-column: auto; text-align: right; font-size: 18px; }
+  .parts .ar { display: block; color: var(--ink-3); transition: transform var(--fast) var(--ease), color var(--fast) var(--ease); }
+  .parts li a:hover .ar { transform: translateX(4px); color: var(--blue); }
+}
+.parts .ar { display: none; width: 18px; height: 18px; }
+
+/* Buy */
+.ways { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+@media (min-width: 900px) { .ways { grid-template-columns: repeat(3, 1fr); } }
+.ways > div { background: var(--white); padding: 24px; display: grid; gap: 10px; align-content: start; }
+.ways .n { color: var(--blue); }
+.ways p { color: var(--ink-2); font-size: 16px; }
+.ask { margin-top: 16px; display: grid; gap: 16px; padding: 24px; border: 1px solid var(--ink); border-radius: 8px; background: var(--white); }
+@media (min-width: 900px) { .ask { grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr) auto auto; align-items: end; } .chips { flex-wrap: nowrap; } }
+.ask .ttl { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.ask .ttl h3 { font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
+.field { display: grid; gap: 8px; }
+.field label, .field .legend { color: var(--ink-3); }
+.field input { min-height: 52px; border-radius: 10px; padding: 0 16px; background: var(--paper); border: 1px solid var(--line-2); font-size: 17px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chips button { min-height: 52px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--paper); cursor: pointer; }
+.chips button[aria-pressed="true"] { background: var(--ink); color: var(--white); border-color: var(--ink); }
+.ask-out { grid-column: 1 / -1; display: none; color: var(--ink-2); border-top: 1px solid var(--line); padding-top: 14px; font-size: 15px; }
+.ask-out.show { display: block; }
+
+/* Footer */
+footer { border-top: 1px solid var(--ink); padding: 56px 0 120px; color: var(--ink-2); font-size: 15px; }
+.foot-grid { display: grid; gap: 32px; grid-template-columns: 1fr 1fr; }
+@media (min-width: 1024px) { .foot-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+.foot-grid h4 { font: 500 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 16px; }
+.foot-grid li + li { margin-top: 10px; }
+.foot-grid a:hover { color: var(--ink); }
+.foot-brand { grid-column: 1 / -1; } @media (min-width: 1024px) { .foot-brand { grid-column: auto; } }
+.foot-brand img { height: 24px; width: auto; margin-bottom: 16px; }
+.legal { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; color: var(--ink-3); }
+
+/* Phone buy bar */
+.buybar { position: fixed; z-index: 40; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding: 10px var(--pad) calc(10px + env(safe-area-inset-bottom)); background: rgba(251, 250, 247, .95); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-top: 1px solid var(--line); transform: translateY(calc(100% + 40px)); transition: transform var(--med) var(--ease); }
+.buybar.show { transform: none; }
+.buybar img { width: 52px; height: auto; }
+.buybar .t { display: grid; line-height: 1.2; min-width: 0; }
+.buybar .t span { font-size: 14px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.buybar .t b { font-weight: 600; font-size: 18px; letter-spacing: -.02em; }
+.buybar .acts { margin-left: auto; display: flex; gap: 8px; }
+.buybar .btn { min-height: 48px; padding: 0 18px; font-size: 15px; }
+.buybar .wa { width: 48px; padding: 0; }
+@media (min-width: 1024px) { .buybar { display: none; } }
+
+/* ---------- Motion ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] { opacity: 0; transform: translateY(20px); transition: opacity 700ms var(--ease), transform 700ms var(--ease); transition-delay: calc(var(--i, 0) * 70ms); }
+  .js [data-reveal].in { opacity: 1; transform: none; }
+  .js .leaders line, .js .leaders polyline { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  .js .loaded .leaders line, .js .loaded .leaders polyline { transition: stroke-dashoffset 900ms var(--ease) 500ms; stroke-dashoffset: 0; }
+  .js .note { opacity: 0; transform: translateY(4px); }
+  .js .loaded .note { transition: opacity 500ms var(--ease), transform 500ms var(--ease); transition-delay: calc(900ms + var(--i, 0) * 120ms); opacity: 1; transform: none; }
+  .js .board .fig { opacity: 0; transform: translateY(12px); }
+  .js .loaded .board .fig:not(.off) { transition: opacity 800ms var(--ease) 150ms, transform 800ms var(--ease) 150ms; opacity: 1; transform: none; }
+}
+</style>
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24"><path d="M20.5 11.6a8.4 8.4 0 0 1-12.4 7.4L3.5 20.5l1.6-4.4A8.4 8.4 0 1 1 20.5 11.6Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 8.6c.2-.5.6-.6.9-.6h.5c.2 0 .4.1.5.4l.7 1.6c.1.2 0 .5-.1.6l-.5.6c.4.9 1.2 1.7 2.1 2.1l.6-.5c.2-.1.4-.2.6-.1l1.6.7c.3.1.4.3.4.5v.5c0 .3-.1.7-.6.9-.8.4-2.4.4-4.4-1.6S8.6 9.4 9 8.6Z" fill="currentColor"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24"><path d="M4 5h2l2 10h10l2-7H7.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9.5" cy="19" r="1.3" fill="currentColor"/><circle cx="17" cy="19" r="1.3" fill="currentColor"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="site-header" id="hdr">
+  <nav class="nav container" aria-label="Utama">
+    <a class="logo" href="#top" aria-label="WANGJIA beranda"><img src="img/logo.png" alt="WANGJIA" width="94" height="26"></a>
+    <div class="nav-links"><a href="#model">Kincir air</a><a href="#suku">Suku cadang</a><a href="#cek">Cek keaslian</a><a href="#beli">Cara beli</a></div>
+    <div class="hdr-buy"><span class="t" id="hb-name">Kincir Air 2 HP</span><b class="num" id="hb-price">Rp 6.500.000</b><a class="btn btn-primary" href="#model">Lihat</a></div>
+    <div class="nav-right">
+      <button class="icon-btn" aria-label="Cari"><svg><use href="#i-search"/></svg></button>
+      <a class="login" href="#">Masuk</a>
+      <button class="icon-btn" aria-label="Keranjang, 0 barang"><svg><use href="#i-cart"/></svg></button>
+      <button class="icon-btn menu-btn" aria-label="Menu"><svg><use href="#i-menu"/></svg></button>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <!-- 1. Hero -->
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="container hero-grid">
+      <div>
+        <p class="mono label">WANGJIA® <b>Kincir air tambak</b></p>
+        <h1 class="h1" id="hero-title">Kincir air yang bisa dicek dan diperbaiki.</h1>
+        <p class="lead">Scan QR di mesin untuk cek keaslian dan aktifkan garansi. Suku cadang dijual satuan: satu bagian rusak, cukup ganti satu bagian.</p>
+        <div class="tabs" role="tablist" aria-label="Pilih model">
+          <button role="tab" aria-selected="true" data-pick="2">2 HP<small>4 kipas</small></button>
+          <button role="tab" aria-selected="false" data-pick="1">1 HP<small>2 kipas</small></button>
+        </div>
+        <div class="price-line"><span class="price num" id="price">Rp 6.500.000</span><span class="mono price-note">Bisa bayar bertahap</span></div>
+        <div class="ctas">
+          <a class="btn btn-primary" href="#model" id="cta"><span>Lihat Kincir 2 HP</span><svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <a class="btn btn-ghost" href="#beli"><svg aria-hidden="true"><use href="#i-wa"/></svg>Tanya via WhatsApp</a>
+        </div>
+      </div>
+
+      <figure>
+        <div class="board" id="board">
+          <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
+          <div class="cap mono"><span id="fig-cap">Gbr. 01 · Kincir Air 2 HP · tampak depan</span><span id="fig-type">Tipe YC-1.5A</span></div>
+          <img class="fig" data-model="2" src="img/kincir-2hp.webp" width="1000" height="475" alt="Kincir air WANGJIA 2 HP dengan empat kipas oranye dan tiga pelampung biru" fetchpriority="high">
+          <img class="fig off" data-model="1" src="img/kincir-1hp.webp" width="1000" height="713" alt="Kincir air WANGJIA 1 HP dengan dua kipas oranye dan dua pelampung biru" loading="lazy">
+          <svg class="leaders" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <polyline pathLength="1" points="19,36 19,14 25,14"/>
+            <polyline pathLength="1" points="50,33 50,22 58,22"/>
+            <polyline pathLength="1" points="50,62 50,86 44,86"/>
+            <polyline pathLength="1" points="80,70 80,92 74,92"/>
+          </svg>
+          <span class="pin" style="left:19%;top:36%"></span><span class="pin" style="left:50%;top:33%"></span><span class="pin" style="left:50%;top:62%"></span><span class="pin" style="left:80%;top:70%"></span>
+          <span class="note" style="left:25.5%;top:14%;translate:0 -50%;--i:0"><i>01</i>Kipas PP · Ø 67 cm</span>
+          <span class="note" style="left:58.5%;top:22%;translate:0 -50%;--i:1"><i>02</i>Motor 1,5 kW · 1.400 rpm</span>
+          <span class="note" style="right:56.5%;top:86%;translate:0 -50%;--i:2"><i>03</i>Gearbox bevel gear 1:14</span>
+          <span class="note" style="right:26.5%;top:92%;translate:0 -50%;--i:3"><i>04</i>Pelampung HDPE 175 cm</span>
+          <span class="dot-n" style="left:19%;top:36%">1</span><span class="dot-n" style="left:50%;top:33%">2</span><span class="dot-n" style="left:50%;top:62%">3</span><span class="dot-n" style="left:80%;top:70%">4</span>
+        </div>
+        <figcaption class="mono figcap"><span>WANGJIA®</span><span>Ukuran dan angka dari katalog</span></figcaption>
+        <ol class="legend"><li><i>01</i>Kipas PP tahan UV, Ø 67 cm</li><li><i>02</i>Motor 1,5 kW, 1.400 rpm</li><li><i>03</i>Gearbox bevel gear 1:14</li><li><i>04</i>Pelampung HDPE 175 cm</li></ol>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 2. Facts -->
+  <section class="facts" aria-label="Angka utama">
+    <div class="container facts-grid">
+      <div class="fact" data-reveal style="--i:0"><p class="big num">25<sup>%</sup></p><p>Hemat listrik sampai 25 % dengan gearbox bevel gear, bukan worm gear.</p></div>
+      <div class="fact" data-reveal style="--i:1"><p class="big num">1:14</p><p>Rasio gearbox bevel gear, dengan mechanical seal.</p></div>
+      <div class="fact" data-reveal style="--i:2"><p class="big">SS304</p><p>Poros full solid dan rangka stainless, bukan besi sepuh.</p></div>
+      <div class="fact" data-reveal style="--i:3"><p class="big num">1<sup>th</sup></p><p>Garansi motor, aktif setelah scan QR di mesin.</p></div>
+    </div>
+  </section>
+
+  <!-- 3. Range -->
+  <section class="block" id="model" aria-labelledby="range-title">
+    <div class="container">
+      <div class="head">
+        <div><p class="mono label" data-reveal>Model &amp; harga <b>4 mesin</b></p><h2 class="h2" id="range-title" style="margin-top:16px" data-reveal>Pilih sesuai kolam.</h2></div>
+        <p class="lead" data-reveal>Harga toko, sudah termasuk garansi motor 1 tahun. Ongkos kirim terlihat sebelum bayar.</p>
+      </div>
+      <div class="cards">
+        <article class="card" data-reveal style="--i:0"><div class="pic"><img src="img/kincir-2hp.webp" width="1000" height="475" alt="" loading="lazy"></div><div class="info"><p class="kv"><span>Tambak intensif</span></p><h3 class="name">Kincir Air 2 HP</h3><p class="kv"><span>4 kipas · 3 pelampung</span><span>1,5 kW · 1 / 3 phase</span></p><p class="p num">Rp 6.500.000</p></div><a class="cover" href="#" aria-label="Kincir Air 2 HP, Rp 6.500.000"></a></article>
+        <article class="card" data-reveal style="--i:1"><div class="pic"><img src="img/kincir-1hp.webp" width="1000" height="713" alt="" loading="lazy"></div><div class="info"><p class="kv"><span>Udang &amp; ikan</span></p><h3 class="name">Kincir Air 1 HP</h3><p class="kv"><span>2 kipas · 2 pelampung</span><span>0,75 kW · 1 / 3 phase</span></p><p class="p num">Rp 4.850.000</p></div><a class="cover" href="#" aria-label="Kincir Air 1 HP, Rp 4.850.000"></a></article>
+        <article class="card" data-reveal style="--i:2"><div class="pic"><img src="img/yc055.webp" width="900" height="511" alt="" loading="lazy"></div><div class="info"><p class="kv"><span>Kolam kecil &amp; bundar</span></p><h3 class="name">Kincir YC-055 tanpa gearbox</h3><p class="kv"><span>2 kipas · tanpa oli</span><span>0,55 kW · 1 / 3 phase</span></p><p class="p num">Rp 3.800.000</p></div><a class="cover" href="#" aria-label="Kincir YC-055 tanpa gearbox, Rp 3.800.000"></a></article>
+        <article class="card" data-reveal style="--i:3"><div class="pic"><img src="img/jet.webp" width="800" height="336" alt="" loading="lazy"></div><div class="info"><p class="kv"><span>Kolam dalam</span></p><h3 class="name">Jet Aerator 2 HP</h3><p class="kv"><span>2.800 rpm · 3 phase</span><span>&gt; 0,75 kg O₂/jam</span></p><p class="p num">Rp 6.500.000</p></div><a class="cover" href="#" aria-label="Jet Aerator 2 HP, Rp 6.500.000"></a></article>
+      </div>
+      <div class="spec" data-reveal>
+        <table>
+          <thead><tr><th scope="col">Spesifikasi</th><td>Kincir 2 HP</td><td>Kincir 1 HP</td><td>YC-055</td><td>Jet Aerator 2 HP</td></tr></thead>
+          <tbody>
+            <tr><th scope="row">Motor</th><td>1,5 kW · 1.400 rpm</td><td>0,75 kW · 1.400 rpm</td><td>0,55 kW</td><td>1,5 kW · 2.800 rpm</td></tr>
+            <tr><th scope="row">Listrik</th><td>1 phase atau 3 phase</td><td>1 phase atau 3 phase</td><td>1 phase atau 3 phase</td><td>3 phase</td></tr>
+            <tr><th scope="row">Penggerak</th><td>Gearbox bevel gear 1:14</td><td>Gearbox bevel gear 1:14</td><td>Langsung, tanpa gearbox</td><td>Gearbox bevel gear</td></tr>
+            <tr><th scope="row">Kipas</th><td>4</td><td>2</td><td>2</td><td>—</td></tr>
+            <tr class="price-tr"><th scope="row">Harga</th><td>Rp 6.500.000</td><td>Rp 4.850.000</td><td>Rp 3.800.000</td><td>Rp 6.500.000</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Check: QR authenticity and warranty -->
+  <section class="block check" id="cek" aria-labelledby="cek-title">
+    <div class="container check-grid">
+      <div>
+        <p class="mono label" data-reveal>01 <b>Bisa dicek</b></p>
+        <h2 class="h2" id="cek-title" style="margin-top:16px" data-reveal>Scan QR. Tahu asli atau tidak.</h2>
+        <p class="lead" style="margin-top:20px" data-reveal>Setiap kincir WANGJIA punya label QR. Kamera HP cukup untuk mengeceknya.</p>
+        <ol class="steps">
+          <li data-reveal style="--i:0"><span class="mono n">01</span><h3 class="h3">Scan label QR di mesin</h3><p>Pakai kamera HP atau aplikasi WANGJIA.</p></li>
+          <li data-reveal style="--i:1"><span class="mono n">02</span><h3 class="h3">Lihat data mesin</h3><p>Model dan tipe muncul, jadi Anda tahu mesinnya asli.</p></li>
+          <li data-reveal style="--i:2"><span class="mono n">03</span><h3 class="h3">Garansi motor aktif</h3><p>Garansi motor 1 tahun langsung tercatat.</p></li>
+        </ol>
+      </div>
+      <div class="phone" data-reveal aria-label="Contoh layar hasil scan">
+        <div class="bar mono"><span>Hasil scan</span><span>WANGJIA</span></div>
+        <div class="okc">
+          <span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span>
+          <h4>Asli WANGJIA</h4>
+          <dl><dt>Model</dt><dd>Kincir Air 2 HP</dd><dt>Tipe</dt><dd>YC-1.5A</dd><dt>Garansi</dt><dd>Motor 1 tahun</dd></dl>
+        </div>
+        <p class="demo">Contoh tampilan</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Repair: every part, with its price -->
+  <section class="block" id="suku" aria-labelledby="suku-title">
+    <div class="container">
+      <div class="head">
+        <div><p class="mono label" data-reveal>02 <b>Bisa diperbaiki</b></p><h2 class="h2" id="suku-title" style="margin-top:16px" data-reveal>Satu bagian rusak? Ganti satu bagian.</h2></div>
+        <p class="lead" data-reveal>Sebelas suku cadang dijual satuan dan dikirim ke seluruh Indonesia.</p>
+      </div>
+      <ol class="parts">
+        <li data-reveal><a href="#"><span class="mono n">01</span><span class="nm">Impeller (kipas)</span><span class="ds">PP tahan UV, 8 daun</span><span class="pr num">Rp 275.000</span><svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+        <li data-reveal><a href="#"><span class="mono n">02</span><span class="nm">Gearbox bevel gear 1:14</span><span class="ds">Dengan mechanical seal</span><span class="pr num">Rp 1.850.000</span><svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+        <li data-reveal><a href="#"><span class="mono n">03</span><span class="nm">Gear set 9 spline</span><span class="ds">Isi 4 gear</span><span class="pr num">Rp 950.000</span><svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+        <li data-reveal><a href="#"><span class="mono n">04</span><span class="nm">Mechanical seal + tutup samping</span><span class="ds">Untuk gearbox 9 spline</span><span class="pr num">Rp 275.000</span><svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+        <li data-reveal><a href="#"><span class="mono n">05</span><span class="nm">Dinamo motor</span><span class="ds">Kumparan tembaga</span><span class="pr num">Rp 2.450.000</span><svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+        <li data-reveal><a href="#"><span class="mono n">06</span><span class="nm">Penutup motor HDPE</span><span class="ds">Tahan UV</span><span class="pr num">Rp 350.000</span><svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+        <li data-reveal><a href="#"><span class="mono n">07</span><span class="nm">Pelampung HDPE</span><span class="ds">175 × 32 × 20 cm</span><span class="pr num">Rp 450.000</span><svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+        <li data-reveal><a href="#"><span class="mono n">08</span><span class="nm">Poros (AS) stainless</span><span class="ds">SS304 full solid</span><span class="pr num">Rp 325.000</span><svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+        <li data-reveal><a href="#"><span class="mono n">09</span><span class="nm">Rangka stainless</span><span class="ds">SS304</span><span class="pr num">Rp 750.000</span><svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+        <li data-reveal><a href="#"><span class="mono n">10</span><span class="nm">Pillow block</span><span class="ds">Dudukan as</span><span class="pr num">Rp 90.000</span><svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+        <li data-reveal><a href="#"><span class="mono n">11</span><span class="nm">Kopel</span><span class="ds">Moveable joint</span><span class="pr num">Rp 125.000</span><svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 6. How to buy -->
+  <section class="block" id="beli" aria-labelledby="beli-title" style="padding-top:0">
+    <div class="container">
+      <div class="head">
+        <div><p class="mono label" data-reveal>03 <b>Cara beli</b></p><h2 class="h2" id="beli-title" style="margin-top:16px" data-reveal>Beli dengan cara yang cocok untuk Anda.</h2></div>
+      </div>
+      <div class="ways">
+        <div data-reveal style="--i:0"><span class="mono n">01</span><h3 class="h3">Bayar bertahap</h3><p>Cicil pembayaran sesuai kesepakatan dengan tim WANGJIA.</p></div>
+        <div data-reveal style="--i:1"><span class="mono n">02</span><h3 class="h3">Patungan</h3><p>Beli bersama tetangga tambak dalam satu pesanan.</p></div>
+        <div data-reveal style="--i:2"><span class="mono n">03</span><h3 class="h3">Kirim ke seluruh Indonesia</h3><p>Ongkos kirim terlihat sebelum bayar.</p></div>
+      </div>
+      <form class="ask" id="ask" data-reveal>
+        <div class="ttl"><h3>Belum yakin berapa kincir?</h3><span class="mono" style="color:var(--ink-3)">Dibalas di jam kerja</span></div>
+        <div class="field"><label class="mono" for="luas">Luas kolam (m²)</label><input id="luas" inputmode="decimal" placeholder="mis. 2.500"></div>
+        <div class="field"><label class="mono" for="dalam">Kedalaman (m)</label><input id="dalam" inputmode="decimal" placeholder="mis. 1,2"></div>
+        <div class="field"><span class="mono legend" id="jenis-l">Jenis</span><div class="chips" role="group" aria-labelledby="jenis-l"><button type="button" aria-pressed="true">Udang</button><button type="button" aria-pressed="false">Ikan</button><button type="button" aria-pressed="false">Lainnya</button></div></div>
+        <button class="btn btn-primary" type="submit"><svg aria-hidden="true"><use href="#i-wa"/></svg>Kirim lewat WhatsApp</button>
+        <p class="ask-out" id="ask-out" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand"><img src="img/logo.png" alt="WANGJIA" width="87" height="24"><p style="max-width:34ch">Kincir air dan suku cadang untuk tambak udang dan ikan di seluruh Indonesia.</p></div>
+      <div><h4>Produk</h4><ul><li><a href="#model">Kincir air</a></li><li><a href="#model">Jet aerator</a></li><li><a href="#suku">Suku cadang</a></li></ul></div>
+      <div><h4>Bantuan</h4><ul><li><a href="#cek">Garansi &amp; cek QR</a></li><li><a href="#beli">Cara beli</a></li><li><a href="#">Pengiriman</a></li></ul></div>
+      <div><h4>Akun</h4><ul><li><a href="#">Masuk</a></li><li><a href="#">Daftar</a></li><li><a href="#">Pesanan saya</a></li></ul></div>
+    </div>
+    <div class="legal mono"><span>© 2026 WANGJIA®</span><span>Bahasa Indonesia · English</span></div>
+  </div>
+</footer>
+
+<div class="buybar" id="buybar" aria-hidden="true">
+  <img id="bb-img" src="img/kincir-2hp.webp" width="1000" height="475" alt="">
+  <div class="t"><span id="bb-name">Kincir Air 2 HP</span><b class="num" id="bb-price">Rp 6.500.000</b></div>
+  <div class="acts">
+    <a class="btn btn-ghost wa" href="#beli" aria-label="Tanya via WhatsApp"><svg aria-hidden="true"><use href="#i-wa"/></svg></a>
+    <a class="btn btn-primary" href="#model">Lihat</a>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const MODELS = {
+    "2": { name: "Kincir Air 2 HP", price: "Rp 6.500.000", cta: "Lihat Kincir 2 HP", img: "img/kincir-2hp.webp", cap: "Gbr. 01 · Kincir Air 2 HP · tampak depan", type: "Tipe YC-1.5A" },
+    "1": { name: "Kincir Air 1 HP", price: "Rp 4.850.000", cta: "Lihat Kincir 1 HP", img: "img/kincir-1hp.webp", cap: "Gbr. 02 · Kincir Air 1 HP · tampak depan", type: "Tipe YC-0.75A" },
+  };
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => document.body.classList.add("loaded"));
+
+  $$(".tabs button").forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.pick, m = MODELS[k];
+    $$(".tabs button").forEach(x => x.setAttribute("aria-selected", String(x === b)));
+    $$(".board .fig").forEach(x => x.classList.toggle("off", x.dataset.model !== k));
+    $(".board").classList.toggle("one", k === "1");
+    $("#price").textContent = m.price; $("#cta span").textContent = m.cta;
+    $("#fig-cap").textContent = m.cap; $("#fig-type").textContent = m.type;
+    $("#bb-name").textContent = m.name; $("#bb-price").textContent = m.price; $("#bb-img").src = m.img;
+    $("#hb-name").textContent = m.name; $("#hb-price").textContent = m.price;
+  }));
+
+  const hdr = $("#hdr"), bar = $("#buybar"), hero = $(".hero");
+  const onScroll = () => {
+    const past = hero.getBoundingClientRect().bottom < 0;
+    const atEnd = innerHeight + scrollY > document.body.scrollHeight - 260;
+    bar.classList.toggle("show", past && !atEnd); bar.setAttribute("aria-hidden", String(!(past && !atEnd)));
+    hdr.classList.toggle("buying", past);
+  };
+  addEventListener("scroll", onScroll, { passive: true }); onScroll();
+
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -8% 0px" });
+  $$("[data-reveal]").forEach(el => io.observe(el));
+
+  $$(".chips button").forEach(b => b.addEventListener("click", () => $$(".chips button").forEach(x => x.setAttribute("aria-pressed", String(x === b)))));
+  $("#ask").addEventListener("submit", e => {
+    e.preventDefault();
+    const luas = $("#luas").value || "…", dalam = $("#dalam").value || "…", jenis = $(".chips [aria-pressed=true]").textContent;
+    const out = $("#ask-out");
+    out.textContent = `Pesan yang dikirim: “Halo WANGJIA, saya mau tanya kincir. Luas kolam ${luas} m², kedalaman ${dalam} m, ${jenis.toLowerCase()}.”`;
+    out.classList.add("show");
+  });
+})();
+</script>
+</body>
+</html>

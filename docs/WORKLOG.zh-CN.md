@@ -163,6 +163,11 @@
 
 - 首屏换成现成设计（米杰选了“先挑现成设计”）。在 MotionSites 上挑了三个候选（Design World、Blendy 冰沙滑块、Roadster 3D），米杰选了免费的 Design World：黑底、整屏巨大的字、主体压在字前面、右上角左右箭头、右侧圆点、左下一句话、中间按钮、右下镂空的大编号。原作的主体是一块会转的玻璃立方体，我们换成增氧机：用 Vision 把两张橙色桨叶的 1 HP、2 HP 正面照抠成透明底（各约 75 KB），每张一屏，字是“Kincir Air 2 HP”“Kincir Air 1 HP”，按钮进商品页，旁边写“mulai”加从商城读出来的价格，7 秒自动换一屏（鼠标指着或系统关了动效就不换）。字体用 Poppins，用 `@fontsource/poppins`（开源字体许可，可商用）随网站打包，因为本机连不上 Google 字体。提示词本身复制到了，但浏览器工具把那段文字拦了，我改写文字想绕过去，被系统拒绝，于是照预览做。本机电脑和手机宽度都看过，类型检查通过，lint 没有新问题。
 
+- 米杰说 Design World 首屏还是不好，让我先去学顶级独立站设计的课程，学好总结成 skill 再设计。分三路查了资料：顾客体验研究（Baymard、Nielsen Norman Group、Shopify）、视觉基本功（Refactoring UI 一类的排版、配色、间距、层次）、品牌站案例（Aesop、Liquid Death、Norda、Oura 等的设计复盘），加上前面拆解 Teenage Engineering、Nothing、大疆的实测，写成项目 skill `.claude/skills/dtc-store-design/`：主文件是工作流程（简报、参考、体检、一个品牌概念、字体配色系统、故事线、先做小样再改代码、检查清单），细节分在 references 里，WANGJIA 的简报单独一份，写明哪些话能说、有哪些素材。以后这个仓库里做设计会自动用到它，米杰自己的 AI 也能用。
+- 按 skill 先体检现在的首页：用了 4 种字体、十几种文字颜色；手机首屏 7 秒自动轮播（研究建议手机上不要自动轮播）；手机上“Kincir Air”大字被机器挡住大半；右下角 WhatsApp 浮钮压着内容；首页看不到各型号的价格对比。
+- 做了两套完整首页小样，电脑和手机宽度都调过：A 夜里的鱼塘，概念是“Saat Anda tidur, kolam tetap bernapas.”（您睡觉时，鱼塘照样在呼吸），夜蓝底只用一种取自叶轮的琥珀色，窄体大字 Archivo，整页从深夜滑到日出，中间有夜里溶氧变化示意图、零件标注、四款机器带价格和对比表、保修配件运费分期四项保障，结尾按塘的面积和水深生成 WhatsApp 消息；B 白天的工程图，概念是“Kincir air yang bisa dicek dan diperbaiki.”（能验真、能修），米白纸色底只用一种取自浮筒的蓝色，只用 Geist 一家字体，机器放在图纸上用引线标注零件，四个大数字，扫码验真三步，11 种配件逐行带价格。两套都只用商城里的真实价格和参数，首屏不自动轮播，滑过首屏后才出现购买条（电脑上并进顶栏）。小样存在 `docs/mockups/home-2026-11-19/`，`index.html` 把两套手机版并排放。网站代码还没动，等米杰选。
+- 上线前要确认：A 里“夜里溶氧一直降、天亮前最低”是养殖常识，请李总确认再用；WhatsApp 回复时间；最缺的仍是塘里实拍的照片和视频。
+
 ## 本机验证手段
 - 后端：`pnpm test:integration:http`（38 个用例，CI 每次推送都跑，11-13 在本机也整套跑过）、`pnpm test:unit`（21 个）、tsc、medusa lint；curl 走接口；浏览器查后台页面。
 - 商城：tsc、lint；浏览器查页面；sitemap 检查。

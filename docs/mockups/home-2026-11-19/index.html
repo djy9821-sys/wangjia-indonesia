@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WANGJIA 首页两套方案</title>
+<style>
+@font-face { font-family: Geist; src: url(fonts/geist.woff2) format("woff2"); font-weight: 100 900; }
+@font-face { font-family: "Geist Mono"; src: url(fonts/geist-mono.woff2) format("woff2"); font-weight: 100 900; }
+:root { --bg: #f4f3ef; --card: #fff; --ink: #15171a; --ink-2: #555b63; --line: #dedad0; --blue: #1648d8; --amber: #c77a00; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.6 Geist, "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif; padding: 24px 12px 60px; }
+.wrap { max-width: 860px; margin: 0 auto; }
+h1 { font-size: 26px; letter-spacing: -.02em; line-height: 1.25; }
+.sub { color: var(--ink-2); margin-top: 8px; }
+.cols { display: grid; gap: 20px; margin-top: 24px; }
+.col { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.tag { font: 500 11px/1 "Geist Mono", monospace; letter-spacing: .12em; text-transform: uppercase; }
+.a .tag { color: var(--amber); } .b .tag { color: var(--blue); }
+.col h2 { font-size: 19px; margin-top: 8px; letter-spacing: -.01em; }
+.col .idea { color: var(--ink-2); margin-top: 4px; font-size: 14px; }
+.phone { width: 351px; max-width: 100%; height: 760px; margin: 14px auto 0; border-radius: 22px; overflow: hidden; border: 1px solid var(--line); position: relative; }
+.phone iframe { width: 390px; height: 844px; border: 0; transform: scale(.9); transform-origin: 0 0; }
+.open { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.open a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); color: var(--ink); text-decoration: none; font-weight: 600; font-size: 14px; }
+.open a:hover { border-color: var(--ink-2); }
+ul.facts { margin-top: 12px; padding-left: 18px; color: var(--ink-2); font-size: 14px; }
+ul.facts li + li { margin-top: 4px; }
+section.notes { margin-top: 24px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+section.notes h3 { font-size: 16px; }
+section.notes ul { margin-top: 8px; padding-left: 18px; color: var(--ink-2); }
+section.notes li + li { margin-top: 6px; }
+@media (min-width: 660px) { .col { min-width: 0; } .cols { grid-template-columns: 1fr 1fr; gap: 16px; } .col { padding: 12px; } .phone { width: 293px; height: 633px; } .phone iframe { transform: scale(.75); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>WANGJIA 首页：按新 skill 做的两套方案</h1>
+  <p class="sub">下面是手机上的样子，可以直接在框里上下滑。点“打开电脑版”看大屏。两套用的都是商城里真实的商品、价格和参数。</p>
+
+  <div class="cols">
+    <div class="col a">
+      <p class="tag">方案 A · 夜里的鱼塘</p>
+      <h2>“您睡觉时，鱼塘照样在呼吸”</h2>
+      <p class="idea">延续你选过的深海夜景和 Design World 大字。整页从深夜滑到天亮，最后在日出处问塘的大小。</p>
+      <div class="phone"><iframe src="a.html" title="方案 A 手机版" loading="lazy"></iframe></div>
+      <div class="open"><a href="a.html" target="_blank">打开电脑版</a></div>
+      <ul class="facts">
+        <li>颜色：夜蓝底，只用一种琥珀色，取自叶轮</li>
+        <li>字体：窄体粗大字 Archivo，正文 Geist，标签等宽字</li>
+        <li>动效：大字升起，机器从水里浮出，往下滑时内容淡入</li>
+      </ul>
+    </div>
+    <div class="col b">
+      <p class="tag">方案 B · 白天的工程图</p>
+      <h2>“能验真，能修”</h2>
+      <p class="idea">像 Nothing、Teenage Engineering 那样的理性风格。机器放在图纸上标注零件，扫码验真，十一种配件带价格。</p>
+      <div class="phone"><iframe src="b.html" title="方案 B 手机版" loading="lazy"></iframe></div>
+      <div class="open"><a href="b.html" target="_blank">打开电脑版</a></div>
+      <ul class="facts">
+        <li>颜色：米白纸色底，只用一种蓝色，取自浮筒</li>
+        <li>字体：只用 Geist 一家，大数字用细体，标签等宽字</li>
+        <li>动效：图纸上的引线依次画出来，往下滑时内容淡入</li>
+      </ul>
+    </div>
+  </div>
+
+  <section class="notes">
+    <h3>两套都改掉了现在首页的问题</h3>
+    <ul>
+      <li>现在用了 4 种字体、十几种文字颜色；新方案各只用一种强调色、两种字体</li>
+      <li>首屏不再自动轮播，2 HP 和 1 HP 由客户自己点</li>
+      <li>右下角浮动的 WhatsApp 按钮会挡内容，改成滑过首屏后才出现的购买条（电脑上并进顶栏）</li>
+      <li>每个型号都直接标价格，四款机器可以一表对比；最后一屏填塘的面积和水深，生成 WhatsApp 消息</li>
+    </ul>
+  </section>
+  <section class="notes">
+    <h3>上线前要确认的</h3>
+    <ul>
+      <li>方案 A 里“夜里溶氧一直往下掉，天亮前最低”是养殖常识，但要请李总点头再用</li>
+      <li>WhatsApp 回复时间写的是“工作时间回复”，具体几点要李总定</li>
+      <li>最缺的是真实照片：塘里开着的机器、清晨一排排水车、溅起的水花。有了这些，哪套都会再上一个档次</li>
+    </ul>
+  </section>
+</div>
+</body>
+</html>
