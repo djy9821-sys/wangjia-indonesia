@@ -57,6 +57,10 @@ module.exports = {
           from: { transform: "translateX(0)" },
           to: { transform: "translateX(-50%)" },
         },
+        "night-glow": {
+          "0%, 100%": { opacity: 0.55 },
+          "50%": { opacity: 0.9 },
+        },
       },
       animation: {
         "accordion-open": "accordion-open 0.3s ease-out",
@@ -66,6 +70,7 @@ module.exports = {
         "pond-wave": "pond-wave 12s linear infinite",
         "pond-ripple": "pond-ripple 3.2s ease-out infinite",
         marquee: "marquee 45s linear infinite",
+        "night-glow": "night-glow 5s ease-in-out infinite",
       },
     },
   },

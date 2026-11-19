@@ -25,31 +25,36 @@ const STEPS = [
   },
 ]
 
-/* Four steps from choosing to the warranty, joined by a line on wide screens. */
+/* Four steps from choosing to the warranty, glowing numbers joined by a line
+   on wide screens. */
 const HowToOrder = () => (
-  <section className="content-container py-10" aria-labelledby="how-to-order">
-    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#0A6FA8]">
-      Cara pesan
-    </p>
-    <h2 id="how-to-order" className="mt-2 text-3xl font-semibold text-[#0B3A5B] small:text-4xl">
+  <section className="content-container pb-16 small:pb-24" aria-labelledby="how-to-order">
+    <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#7fdcff]">Cara pesan</p>
+    <h2
+      id="how-to-order"
+      className="mt-3 text-3xl font-extrabold tracking-[-0.02em] text-white small:text-5xl"
+    >
       Dari pilih kincir sampai garansi aktif.
     </h2>
-    <ol className="relative mt-8 grid gap-4 small:grid-cols-4">
+    <ol className="relative mt-10 grid gap-4 small:grid-cols-4">
       <span
         aria-hidden
-        className="absolute left-[12.5%] right-[12.5%] top-6 hidden border-t-2 border-dashed border-sky-200 small:block"
+        className="absolute left-[12.5%] right-[12.5%] top-6 hidden border-t border-dashed border-white/20 small:block"
       />
       {STEPS.map((step, i) => (
-        <li key={step.title} className="relative rounded-3xl bg-white p-6 ring-1 ring-slate-200 small:bg-transparent small:p-0 small:text-center small:ring-0">
-          <span className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-[#0B3A5B] text-lg font-semibold text-[#FFD23F] small:mx-auto">
+        <li
+          key={step.title}
+          className="relative rounded-3xl border border-white/10 bg-white/[0.04] p-6 small:border-0 small:bg-transparent small:p-0 small:text-center"
+        >
+          <span className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-[#062a44] text-lg font-bold text-[#7fdcff] shadow-[0_0_30px_rgba(64,220,255,0.35)] ring-1 ring-[#7fdcff]/40 small:mx-auto">
             {i + 1}
           </span>
-          <p className="mt-4 text-lg font-semibold text-[#0B3A5B]">{step.title}</p>
-          <p className="mt-1 text-sm text-slate-600">{step.text}</p>
+          <p className="mt-4 text-lg font-bold text-white">{step.title}</p>
+          <p className="mt-1 text-sm text-[#a9c9dd]">{step.text}</p>
           {step.href && (
             <LocalizedClientLink
               href={step.href}
-              className="mt-2 inline-block text-sm font-semibold text-[#0A6FA8] underline-offset-4 hover:underline"
+              className="mt-2 inline-block text-sm font-bold text-[#ffd23f] underline-offset-4 hover:underline"
             >
               {step.cta} →
             </LocalizedClientLink>

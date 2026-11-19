@@ -1,121 +1,91 @@
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
 import Image from "next/image"
 
-// Bubbles rise from the pond floor at fixed spots, so the server and the
-// browser draw the same page.
-const BUBBLES = [
-  { left: "5%", size: 10, delay: "0s", duration: "8s" },
-  { left: "13%", size: 6, delay: "2.5s", duration: "6s" },
-  { left: "24%", size: 12, delay: "1s", duration: "9s" },
-  { left: "37%", size: 7, delay: "4s", duration: "7s" },
-  { left: "52%", size: 9, delay: "0.5s", duration: "8.5s" },
-  { left: "66%", size: 6, delay: "3s", duration: "6.5s" },
-  { left: "78%", size: 11, delay: "1.8s", duration: "9.5s" },
-  { left: "91%", size: 8, delay: "5s", duration: "7.5s" },
+// Fine film grain over the night water; an inline SVG, so no extra request.
+const GRAIN =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E\")"
+
+const CHIPS = [
+  { value: "25%", label: "hemat listrik", place: "small:left-[4%] small:top-[2%]" },
+  { value: "SS304", label: "poros & rangka", place: "small:right-0 small:top-[14%]" },
+  { value: "12 bulan", label: "garansi motor", place: "small:right-[6%] small:bottom-[2%]" },
 ]
 
-// Two periods of the same curve: sliding it by half its width loops seamlessly.
-const WAVE =
-  "M0,48 C240,8 480,8 720,48 C960,88 1200,88 1440,48 C1680,8 1920,8 2160,48 C2400,88 2640,88 2880,48 L2880,96 L0,96 Z"
-
+/* The pond at night: the aerator lit from below the water, the catalogue's
+   numbers floating beside it on frosted glass. */
 const Hero = () => {
   const whatsapp = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "6281200000000"}`
 
   return (
-    <section className="relative isolate overflow-hidden rounded-3xl bg-gradient-to-b from-[#0B3A5B] via-[#0A6FA8] to-[#0193DE] text-white">
+    <section className="relative isolate overflow-hidden rounded-3xl bg-[#020b14] text-[#eaf6ff]">
       <div
         aria-hidden
-        className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.22),transparent_55%)]"
+        className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_65%_70%_at_72%_55%,#0b6c8f_0%,#062a44_45%,#020b14_100%)]"
       />
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        {BUBBLES.map((b) => (
-          <span
-            key={b.left}
-            className="absolute bottom-10 rounded-full border border-white/60 bg-white/10 opacity-0 motion-safe:animate-pond-bubble"
-            style={{
-              left: b.left,
-              width: b.size,
-              height: b.size,
-              animationDelay: b.delay,
-              animationDuration: b.duration,
-            }}
-          />
-        ))}
-      </div>
+      <div
+        aria-hidden
+        className="absolute right-[6%] top-[22%] -z-10 aspect-square w-[70%] rounded-full bg-[radial-gradient(circle,rgba(64,220,255,0.45),rgba(64,220,255,0)_65%)] blur-md motion-safe:animate-night-glow small:top-[14%] small:w-[46%]"
+      />
+      <div aria-hidden className="absolute inset-0 -z-10 opacity-[0.07] mix-blend-overlay" style={{ backgroundImage: GRAIN }} />
 
-      <div className="content-container grid items-center gap-8 pt-10 pb-28 small:grid-cols-[1.05fr_1fr] small:gap-10 small:pt-20 small:pb-36">
-        <div className="max-w-xl">
-          <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-sky-100 ring-1 ring-white/25">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#FFD23F]" />
-            Toko resmi WANGJIA® Indonesia
+      <div className="content-container grid items-center gap-10 pt-12 pb-16 small:grid-cols-[1fr_1.15fr] small:gap-6 small:px-16 small:pt-24 small:pb-24">
+        <div className="relative z-10">
+          <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#7fdcff]">
+            Kincir air · Aerator tambak
           </p>
-          <h1 className="mt-5 text-[2.6rem] font-semibold leading-[1.05] tracking-tight small:text-6xl">
-            Oksigen cukup,
+          <h1 className="mt-5 text-[2.8rem] font-extrabold leading-[0.98] tracking-[-0.035em] small:text-7xl">
+            Oksigen cukup.
             <br />
-            <span className="text-[#FFD23F]">udang tumbuh sehat.</span>
+            <span className="bg-gradient-to-r from-[#7ff0ff] to-[#ffd23f] bg-clip-text text-transparent">
+              Panen lebih tenang.
+            </span>
           </h1>
-          <p className="mt-5 max-w-lg text-base leading-7 text-sky-50/90 small:text-lg">
-            Kincir air 1 HP &amp; 2 HP dengan gearbox bevel gear, poros dan
-            rangka stainless SS304. Bayar bertahap, kirim ke seluruh Indonesia.
+          <p className="mt-6 max-w-md text-base leading-7 text-[#a9c9dd] small:text-lg">
+            Kincir air 1 HP &amp; 2 HP dengan gearbox bevel gear dan poros
+            stainless SS304. Bayar bertahap, kirim ke seluruh Indonesia.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <LocalizedClientLink
               href="/store"
-              className="rounded-full bg-[#FFD23F] px-6 py-3 text-sm font-semibold text-[#0B3A5B] shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:bg-[#FFDD66]"
+              className="rounded-full bg-[#ffd23f] px-6 py-3 text-sm font-bold text-[#04121f] shadow-[0_10px_30px_-10px_rgba(255,210,63,0.7)] transition hover:-translate-y-0.5 hover:bg-[#ffdd66]"
             >
-              Lihat Produk
+              Lihat produk
             </LocalizedClientLink>
             <a
               href={whatsapp}
               target="_blank"
               rel="noreferrer"
-              className="rounded-full bg-white/10 px-6 py-3 text-sm font-semibold text-white ring-1 ring-white/40 backdrop-blur transition hover:bg-white/20"
+              className="rounded-full border border-white/25 bg-white/[0.06] px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition hover:bg-white/[0.12]"
             >
               Chat WhatsApp
             </a>
           </div>
         </div>
 
-        <div className="relative mx-auto w-full max-w-xl">
-          <Image
-            src="/products/kincir-1hp-cutout.webp"
-            alt=""
-            aria-hidden
-            width={640}
-            height={475}
-            className="absolute -left-1 -top-2 h-auto w-[36%] opacity-80 blur-[1px] motion-safe:animate-pond-bob [animation-delay:-2.5s]"
-          />
-          <span
-            aria-hidden
-            className="absolute bottom-[4%] left-1/2 h-14 w-[78%] -translate-x-1/2 rounded-[50%] border-2 border-white/40 motion-safe:animate-pond-ripple"
-          />
+        <div className="relative">
           <Image
             src="/products/kincir-2hp-cutout.webp"
-            alt="Kincir air WANGJIA 2 HP di kolam"
+            alt="Kincir air WANGJIA 2 HP"
             width={900}
             height={580}
             priority
-            className="relative ml-auto h-auto w-[88%] drop-shadow-[0_28px_28px_rgba(3,30,52,0.45)] motion-safe:animate-pond-bob"
+            className="relative z-[1] mx-auto h-auto w-full max-w-[620px] drop-shadow-[0_40px_40px_rgba(0,0,0,0.6)] motion-safe:animate-pond-bob"
           />
+          <ul className="mt-6 grid grid-cols-3 gap-2 small:mt-0">
+            {CHIPS.map((chip) => (
+              <li
+                key={chip.value}
+                className={`z-[2] rounded-2xl border border-white/[0.18] bg-white/[0.08] px-3 py-2.5 text-[12px] text-[#cfe9f7] backdrop-blur-md small:absolute small:px-4 small:py-3 small:text-[13px] ${chip.place}`}
+              >
+                <b className="block text-lg font-bold tracking-tight text-white small:text-2xl">{chip.value}</b>
+                {chip.label}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
 
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-24 overflow-hidden">
-        <svg
-          className="absolute bottom-0 h-20 w-[200%] motion-safe:animate-pond-wave [animation-duration:18s]"
-          viewBox="0 0 2880 96"
-          preserveAspectRatio="none"
-        >
-          <path d={WAVE} fill="rgba(255,255,255,0.16)" />
-        </svg>
-        <svg
-          className="absolute bottom-0 h-12 w-[200%] motion-safe:animate-pond-wave [animation-direction:reverse]"
-          viewBox="0 0 2880 96"
-          preserveAspectRatio="none"
-        >
-          <path d={WAVE} fill="rgba(255,255,255,0.28)" />
-        </svg>
-      </div>
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-b from-transparent to-[#020b14]/90" />
     </section>
   )
 }

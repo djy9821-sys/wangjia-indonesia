@@ -93,8 +93,14 @@ export default async function Home(props: {
       <Suspense fallback={<SkeletonFeaturedProducts />}>
         <ProductGrid countryCode={countryCode} />
       </Suspense>
-      <WhyWangjia />
-      <HowToOrder />
+      <div className="relative isolate overflow-hidden rounded-3xl bg-[#020b14]">
+        <div
+          aria-hidden
+          className="absolute -top-40 left-1/2 -z-10 aspect-square w-[120%] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(11,108,143,0.45),rgba(2,11,20,0)_60%)]"
+        />
+        <WhyWangjia />
+        <HowToOrder />
+      </div>
       <Suspense fallback={null}>
         <FeaturedProducts countryCode={countryCode} />
       </Suspense>
