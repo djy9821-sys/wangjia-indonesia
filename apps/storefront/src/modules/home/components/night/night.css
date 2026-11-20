@@ -73,7 +73,7 @@ body:has([data-wj-night]) footer { background: #fff; }
 .wj-night .poster, .wj-night .scene, .wj-night .veil { position: fixed; left: 0; top: var(--hdr); width: 100vw; height: calc(100lvh - var(--hdr)); z-index: -1; display: block; }
 .wj-night .poster { background: var(--ink-0); }
 .wj-night .poster img { width: 100%; height: 100%; object-fit: cover; }
-.wj-night .scene { opacity: 0; transition: opacity 500ms var(--ease); }
+.wj-night .scene { opacity: 0; transition: opacity 300ms var(--ease); }
 .wj-night[data-live] .scene { opacity: 1; }
 .wj-night .veil { pointer-events: none; background: radial-gradient(130% 95% at 50% 42%, transparent 52%, rgba(2, 4, 9, 0.62) 100%); }
 .wj-night .veil::after {

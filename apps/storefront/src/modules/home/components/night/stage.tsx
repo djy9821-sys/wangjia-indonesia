@@ -173,7 +173,16 @@ export default function NightStage({ family }: { family: string }) {
         try {
           const { createPondScene } = await import("./scene")
           if (cancelled) return
-          const created = await createPondScene(canvas, { lowPower, still: reduce, parallax: fine && !reduce, family, onFrame: placeLabels })
+          // the canvas shows only once it has drawn a frame, so the poster never fades to black
+          let drawn = false
+          const onFrame = () => {
+            if (!drawn) {
+              drawn = true
+              root.dataset.live = ""
+            }
+            placeLabels()
+          }
+          const created = await createPondScene(canvas, { lowPower, still: reduce, parallax: fine && !reduce, family, onFrame })
           if (cancelled) {
             created.dispose()
             return
@@ -192,13 +201,8 @@ export default function NightStage({ family }: { family: string }) {
         ro.observe(canvas)
         cleanups.push(() => ro.disconnect())
 
-        // the opening: only when the scene is ready quickly; after a long wait cut straight to it
-        if (!reduce && performance.now() < 1500) {
-          s.set("p0", 0)
-          gsap.to(s.state, { p0: 1, duration: 2.8, ease: "expo.out", onUpdate: () => s.invalidate() })
-          cleanups.push(() => gsap.killTweensOf(s.state))
-        } else s.set("p0", 1)
-        requestAnimationFrame(() => requestAnimationFrame(() => (root.dataset.live = "")))
+        // the poster already shows the hero frame, so the live scene starts on that same frame (no opening move)
+        s.set("p0", 1)
 
         // render only while a scene chapter is on screen
         const seen = new Set<Element>()
@@ -311,7 +315,8 @@ export default function NightStage({ family }: { family: string }) {
     <>
       {/* A poster frame of the same scene: the first paint, and the picture when WebGL is missing. */}
       <picture className="poster">
-        <source media="(max-aspect-ratio: 9/10)" srcSet="/home/night-poster-p.webp" />
+        <source media="(max-aspect-ratio: 7/10)" srcSet="/home/night-poster-p.webp" />
+        <source media="(max-aspect-ratio: 13/10)" srcSet="/home/night-poster-s.webp" />
         <img src="/home/night-poster-l.webp" alt="" fetchPriority="high" decoding="async" />
       </picture>
       <canvas ref={canvasRef} className="scene" aria-hidden="true" />
