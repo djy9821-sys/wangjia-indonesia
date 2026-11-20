@@ -51,7 +51,7 @@ Restraint still applies to colour and type. It does not apply to imagery and mot
 
 ## 5. Budget, fallbacks and accessibility
 
-Measured for A2 (gzip): three.js with the scene code 156 KB, GSAP 28 KB, ScrollTrigger 18 KB, Lenis 5 KB, so about 207 KB of JavaScript. Fonts 206 KB (subset or drop the mono to save 58 KB). HTML 14 KB. Range images load lazily. That is about 440 KB before scrolling, within the 730 KiB page and 365 KiB JavaScript budget.
+Measured for A2 (gzip): three.js with the scene code 157 KB, GSAP 28 KB, ScrollTrigger 18 KB, Lenis 5 KB, so about 210 KB of JavaScript. Fonts 206 KB (subset or drop the mono to save 58 KB). HTML 15 KB. The poster 79 KB (landscape) or 50 KB (portrait). Range images load lazily. That is about 520 KB before scrolling, within the 730 KiB page and 365 KiB JavaScript budget.
 
 - **Tiers** (numbers and reasons in `moves.md` section 5; the floor is a Mali-G52 phone such as the Galaxy A06, about a tenth of an iPhone's GPU):
   - Tier 0, Save-Data or 2 GB memory or no WebGL: the poster only.
