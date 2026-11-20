@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WANGJIA 首页 A2：一整夜的鱼塘</title>
+<style>
+:root { --bg: #05080f; --card: #0b1222; --line: rgba(190, 210, 255, .14); --text: #eef1f6; --text-2: #a7b1c4; --amber: #ffb547; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font: 16px/1.6 -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; padding: 32px 20px 64px; }
+main { max-width: 1120px; margin: 0 auto; }
+h1 { font-size: 26px; line-height: 1.3; }
+.sub { color: var(--text-2); margin-top: 8px; }
+.grid { display: grid; gap: 28px; margin-top: 28px; }
+@media (min-width: 860px) { .grid { grid-template-columns: 320px 1fr; align-items: start; } }
+.phone { width: 300px; height: 650px; border-radius: 36px; border: 1px solid var(--line); overflow: hidden; background: #000; margin: 0 auto; }
+.phone iframe { width: 375px; height: 812px; border: 0; transform: scale(.8); transform-origin: 0 0; }
+.notes { display: grid; gap: 18px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; }
+.card h2 { font-size: 17px; margin-bottom: 8px; }
+.card li { margin-left: 1.2em; color: var(--text-2); }
+.card li + li { margin-top: 4px; }
+.btn { display: inline-block; margin-top: 4px; padding: 10px 18px; border-radius: 999px; background: var(--amber); color: #1a1205; font-weight: 600; text-decoration: none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>首页 A2：一整夜的鱼塘</h1>
+  <p class="sub">按 2026-11-20 更新的 dtc-store-design skill 做的。左边是手机效果，可以直接在框里上下滑；电脑效果点右边的按钮。</p>
+  <div class="grid">
+    <div class="phone"><iframe src="a2.html" title="手机效果"></iframe></div>
+    <div class="notes">
+      <div class="card">
+        <h2>和 11-19 的 A 比，变了什么</h2>
+        <ul>
+          <li>首屏不再是一张静止的抠图：用 3D 照产品照片的比例建了 2 HP 水车，在夜里的水面上转，有水花、倒影、月光。</li>
+          <li>保留了你选过的 Design World 构图：巨大的 KINCIR AIR 在后面，机器在前面。</li>
+          <li>往下滚就是一整夜：时钟从 18.00 走到天亮，镜头升起来看到一整片塘的水车，溶氧示意曲线跟着画出来。</li>
+          <li>再往下，同一台机器在画面里拆开，五个部件各自带引线标注。</li>
+          <li>最后一屏天亮，留 WhatsApp 询价表。价格和购买按钮从首屏起一直在顶栏或底栏里。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>速度和可用性</h2>
+        <ul>
+          <li>首屏加载约 440 KB：3D 和动画脚本约 207 KB，字体约 206 KB，都在预算内。</li>
+          <li>便宜手机自动降画质；系统设置了减少动态时，画面静止；首屏有“Jeda”按钮可以暂停画面。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>上线前要确认</h2>
+        <ul>
+          <li>“夜里溶氧一直往下降，天亮前最低”这句和示意曲线，请李总确认。</li>
+          <li>WhatsApp 的回复时间段，请李总定。</li>
+          <li>3D 模型是照产品照片做的示意，部件位置请李总看一眼有没有画错。</li>
+        </ul>
+      </div>
+      <p><a class="btn" href="a2.html">打开电脑版</a></p>
+    </div>
+  </div>
+</main>
+</body>
+</html>

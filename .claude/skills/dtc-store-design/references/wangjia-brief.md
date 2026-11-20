@@ -19,6 +19,7 @@
 - Weak: catalogue photos of parts and the jet aerator (low resolution, some with text or watermarks). Placeholder illustrations (`aerator-*.png`, `gearbox.png`, `float.png`, `impeller.png`) are not product photos.
 - Logo files: `wangjia-logo-horizontal.png`, `wangjia-logo.png`, `wangjia-mark.png`.
 - Missing and most wanted: studio shots on a dark seamless background, footage from Indonesian ponds (dawn mist, rows of aerators, slow-motion splash, harvest), a 3D model from the factory, testimonials with permission.
+- Made by us (2026-11-20): a procedural three.js model of the 2 HP built from the catalogue photos, with water, spray and night light, plus poster frames rendered from it (`docs/mockups/home-2026-11-20/`). It is an illustration from real proportions; ask the owner to check the part layout before launch.
 - New cut-outs: macOS Vision lifts a subject off a plain background well (`VNGenerateForegroundInstanceMaskRequest`), then `sharp` (already in node_modules) writes WebP.
 
 ## Colours found in the product
@@ -28,7 +29,7 @@ Float blue, paddle orange or yellow, stainless grey, and the logo's blue. The si
 - Next.js 15 App Router + Tailwind 3 in `apps/storefront`; Medusa v2 backend. Home sections live in `src/modules/home/components/`, the page in `src/app/[countryCode]/(main)/page.tsx`.
 - `next.config.js` has `images.unoptimized: true`, so ship right-sized WebP yourself; give the hero image `priority`.
 - Google Fonts are unreachable from the development Mac: add fonts as `@fontsource/<font>` with `pnpm --filter @b2b-starter/storefront add @fontsource/<font> --registry=https://registry.npmmirror.com` and import the weight CSS files.
-- No animation library yet. Lenis, GSAP (free, including ScrollTrigger) and Motion are acceptable when a design needs them; plain CSS first. Respect `prefers-reduced-motion`.
+- The live site has no animation library yet. Mock-up A2 uses three.js, GSAP with ScrollTrigger and Lenis (about 207 KB gzip together); Motion is also acceptable. Plain CSS for interface motion. Respect `prefers-reduced-motion`.
 - The page body is white on purpose (a dark-mode browser would otherwise show sections without a background on black).
 - Facts and lessons from earlier rounds are in `docs/DESIGN-TEARDOWN.zh-CN.md` and `docs/WORKLOG.zh-CN.md`.
 
@@ -40,4 +41,6 @@ Float blue, paddle orange or yellow, stainless grey, and the logo's blue. The si
 ## What the owner has said about design
 - "很普通没啥创意" about template-looking pages; wants the level of the designs that trend on X.
 - Picked, in order: the dark "night pond" direction over editorial and blueprint mock-ups (still not enough), then MotionSites' "Design World" layout (giant words with the machine in front) for the hero.
+- 2026-11-19: neither full mock-up (A night, B engineering drawing) was picked; the owner asked whether I should study more. Static, rule-following pages read as ordinary to them; what they admire moves (MotionSites on X, Apple and Bambu Lab product pages).
+- Their reference video (the MotionSites author on TikTok) says: start from a strong existing design, pick a niche, and the beautiful animation and interaction is what clients pay for.
 - Wants it practical, not bloated, and to see options rather than be asked abstract questions.

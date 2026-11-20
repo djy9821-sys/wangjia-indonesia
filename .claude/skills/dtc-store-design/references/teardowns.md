@@ -32,11 +32,27 @@ Measured on 2026-11-19 in a real browser (fonts, sizes, colours and timings read
 - Names describe the moves: Smoothie Slider (a giant "Berry" behind a bottle), Flower Valley 3D ("Grown, not built." over cinematic flowers), Particle Brain 3D, Particle Self (scroll-driven 3D particles), Ink Reveal Hover, Sticker Type, Summit (a person in front of a giant word), Design World (a glass cube in front of giant words), Roadster 3D (outlined giant word behind a car on a reflective floor).
 - Lesson: they are concept landing pages, each with imagery generated for it (consistent light and colour). The layout is simple: one giant word, one hero object, a few small labels. The imagery carries them; the code is not complicated.
 
+## Apple AirPods Pro 3 (apple.com/airpods-pro), measured 2026-11-20
+- 28,782 px tall (about 34 screens), white page, 19 sections, 12 sticky elements.
+- Hero: full-bleed film of what the product does (a dancer inside rings of sound, i.e. silence), not a packshot. Claim headline bottom-left (SF Pro Display 600, 64/68 px, tracking -0.009 em), a proof line under it ("up to 2x more than AirPods Pro 2"), and a price pill with Buy bottom-right, inside the hero.
+- A sticky product bar after the hero: name, Overview, Hearing Health, Tech Specs, Compare, and a blue Buy.
+- "Get the highlights": a film gallery with a pause button and dot progress, controlled by the user.
+- The middle of the page is one chapter about 21 screens long: sticky stages whose pictures change with scroll (84 elements with inline transforms, 67 with inline opacity, driven by Apple's own script; no GSAP, no canvas).
+- 16 videos: muted, playsinline, preload none, started by script only when in view.
+- One family in weight 600 for all display type: 96/100 (-0.015 em), 64/68, 56/60, 28/32; feature titles 17/25. CSS transitions are short (100 ms linear, 200–400 ms); the large movement is scroll-linked, not timed.
+
+## Bambu Lab H2D (bambulab.com/en/h2d), measured 2026-11-20
+- 51,986 px tall (about 62 screens), Next.js, light grey page holding dark full-width chapters and rounded dark cards.
+- Hero: full-bleed dark macro footage of the toolhead under hard top light; small product name, two-line headline (Manrope 700, 48 px), white "Buy now" and outlined "Watch video". Sticky product bar with a green Buy.
+- Second screen: a centred 72 px headline whose second line is in the one accent (green), then a bento of outcome pictures (what people make with it).
+- "Dive In": each capability is a chapter with a centred title and a one-line subtitle on black, then a full-width film with a progress bar.
+- 14 videos (the first autoplays once, muted; the rest loop with posters, preload metadata). Heavy: 822 KB of scripts and 3.3 MB of images on first load, not a budget to copy.
+
 ## What they share
-1. One idea carried all the way through (playful industrial minimalism; transparency + dot matrix; "the view you capture").
-2. Imagery first: consistently lit product shots, footage of what the product does, renders. Effects are seasoning.
+1. One idea carried all the way through (playful industrial minimalism; transparency + dot matrix; "the view you capture"; silence you can see).
+2. Imagery first, and moving: the first screen is footage or a living scene of the product at work in dramatic, consistent light; studio shots and renders carry the rest. Effects are seasoning; motion of the imagery itself is not.
 3. Type is the brand: owned faces or a fixed pairing; extreme contrast between 11 px mono labels and 48–100+ px display; large headings often in regular or medium weight.
 4. Restrained colour: black, white, grey and one accent.
 5. The page is a story, one message per screen: outcome, problem, product, proof, choice, purchase.
-6. The way to buy is always visible: floating nav, sticky product bar, price under each product.
-7. Light motion: 100–500 ms fades and moves, smooth scrolling, a few pinned scenes; nothing flying around.
+6. The way to buy is always visible: floating nav, sticky product bar, price in the hero and under each product.
+7. Interface motion is light (100–500 ms fades and moves, smooth scrolling); the big movement comes from scroll-linked sticky chapters where the picture changes as you scroll.

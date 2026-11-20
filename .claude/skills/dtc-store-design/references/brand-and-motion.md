@@ -2,6 +2,8 @@
 
 Collected 2026-11-19 from studio case studies (Work & Co on Aesop, ArcTouch on Liquid Death, Awwwards case studies of Norda, iyO, Palmer; Instrument on Oura; Code and Theory on Rivian; Tubik on SPYLT), growth guides (Demand Curve, Julian Shapiro), NN/g, web.dev, Chrome's motion guidance, Carbon, Webflow University and Framer Academy. Webflow's and Framer's free lessons are mostly tool tutorials and were useful only for motion. Agency metrics are self-reported. Several pages were read through search extracts.
 
+> Updated 2026-11-20: `craft.md` (section 1) corrects parts of this file: motion runs on two clocks (interface 100–300 ms, scene 0.5–1 s and scroll-scrubbed), CSS scroll-driven animation is now Baseline, and the hero and price must never wait at opacity 0. Where the two differ, `craft.md` wins.
+
 ## 1. Find one idea and hold it
 - Find it in the customer's real ritual: Work & Co trained in Aesop's skin consultations and visited the stores; the "unselling" idea became calm pages that teach, and conversion rose 15 % in 60 days. (work.co/clients/aesop)
 - Pick one sentence that everything obeys: "Murder your thirst" runs from Liquid Death's hero through every section heading and into new product lines. (arctouch.com/portfolio/liquid-death)

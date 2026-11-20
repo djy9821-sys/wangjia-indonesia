@@ -2,6 +2,8 @@
 
 Collected 2026-11-19 from Refactoring UI (free articles and previews; the paid book only by chapter title), Butterick's Practical Typography, Laws of UX, WCAG 2.2, Material Design layout and type guidance, Every Layout, Utopia, Tailwind's docs, Josh Comeau on shadows and Anthony Hobday's "safe rules". Some Refactoring UI, Medium and Material pages were read through search extracts. Source keys are listed at the end.
 
+> Updated 2026-11-20: `craft.md` (section 1) corrects parts of this file: motion runs on two clocks (interface 100–300 ms, scene 0.5–1 s and scroll-scrubbed), CSS scroll-driven animation is now Baseline, and the hero and price must never wait at opacity 0. Where the two differ, `craft.md` wins.
+
 ## Hierarchy
 - Rank every element. Use colour and weight before size: 2–3 text colours (dark, grey, light grey) and 2 weights (400/500 and 600/700); nothing under 400 in interface text. De-emphasise with a lighter colour or smaller size, not a thinner weight. [7T]
 - At most three type sizes in one view; the most important thing is the biggest. [NNG]

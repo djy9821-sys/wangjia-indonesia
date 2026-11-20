@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#03060c">
+<meta name="color-scheme" content="dark">
+<title>WANGJIA Kincir Air · Arah A2: Satu malam di tambak</title>
+<link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" as="image" href="img/poster-l.webp" media="(min-aspect-ratio: 9/10)" fetchpriority="high">
+<link rel="preload" as="image" href="img/poster-p.webp" media="(max-aspect-ratio: 9/10)" fetchpriority="high">
+<style>
+@font-face { font-family: Archivo; src: url(fonts/archivo.woff2) format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; }
+@font-face { font-family: Geist; src: url(fonts/geist.woff2) format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url(fonts/geist-mono.woff2) format("woff2"); font-weight: 100 900; font-display: swap; }
+
+/* Tokens: night tinted toward the float blue; one accent, the paddle orange */
+:root {
+  --ink-0: #03060c; --ink-1: #060b15; --ink-2: #0a1222; --ink-3: #111b31;
+  --line: rgba(190, 210, 255, .12); --line-2: rgba(190, 210, 255, .24);
+  --text: #f2f4f7; --text-2: #a7b1c4; --text-3: #7f8aa0;
+  --amber: #ffb547; --amber-2: #ffcb80; --on-amber: #1a1205;
+  --ease: cubic-bezier(.23, 1, .32, 1); --ease-io: cubic-bezier(.77, 0, .175, 1); --ease-expo: cubic-bezier(.16, 1, .3, 1); --ease-drawer: cubic-bezier(.32, .72, 0, 1);
+  /* interface clock */ --fast: 160ms; --hover-in: 125ms; --hover-out: 450ms; --med: 300ms;
+  /* scene clock */ --line: 900ms; --enter: 600ms;
+  --pad: 20px; --max: 1360px;
+  --display: Archivo, "Arial Narrow", sans-serif;
+  --sans: Geist, ui-sans-serif, system-ui, sans-serif;
+  --mono: "Geist Mono", ui-monospace, Menlo, monospace;
+}
+@media (min-width: 640px) { :root { --pad: 32px; } }
+@media (min-width: 1024px) { :root { --pad: 40px; } }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--ink-0); -webkit-text-size-adjust: 100%; }
+html, body { overflow-x: clip; }
+body { color: var(--text); font: 400 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+@media (min-width: 1024px) { body { font-size: 17px; } }
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; text-decoration: none; }
+button, input { font: inherit; color: inherit; background: none; border: 0; }
+ul, ol { list-style: none; }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 6px; }
+::selection { background: rgba(255, 181, 71, .35); color: var(--text); }
+a, button, input { -webkit-tap-highlight-color: transparent; }
+button, .btn, .chips button { touch-action: manipulation; }
+.container { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--pad); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.mono { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; }
+.num { font-variant-numeric: tabular-nums; }
+.label { color: var(--text-3); display: flex; align-items: center; gap: 12px; }
+.label b { color: var(--amber); font-weight: 500; }
+.label::before { content: ""; width: 24px; height: 1px; background: currentColor; opacity: .6; }
+.h2 { font-family: var(--display); font-weight: 800; font-stretch: 70%; font-variation-settings: "wdth" 70; text-transform: uppercase; line-height: .9; font-size: clamp(48px, 6.4vw, 104px); word-spacing: .08em; }
+.h3 { font-family: var(--display); font-weight: 700; font-stretch: 80%; font-variation-settings: "wdth" 80; text-transform: uppercase; line-height: 1; font-size: clamp(20px, 1.8vw, 26px); letter-spacing: .01em; }
+.lead { font-size: 18px; line-height: 1.5; color: var(--text-2); max-width: 36ch; }
+@media (min-width: 1024px) { .lead { font-size: 20px; } }
+
+/* The scene: one fixed canvas behind the transparent chapters */
+/* A still frame of the same scene paints first (and stays when WebGL is missing); the live canvas fades in over it */
+.poster { position: fixed; left: 0; top: 0; width: 100vw; height: 100lvh; z-index: 0; background: #03060c url(img/poster-l.webp) center / cover no-repeat; }
+@media (max-aspect-ratio: 9/10) { .poster { background-image: url(img/poster-p.webp); } }
+#scene { position: fixed; left: 0; top: 0; width: 100vw; height: 100lvh; display: block; z-index: 0; opacity: 0; transition: opacity 500ms var(--ease); }
+.live #scene { opacity: 1; }
+.veil { position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background: radial-gradient(130% 95% at 50% 42%, transparent 52%, rgba(2, 4, 9, .62) 100%); }
+.veil::after { content: ""; position: absolute; inset: 0; opacity: .07; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+header, main, footer { position: relative; z-index: 2; }
+
+/* Buttons */
+.btn { white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 22px; border-radius: 999px; font-weight: 600; font-size: 16px; letter-spacing: -.005em; cursor: pointer; transition: background var(--fast) var(--ease), color var(--fast) var(--ease), border-color var(--fast) var(--ease), transform var(--fast) var(--ease); }
+.btn:active { transform: scale(.97); }
+.btn svg { width: 18px; height: 18px; flex: none; transition: transform var(--hover-out) var(--ease); }
+.btn-primary { background: var(--amber); color: var(--on-amber); }
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover { background: var(--amber-2); transition-duration: var(--hover-in); }
+  .btn-primary:hover svg { transform: translateX(3px); transition-duration: var(--hover-in); }
+}
+.btn-ghost { border: 1px solid var(--line-2); color: var(--text); background: rgba(6, 11, 21, .35); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+@media (hover: hover) and (pointer: fine) { .btn-ghost:hover { border-color: var(--text-2); } }
+.btn-ghost svg { color: #25d366; }
+
+/* Header */
+.site-header { position: fixed; inset: 0 0 auto 0; z-index: 30; border-bottom: 1px solid transparent; transition: background var(--med) var(--ease), border-color var(--med) var(--ease); }
+.site-header.solid { background: rgba(6, 11, 21, .78); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom-color: var(--line); }
+.nav { display: flex; align-items: center; gap: 28px; height: 64px; }
+.nav .logo img { height: 26px; width: auto; }
+.nav-links { display: none; gap: 28px; font-size: 15px; color: var(--text-2); }
+.nav-links a:hover { color: var(--text); }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.icon-btn { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 999px; color: var(--text-2); }
+.icon-btn:hover { color: var(--text); background: rgba(255,255,255,.06); }
+.icon-btn svg { width: 20px; height: 20px; }
+.nav .login { display: none; font-size: 15px; color: var(--text-2); padding: 0 10px; }
+@media (min-width: 1024px) { .nav-links { display: flex; } .nav .login { display: inline; } .menu-btn { display: none; } }
+.hdr-buy { display: none; }
+@media (min-width: 900px) {
+  .hdr-buy { display: flex; align-items: center; gap: 14px; margin-left: auto; opacity: 0; transform: translateY(-6px); pointer-events: none; transition: opacity var(--med) var(--ease), transform var(--med) var(--ease); }
+  .site-header.buying .hdr-buy { opacity: 1; transform: none; pointer-events: auto; }
+  .site-header.buying .nav-right { margin-left: 8px; }
+  .hdr-buy .t { font-size: 14px; color: var(--text-2); }
+  .hdr-buy b { font-family: var(--display); font-weight: 700; font-stretch: 85%; font-variation-settings: "wdth" 85; font-size: 20px; }
+  .hdr-buy .btn { min-height: 40px; padding: 0 16px; font-size: 14px; }
+}
+
+/* 1 · Hero: the pond at night is the picture; words sit on a scrim at the bottom */
+.hero { position: relative; min-height: 100svh; display: flex; flex-direction: column; padding-top: 80px; }
+.hero::after { content: ""; position: absolute; inset: auto 0 0 0; height: 48%; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(3, 6, 12, .62) 55%, rgba(3, 6, 12, .9)); }
+.hero-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.clock { display: none; color: var(--text-3); }
+.clock b { color: var(--text-2); font-weight: 500; }
+@media (min-width: 640px) { .clock { display: block; } }
+.pause { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 999px; color: var(--text-2); cursor: pointer; background: rgba(6, 11, 21, .35); }
+.pause:hover { color: var(--text); border-color: var(--text-3); }
+.pause svg { width: 12px; height: 12px; }
+.top-r { display: flex; align-items: center; gap: 16px; }
+.hero-foot { margin-top: auto; display: grid; gap: 22px; padding-bottom: 28px; }
+.hero h1 { font-size: clamp(30px, 3.5vw, 52px); font-weight: 500; line-height: 1.04; letter-spacing: -.032em; }
+.hero h1 .dim { color: var(--text-2); }
+.proofline { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 18px; color: var(--text-2); font-size: 15px; font-weight: 500; }
+.proofline li { display: flex; align-items: center; gap: 8px; }
+.proofline li::before { content: ""; width: 5px; height: 5px; border-radius: 99px; background: var(--amber); }
+.buy { display: grid; gap: 14px; }
+.price-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.price-row .name { color: var(--text-2); font-size: 15px; }
+.price { font-family: var(--display); font-weight: 700; font-stretch: 85%; font-variation-settings: "wdth" 85; font-size: 40px; line-height: 1; letter-spacing: -.01em; }
+.ctas { display: grid; gap: 10px; }
+.note { color: var(--text-2); font-size: 15px; font-weight: 500; }
+@media (min-width: 640px) { .ctas { grid-auto-flow: column; justify-content: start; } }
+@media (min-width: 1024px) {
+  .hero-foot { grid-template-columns: 1fr auto; align-items: end; gap: 40px; padding-bottom: 36px; }
+  .buy { justify-items: end; text-align: right; }
+  .price-row { justify-content: flex-end; }
+}
+@media (max-width: 639px) {
+  .cue { display: none; }
+  .hero-top > .label { display: none; }
+  .hero-top { justify-content: flex-end; }
+  .hero h1 { font-size: 29px; }
+  .proofline { gap: 6px 12px; margin-top: 12px; font-size: 14px; }
+  .proofline li:nth-child(n+4) { display: none; }
+  .price { font-size: 34px; }
+  .ctas { grid-template-columns: 1fr auto; }
+  .ctas .btn-ghost { width: 52px; padding: 0; font-size: 0; gap: 0; }
+  .ctas .btn-ghost svg { width: 22px; height: 22px; }
+  .buy .note { display: none; }
+  .hero-foot { gap: 16px; padding-bottom: 22px; }
+}
+.cue { position: absolute; left: 50%; bottom: 10px; translate: -50% 0; width: 1px; height: 28px; background: linear-gradient(var(--text-3), transparent); opacity: .7; }
+
+/* 2 · The night shift: the clock runs with the scroll */
+.night { position: relative; height: 430vh; }
+.stick { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+.night .stick::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(3, 6, 12, .72), rgba(3, 6, 12, .25) 48%, transparent 70%); }
+.night-in { height: 100%; display: grid; grid-template-rows: auto auto 1fr; align-content: start; padding-top: 96px; padding-bottom: 32px; }
+.night .h2 { margin-top: 20px; font-size: clamp(44px, 5.2vw, 84px); }
+.clockbig { margin-top: 28px; display: flex; align-items: baseline; gap: 14px; }
+.clockbig b { font-family: var(--display); font-weight: 800; font-stretch: 62%; font-variation-settings: "wdth" 62; font-size: clamp(84px, 11vw, 190px); line-height: .78; letter-spacing: -.005em; font-variant-numeric: tabular-nums; }
+.clockbig span { color: var(--text-3); }
+.steps { position: relative; align-self: end; max-width: 34ch; min-height: 9.5em; }
+.steps p { position: absolute; left: 0; bottom: 0; font-size: 19px; line-height: 1.45; color: var(--text-2); opacity: 0; transform: translateY(14px); transition: opacity 600ms var(--ease), transform 600ms var(--ease); }
+.steps p strong { color: var(--text); font-weight: 500; }
+.steps p.on { opacity: 1; transform: none; }
+@media (min-width: 1024px) { .steps p { font-size: 22px; } }
+.chartmini { position: absolute; right: var(--pad); bottom: 32px; width: min(440px, 40vw); padding: 16px 16px 12px; border-radius: 18px; border: 1px solid var(--line); background: rgba(6, 11, 21, .55); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.chartmini svg { width: 100%; height: auto; overflow: visible; display: block; }
+.chartmini .axis { stroke: var(--line-2); }
+.chartmini .grid { stroke: var(--line); stroke-dasharray: 2 6; }
+.chartmini .curve { fill: none; stroke: var(--amber); stroke-width: 3; stroke-linecap: round; }
+.chartmini .now { fill: var(--amber); }
+.chartmini text { font: 500 12px var(--mono); letter-spacing: .08em; fill: var(--text-3); }
+.chartmini .low { opacity: 0; transition: opacity 400ms var(--ease); }
+.chartmini .low.on { opacity: 1; }
+.chartmini .low text { fill: var(--amber); }
+.chartmini .foot { display: flex; justify-content: space-between; margin-top: 8px; color: var(--text-3); }
+@media (max-width: 767px) { .chartmini text { font-size: 21px; } }
+@media (max-width: 767px) {
+  .night-in { padding-top: 84px; }
+  .steps { min-height: 8.5em; margin-bottom: 250px; }
+  .steps p { font-size: 17px; }
+  .chartmini { left: var(--pad); right: var(--pad); width: auto; bottom: 88px; padding: 12px 12px 10px; }
+}
+
+/* 3 · Anatomy: the same machine, opened up */
+.anatomy { position: relative; height: 360vh; }
+.ana-head { position: absolute; left: 0; right: 0; top: 0; padding-top: 96px; }
+.ana-head .h2 { margin-top: 20px; font-size: clamp(44px, 5.2vw, 84px); }
+.anatomy .stick::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(3, 6, 12, .55), transparent 40%, transparent 70%, rgba(3, 6, 12, .6)); }
+.leaders { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.leaders polyline { fill: none; stroke: rgba(255, 203, 128, .55); stroke-width: 1; opacity: 0; transition: opacity 400ms var(--ease); }
+.leaders circle { fill: var(--amber); opacity: 0; transition: opacity 400ms var(--ease); }
+.leaders .on { opacity: 1; }
+.callout { position: absolute; left: 0; top: 0; width: 270px; padding: 2px 0 0 14px; border-left: 1px solid rgba(255, 203, 128, .55); opacity: 0; transition: opacity 500ms var(--ease); will-change: transform; }
+.callout.on { opacity: 1; }
+.callout .n { color: var(--amber); }
+.callout .h3 { margin-top: 6px; }
+.callout p { margin-top: 6px; font-size: 15px; line-height: 1.45; color: var(--text-2); }
+.callout .pp { margin-top: 8px; font-size: 11px; letter-spacing: .08em; color: var(--text-3); }
+.callout .pp b { color: var(--amber-2); font-weight: 500; }
+.dot { position: absolute; left: 0; top: 0; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 99px; background: var(--amber); color: var(--on-amber); font: 600 11px/26px var(--mono); text-align: center; opacity: 0; transition: opacity 400ms var(--ease); display: none; }
+.dot.on { opacity: 1; }
+.ana-list { display: none; }
+.ana-foot { position: absolute; left: var(--pad); bottom: 32px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; color: var(--text-2); }
+.ana-foot a { color: var(--amber); display: inline-flex; gap: 8px; align-items: center; }
+.ana-foot svg { width: 16px; height: 16px; }
+@media (max-width: 767px) {
+  .callout, .leaders { display: none; }
+  .dot { display: block; }
+  .ana-head { padding-top: 84px; }
+  .ana-list { display: grid; position: absolute; left: var(--pad); right: var(--pad); bottom: 84px; gap: 0; border-top: 1px solid var(--line); background: rgba(3, 6, 12, .55); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-radius: 0 0 14px 14px; }
+  .ana-list li { display: grid; grid-template-columns: 26px 1fr auto; gap: 8px; align-items: baseline; padding: 9px 8px 9px 4px; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--text-2); }
+  .ana-list .pr { color: var(--amber-2); font-size: 13px; }
+  .ana-list li.cap { font-size: 10px; letter-spacing: .08em; color: var(--text-3); padding: 6px 8px 8px 4px; border-bottom: 0; }
+  .ana-list li b { color: var(--text); font-weight: 600; }
+  .ana-list .n { color: var(--amber); }
+  .ana-foot { display: none; }
+}
+
+/* 4–5 · Range and proof: opaque chapters over the scene */
+section.block { position: relative; padding-block: 96px; }
+@media (min-width: 1024px) { section.block { padding-block: 150px; } }
+.head { display: grid; gap: 20px; margin-bottom: 48px; }
+.head .h2 { margin-top: 20px; }
+@media (min-width: 1024px) { .head { grid-template-columns: 7fr 5fr; align-items: end; gap: 40px; margin-bottom: 72px; } .head .lead { justify-self: end; } }
+.range { background: var(--ink-1); border-top: 1px solid var(--line); }
+.cards { display: grid; gap: 16px; }
+@media (min-width: 640px) { .cards { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .cards { grid-template-columns: repeat(4, 1fr); } }
+.card { position: relative; display: grid; grid-template-rows: auto 1fr; border: 1px solid var(--line); border-radius: 20px; overflow: hidden; background: var(--ink-2); transition: border-color var(--fast) var(--ease), transform var(--med) var(--ease); }
+.card:active { transform: scale(.98); }
+@media (hover: hover) and (pointer: fine) { .card:hover { border-color: var(--line-2); transform: translateY(-4px); } }
+.card .pic { aspect-ratio: 4 / 3; display: grid; place-items: center; padding: 24px; background: radial-gradient(60% 70% at 50% 0%, rgba(255,255,255,.09), transparent 75%), #0d1628; }
+.card .pic img { max-height: 100%; max-width: 100%; width: auto; transition: transform var(--med) var(--ease); }
+@media (hover: hover) and (pointer: fine) { .card:hover .pic img { transform: scale(1.04); transition-duration: var(--hover-in); } }
+.card .info { display: grid; gap: 12px; padding: 20px; align-content: start; }
+.card .tag { color: var(--amber); }
+.card .name { font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
+.card .kv { color: var(--text-3); font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; line-height: 1.7; }
+.card .bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--line); }
+.card .p small { font: 500 10px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); display: block; margin-bottom: 4px; }
+.card .p { font-family: var(--display); font-weight: 700; font-stretch: 85%; font-variation-settings: "wdth" 85; font-size: 26px; }
+.card .go { width: 44px; height: 44px; border-radius: 99px; display: grid; place-items: center; border: 1px solid var(--line-2); transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease), color var(--fast) var(--ease); }
+@media (hover: hover) and (pointer: fine) { .card:hover .go { background: var(--amber); border-color: var(--amber); color: var(--on-amber); } }
+.card .go svg { width: 18px; height: 18px; }
+.card a.cover { position: absolute; inset: 0; z-index: 1; }
+@media (max-width: 639px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .card { border-radius: 16px; } .card .pic { padding: 12px; } .card .info { padding: 14px; gap: 8px; }
+  .card .name { font-size: 16px; line-height: 1.25; } .card .kv { font-size: 10.5px; letter-spacing: .04em; }
+  .card .bottom { margin-top: 4px; padding-top: 12px; } .card .p { font-size: 21px; } .card .go { display: none; }
+}
+.compare { margin-top: 24px; border: 1px solid var(--line); border-radius: 20px; }
+.compare summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; min-height: 64px; padding: 0 20px; font-weight: 600; }
+.compare summary::-webkit-details-marker { display: none; }
+.compare summary .plus { width: 28px; height: 28px; border-radius: 99px; border: 1px solid var(--line-2); display: grid; place-items: center; transition: transform var(--fast) var(--ease); }
+.compare[open] summary .plus { transform: rotate(45deg); }
+.table-wrap { overflow-x: auto; padding: 0 20px 20px; }
+table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: 15px; }
+th, td { text-align: left; padding: 14px 12px 14px 0; border-top: 1px solid var(--line); vertical-align: top; }
+th { color: var(--text-3); font: 500 11px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; width: 16%; }
+td { color: var(--text-2); }
+tr.price-tr td { color: var(--text); font-weight: 600; }
+.proof { background: linear-gradient(180deg, var(--ink-1), #0b1430); }
+.proof-grid { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; }
+@media (min-width: 640px) { .proof-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .proof-grid { grid-template-columns: repeat(4, 1fr); } }
+.proof-grid > div { background: #0a1326; padding: 28px 24px 32px; display: grid; gap: 14px; align-content: start; min-height: 250px; }
+.proof .big { font-family: var(--display); font-weight: 800; font-stretch: 62%; font-variation-settings: "wdth" 62; text-transform: uppercase; font-size: clamp(48px, 4.4vw, 66px); line-height: .9; white-space: nowrap; word-spacing: .08em; }
+.proof .big em { font-style: normal; color: var(--amber); }
+.proof-grid p { color: var(--text-2); font-size: 16px; }
+
+/* 6 · Dawn: the scene comes back at first light */
+.dawn { position: relative; min-height: 135svh; padding-top: 16vh; }
+.dawn::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 62%; z-index: -1; background: linear-gradient(180deg, rgba(5, 9, 22, .8), rgba(5, 9, 22, .45) 45%, transparent); }
+.dawn .h2, .dawn .lead, .dawn .label { text-shadow: 0 1px 24px rgba(5, 9, 22, .6); }
+.dawn .label { color: #c9b6d8; }
+.dawn .label b { color: #ffd9a8; }
+.dawn .lead { color: #e2d6ea; }
+.dawn .head { margin-bottom: 36px; }
+.ask { display: grid; gap: 16px; padding: 24px; border-radius: 24px; background: rgba(7, 12, 22, .58); border: 1px solid rgba(255,255,255,.14); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); max-width: 880px; }
+@media (min-width: 900px) { .ask { grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr) auto; align-items: end; padding: 24px 24px 24px 28px; max-width: 980px; } .ask .btn { justify-self: end; } .chips { flex-wrap: nowrap; } }
+.field { display: grid; gap: 8px; }
+.field label, .field .legend { color: #b9b0c9; }
+.field input { min-height: 52px; border-radius: 14px; padding: 0 16px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.16); font-size: 17px; }
+.field input::placeholder { color: #8d88a0; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chips button { min-height: 52px; padding: 0 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,.16); color: #d8d2e4; cursor: pointer; }
+.chips button[aria-pressed="true"] { background: var(--text); color: var(--ink-1); border-color: var(--text); }
+.ask-out { grid-column: 1 / -1; color: #e2d6ea; font-size: 15px; display: none; border-top: 1px solid rgba(255,255,255,.14); padding-top: 14px; }
+.ask-out.show { display: block; }
+.ask-note { margin-top: 14px; color: #f1e4dc; font-size: 15px; font-weight: 500; }
+
+footer { background: var(--ink-0); color: var(--text-3); padding: 64px 0 120px; font-size: 15px; border-top: 1px solid var(--line); }
+.foot-grid { display: grid; gap: 32px; grid-template-columns: 1fr 1fr; }
+@media (min-width: 1024px) { .foot-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+.foot-grid h4 { color: var(--text-2); font: 500 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 16px; }
+.foot-grid li + li { margin-top: 10px; }
+.foot-grid a:hover { color: var(--text); }
+.foot-brand { grid-column: 1 / -1; }
+@media (min-width: 1024px) { .foot-brand { grid-column: auto; } }
+.foot-brand img { height: 24px; width: auto; margin-bottom: 16px; }
+.legal { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+
+.buybar { position: fixed; z-index: 40; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding: 10px var(--pad) calc(10px + env(safe-area-inset-bottom)); background: rgba(6, 11, 21, .9); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-top: 1px solid var(--line); transform: translateY(calc(100% + 40px)); transition: transform var(--med) var(--ease); }
+.buybar.show { transform: none; }
+@media (max-width: 767px) { .buybar, .site-header.solid { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(6, 11, 21, .95); } }
+.buybar img { width: 52px; height: auto; }
+.buybar .t { display: grid; line-height: 1.2; min-width: 0; }
+.buybar .t span { font-size: 14px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.buybar .t b { font-family: var(--display); font-weight: 700; font-stretch: 85%; font-variation-settings: "wdth" 85; font-size: 20px; }
+.buybar .btn { min-height: 48px; padding: 0 18px; font-size: 15px; }
+.buybar .acts { margin-left: auto; display: flex; gap: 8px; }
+.buybar .wa { width: 48px; padding: 0; } .buybar .wa span { display: none; }
+@media (min-width: 900px) { .buybar { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .js .fade { opacity: 0; transition: opacity 300ms linear; } .js .fade.in { opacity: 1; }
+  .buybar { transform: none; opacity: 0; visibility: hidden; transition: opacity 200ms linear, visibility 0s 200ms; }
+  .buybar.show { opacity: 1; visibility: visible; transition: opacity 200ms linear; }
+}
+
+/* Motion: masked line reveals and fades, one curve, only when motion is welcome */
+.rv .ln { display: block; overflow: hidden; padding-bottom: .06em; margin-bottom: -.06em; }
+.rv .ln > span { display: block; }
+@media (prefers-reduced-motion: no-preference) {
+  .js .rv .ln > span { transform: translateY(105%); transition: transform var(--line) var(--ease-expo); transition-delay: calc(var(--i, 0) * 60ms + var(--d, 0ms)); }
+  .js .rv.in .ln > span { transform: none; }
+  /* copy: opacity only, short */
+  .js .fade { opacity: 0; transition: opacity 300ms var(--ease); transition-delay: calc(var(--i, 0) * 50ms + var(--d, 0ms)); }
+  .js .fade.in { opacity: 1; }
+  /* product cards: the row arrives as one unit, centre first, pictures wiped in */
+  .js .card.fade { transform: translateY(12px); transition: opacity var(--enter) var(--ease), transform var(--enter) var(--ease); }
+  .js .card.fade.in { transform: none; }
+  .js .card .pic img { clip-path: inset(0 0 100% 0); transition: clip-path var(--enter) var(--ease-io) calc(var(--i, 0) * 50ms + 120ms), transform var(--hover-out) var(--ease); }
+  .js .card.in .pic img { clip-path: inset(0); }
+  .buybar { transition: transform 500ms var(--ease-drawer); }
+}
+</style>
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24"><path d="M20.5 11.6a8.4 8.4 0 0 1-12.4 7.4L3.5 20.5l1.6-4.4A8.4 8.4 0 1 1 20.5 11.6Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 8.6c.2-.5.6-.6.9-.6h.5c.2 0 .4.1.5.4l.7 1.6c.1.2 0 .5-.1.6l-.5.6c.4.9 1.2 1.7 2.1 2.1l.6-.5c.2-.1.4-.2.6-.1l1.6.7c.3.1.4.3.4.5v.5c0 .3-.1.7-.6.9-.8.4-2.4.4-4.4-1.6S8.6 9.4 9 8.6Z" fill="currentColor"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24"><path d="M4 5h2l2 10h10l2-7H7.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9.5" cy="19" r="1.3" fill="currentColor"/><circle cx="17" cy="19" r="1.3" fill="currentColor"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 12 12"><path d="M3 2v8M9 2v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-play" viewBox="0 0 12 12"><path d="M3 1.8v8.4L10 6Z" fill="currentColor"/></symbol>
+</svg>
+
+<div class="poster" aria-hidden="true"></div>
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="veil" aria-hidden="true"></div>
+
+<header class="site-header" id="hdr">
+  <nav class="nav container" aria-label="Utama">
+    <a class="logo" href="#top" aria-label="WANGJIA beranda"><img src="img/logo-white.png" alt="WANGJIA" width="94" height="26"></a>
+    <div class="nav-links"><a href="#model">Kincir air</a><a href="#anatomi">Suku cadang</a><a href="#jaminan">Garansi</a><a href="#tanya">Cara beli</a></div>
+    <div class="hdr-buy"><span class="t">Kincir Air 2 HP · mulai</span><b class="num">Rp&nbsp;6.500.000</b><a class="btn btn-primary" href="#model">Lihat</a></div>
+    <div class="nav-right">
+      <button class="icon-btn" aria-label="Cari"><svg><use href="#i-search"/></svg></button>
+      <a class="login" href="#">Masuk</a>
+      <button class="icon-btn" aria-label="Keranjang, 0 barang"><svg><use href="#i-cart"/></svg></button>
+      <button class="icon-btn menu-btn" aria-label="Menu"><svg><use href="#i-menu"/></svg></button>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <!-- 1 · What it is, the idea, the price -->
+  <section class="hero" id="top" data-scene aria-labelledby="hero-title">
+    <div class="container hero-top">
+      <p class="mono label fade" style="--d:300ms">Kincir air tambak <b translate="no">WANGJIA®</b></p>
+      <div class="top-r fade" style="--d:420ms">
+        <p class="mono clock" id="clock" aria-live="off"></p>
+        <button class="pause mono" id="pause" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-pause"/></svg><span>Jeda</span></button>
+      </div>
+    </div>
+    <div class="container hero-foot">
+      <div>
+        <h1 class="rv" id="hero-title" style="--d:500ms"><span class="sr">Kincir air WANGJIA 2 HP. </span><span class="ln"><span>Saat Anda tidur,</span></span><span class="ln"><span class="dim">kolam tetap bernapas.</span></span></h1>
+        <ul class="proofline"><li>4 kipas</li><li>Gearbox bevel gear 1:14</li><li>Poros SS304</li><li>Garansi motor 1 tahun</li></ul>
+      </div>
+      <div class="buy">
+        <div class="price-row"><span class="name">Kincir Air 2 HP · mulai</span><span class="price num">Rp&nbsp;6.500.000</span></div>
+        <div class="ctas">
+          <a class="btn btn-primary" href="#model"><span>Lihat Kincir 2 HP</span><svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <a class="btn btn-ghost" href="#tanya" aria-label="Tanya via WhatsApp"><svg aria-hidden="true"><use href="#i-wa"/></svg>Tanya via WhatsApp</a>
+        </div>
+        <p class="note">Bisa bayar bertahap · Kirim ke seluruh Indonesia</p>
+      </div>
+    </div>
+    <span class="cue" aria-hidden="true"></span>
+  </section>
+
+  <!-- 2 · Why it matters: the night shift, told by the clock -->
+  <section class="night" id="malam" data-scene aria-labelledby="night-title">
+    <div class="stick">
+      <div class="container night-in">
+        <div>
+          <p class="mono label">18.00 – 06.00 <b>Shift malam</b></p>
+          <h2 class="h2 rv" id="night-title"><span class="ln"><span>Malam adalah</span></span><span class="ln"><span>kerja terberat.</span></span></h2>
+        </div>
+        <p class="clockbig" aria-hidden="true"><b id="nclock">18.00</b><span class="mono">WIB</span></p>
+        <div class="steps" aria-live="off">
+          <p class="on">Siang hari, plankton di kolam membuat oksigen. <strong>Malam hari mereka berhenti</strong>, sementara udang dan ikan terus bernapas.</p>
+          <p><strong>Oksigen terlarut turun pelan-pelan</strong> sepanjang malam, sampai menjelang subuh.</p>
+          <p>Kipas kincir memercikkan air ke udara dan mengalirkan air kolam, <strong>jadi oksigen dari udara terus masuk</strong> ke air sepanjang malam.</p>
+        </div>
+      </div>
+      <figure class="chartmini">
+        <svg viewBox="0 0 600 250" role="img" aria-labelledby="chart-t">
+          <title id="chart-t">Gambaran oksigen terlarut di kolam dari jam 18.00 sampai 06.00: turun sepanjang malam, paling rendah menjelang subuh. Tanpa skala.</title>
+          <text x="0" y="16">Oksigen terlarut</text>
+          <line class="grid" x1="0" y1="60" x2="600" y2="60"/><line class="grid" x1="0" y1="130" x2="600" y2="130"/>
+          <line class="axis" x1="0" y1="200" x2="600" y2="200"/>
+          <path class="curve" id="curve" pathLength="1" d="M0 50 C 120 60, 250 110, 380 158 C 450 182, 500 190, 560 186"/>
+          <circle class="now" id="now" r="6" cx="0" cy="50"/>
+          <g class="low" id="low"><circle cx="560" cy="186" r="13" fill="none" stroke="#ffb547" stroke-opacity=".45"/><text x="540" y="168" text-anchor="end">Paling rendah: menjelang subuh</text></g>
+          <g><text x="0" y="232">18.00</text><text x="200" y="232" text-anchor="middle">22.00</text><text x="400" y="232" text-anchor="middle">02.00</text><text x="600" y="232" text-anchor="end">06.00</text></g>
+        </svg>
+        <figcaption class="foot mono"><span>Gambaran umum</span><span>Tanpa skala</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 3 · How it works: the machine opened up -->
+  <section class="anatomy" id="anatomi" data-scene aria-labelledby="ana-title">
+    <div class="stick">
+      <div class="container ana-head">
+        <p class="mono label">Anatomi <b>Kincir 2 HP</b></p>
+        <h2 class="h2 rv" id="ana-title"><span class="ln"><span>Setiap malam,</span></span><span class="ln"><span>setiap bagian.</span></span></h2>
+      </div>
+      <svg class="leaders" id="leaders" aria-hidden="true"></svg>
+      <div class="callout" data-anchor="motor"><p class="mono n">01 · Motor</p><h3 class="h3">1,5 kW · 1.400 rpm</h3><p>Kumparan tembaga murni. Garansi 1 tahun.</p><p class="pp mono">Suku cadang mulai <b>Rp&nbsp;2.450.000</b></p></div>
+      <div class="callout" data-anchor="gearbox"><p class="mono n">02 · Gearbox</p><h3 class="h3">Bevel gear 1:14</h3><p>Mechanical seal, bukan worm gear. Hemat listrik sampai 25 %.</p><p class="pp mono">Suku cadang mulai <b>Rp&nbsp;1.850.000</b></p></div>
+      <div class="callout" data-anchor="shaft"><p class="mono n">03 · Poros &amp; rangka</p><h3 class="h3">Stainless SS304</h3><p>Full solid, bukan besi sepuh.</p><p class="pp mono">Poros mulai <b>Rp&nbsp;325.000</b></p></div>
+      <div class="callout" data-anchor="impeller"><p class="mono n">04 · Kipas</p><h3 class="h3">4 × PP Ø 67 cm</h3><p>8 daun kaki bebek, tahan UV.</p><p class="pp mono">Per kipas mulai <b>Rp&nbsp;275.000</b></p></div>
+      <div class="callout" data-anchor="float"><p class="mono n">05 · Pelampung</p><h3 class="h3">3 × HDPE 175 cm</h3><p>175 × 32 × 20 cm, tahan UV.</p><p class="pp mono">Per pelampung mulai <b>Rp&nbsp;450.000</b></p></div>
+      <span class="dot" data-anchor="motor">01</span><span class="dot" data-anchor="gearbox">02</span><span class="dot" data-anchor="shaft">03</span><span class="dot" data-anchor="impeller">04</span><span class="dot" data-anchor="float">05</span>
+      <ol class="ana-list">
+        <li><span class="mono n">01</span><span><b>Motor 1,5 kW</b> · tembaga murni</span><span class="pr num">Rp&nbsp;2.450.000</span></li>
+        <li><span class="mono n">02</span><span><b>Gearbox bevel 1:14</b> · seal</span><span class="pr num">Rp&nbsp;1.850.000</span></li>
+        <li><span class="mono n">03</span><span><b>Poros SS304</b> · full solid</span><span class="pr num">Rp&nbsp;325.000</span></li>
+        <li><span class="mono n">04</span><span><b>Kipas PP</b> · Ø 67 cm</span><span class="pr num">Rp&nbsp;275.000</span></li>
+        <li><span class="mono n">05</span><span><b>Pelampung HDPE</b> · 175 cm</span><span class="pr num">Rp&nbsp;450.000</span></li>
+        <li class="cap mono"><span></span><span>Harga suku cadang, mulai dari</span><span></span></li>
+      </ol>
+      <p class="ana-foot">Satu bagian rusak? Ganti satu bagian, bukan satu mesin. <a href="#jaminan">11 suku cadang dijual satuan <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></p>
+    </div>
+  </section>
+
+  <!-- 4 · The range with prices -->
+  <section class="block range" id="model" aria-labelledby="range-title">
+    <div class="container">
+      <div class="head">
+        <div>
+          <p class="mono label">Model &amp; harga <b>4 mesin</b></p>
+          <h2 class="h2 rv" id="range-title"><span class="ln"><span>Pilih sesuai kolam.</span></span></h2>
+        </div>
+        <p class="lead fade">Harga di bawah adalah harga toko. Ongkos kirim dihitung saat checkout.</p>
+      </div>
+      <div class="cards">
+        <article class="card fade" style="--i:1">
+          <div class="pic"><img src="img/kincir-2hp.webp" width="1000" height="475" alt="" loading="lazy"></div>
+          <div class="info"><p class="mono tag">Tambak intensif</p><h3 class="name">Kincir Air 2 HP</h3><p class="kv">4 kipas · 3 pelampung<br>1,5 kW · 1 / 3 phase</p>
+            <div class="bottom"><span class="p num"><small>mulai</small>Rp&nbsp;6.500.000</span><span class="go"><svg aria-hidden="true"><use href="#i-arrow"/></svg></span></div></div>
+          <a class="cover" href="#" aria-label="Kincir Air 2 HP, mulai Rp 6.500.000"></a>
+        </article>
+        <article class="card fade" style="--i:0">
+          <div class="pic"><img src="img/kincir-1hp.webp" width="1000" height="713" alt="" loading="lazy"></div>
+          <div class="info"><p class="mono tag">Udang &amp; ikan</p><h3 class="name">Kincir Air 1 HP</h3><p class="kv">2 kipas · 2 pelampung<br>0,75 kW · 1 / 3 phase</p>
+            <div class="bottom"><span class="p num"><small>mulai</small>Rp&nbsp;4.850.000</span><span class="go"><svg aria-hidden="true"><use href="#i-arrow"/></svg></span></div></div>
+          <a class="cover" href="#" aria-label="Kincir Air 1 HP, mulai Rp 4.850.000"></a>
+        </article>
+        <article class="card fade" style="--i:0">
+          <div class="pic"><img src="img/yc055.webp" width="900" height="511" alt="" loading="lazy"></div>
+          <div class="info"><p class="mono tag">Kolam kecil &amp; bundar</p><h3 class="name">Kincir YC-055 tanpa gearbox</h3><p class="kv">2 kipas · tanpa oli<br>0,55 kW · 1 / 3 phase</p>
+            <div class="bottom"><span class="p num"><small>mulai</small>Rp&nbsp;3.800.000</span><span class="go"><svg aria-hidden="true"><use href="#i-arrow"/></svg></span></div></div>
+          <a class="cover" href="#" aria-label="Kincir YC-055 tanpa gearbox, mulai Rp 3.800.000"></a>
+        </article>
+        <article class="card fade" style="--i:1">
+          <div class="pic"><img src="img/jet.webp" width="800" height="336" alt="" loading="lazy"></div>
+          <div class="info"><p class="mono tag">Kolam dalam</p><h3 class="name">Jet Aerator 2 HP</h3><p class="kv">2.800 rpm · 3 phase<br>&gt; 0,75 kg O₂/jam</p>
+            <div class="bottom"><span class="p num">Rp&nbsp;6.500.000</span><span class="go"><svg aria-hidden="true"><use href="#i-arrow"/></svg></span></div></div>
+          <a class="cover" href="#" aria-label="Jet Aerator 2 HP, Rp 6.500.000"></a>
+        </article>
+      </div>
+      <details class="compare">
+        <summary>Bandingkan spesifikasi <span class="plus" aria-hidden="true">+</span></summary>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th scope="col">Model</th><td><b>Kincir 2 HP</b></td><td><b>Kincir 1 HP</b></td><td><b>YC-055</b></td><td><b>Jet Aerator 2 HP</b></td></tr></thead>
+            <tbody>
+              <tr><th scope="row">Motor</th><td>1,5 kW · 1.400 rpm</td><td>0,75 kW · 1.400 rpm</td><td>0,55 kW</td><td>1,5 kW · 2.800 rpm</td></tr>
+              <tr><th scope="row">Listrik</th><td>1 phase atau 3 phase</td><td>1 phase atau 3 phase</td><td>1 phase atau 3 phase</td><td>3 phase</td></tr>
+              <tr><th scope="row">Penggerak</th><td>Gearbox bevel gear 1:14</td><td>Gearbox bevel gear 1:14</td><td>Langsung, tanpa gearbox</td><td>Gearbox bevel gear</td></tr>
+              <tr><th scope="row">Kipas</th><td>4</td><td>2</td><td>2</td><td>—</td></tr>
+              <tr><th scope="row">Garansi</th><td>Motor 1 tahun</td><td>Motor 1 tahun</td><td>Motor 1 tahun</td><td>Motor 1 tahun</td></tr>
+              <tr class="price-tr"><th scope="row">Harga</th><td>3 phase Rp&nbsp;6.500.000<br>1 phase Rp&nbsp;6.700.000</td><td>3 phase Rp&nbsp;4.850.000<br>1 phase Rp&nbsp;5.250.000</td><td>3 phase Rp&nbsp;3.800.000<br>1 phase Rp&nbsp;3.900.000</td><td>3 phase Rp&nbsp;6.500.000</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- 5 · Proof and objections -->
+  <section class="block proof" id="jaminan" aria-labelledby="proof-title">
+    <div class="container">
+      <div class="head">
+        <div>
+          <p class="mono label">Jaminan <b>Setelah beli</b></p>
+          <h2 class="h2 rv" id="proof-title"><span class="ln"><span>Tenang sampai panen.</span></span></h2>
+        </div>
+        <p class="lead fade">Yang biasa ditanyakan petambak sebelum membeli, dijawab di sini.</p>
+      </div>
+      <div class="proof-grid">
+        <div class="fade" style="--i:0"><p class="mono label">Garansi</p><p class="big"><em>1</em> tahun</p><p>Garansi motor. Scan QR di mesin untuk cek keaslian dan mengaktifkan garansi.</p></div>
+        <div class="fade" style="--i:1"><p class="mono label">Suku cadang</p><p class="big"><em>11</em> jenis</p><p>Kipas, gearbox, motor, pelampung, poros, pillow block, kopel, mechanical seal, rangka; dijual satuan.</p></div>
+        <div class="fade" style="--i:2"><p class="mono label">Pengiriman</p><p class="big">Seluruh <em>RI</em></p><p>Dikirim ke alamat tambak Anda. Ongkos kirim terlihat sebelum bayar.</p></div>
+        <div class="fade" style="--i:3"><p class="mono label">Pembayaran</p><p class="big">Ber<em>tahap</em></p><p>Bayar bertahap, atau patungan bersama tetangga tambak.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · Dawn: ask on WhatsApp with the pond size -->
+  <section class="dawn" id="tanya" data-scene aria-labelledby="dawn-title">
+    <div class="container">
+      <div class="head">
+        <div>
+          <p class="mono label">05.30 <b>Subuh</b></p>
+          <h2 class="h2 rv" id="dawn-title"><span class="ln"><span>Tidur tenang</span></span><span class="ln"><span>malam ini.</span></span></h2>
+        </div>
+        <p class="lead fade">Kirim ukuran kolam lewat WhatsApp. Tim WANGJIA bantu hitung berapa kincir yang cocok.</p>
+      </div>
+      <form class="ask" id="ask">
+        <div class="field"><label class="mono" for="luas">Luas kolam (m²)</label><input id="luas" inputmode="decimal" placeholder="mis. 2.500"></div>
+        <div class="field"><label class="mono" for="dalam">Kedalaman (m)</label><input id="dalam" inputmode="decimal" placeholder="mis. 1,2"></div>
+        <div class="field"><span class="mono legend" id="jenis-l">Jenis</span><div class="chips" data-group="jenis" role="group" aria-labelledby="jenis-l"><button type="button" aria-pressed="true">Udang</button><button type="button" aria-pressed="false">Ikan</button><button type="button" aria-pressed="false">Lainnya</button></div></div>
+        <div class="field"><span class="mono legend" id="listrik-l">Listrik</span><div class="chips" data-group="listrik" role="group" aria-labelledby="listrik-l"><button type="button" aria-pressed="false">1 phase</button><button type="button" aria-pressed="false">3 phase</button><button type="button" aria-pressed="true">Belum tahu</button></div></div>
+        <button class="btn btn-primary" type="submit"><svg aria-hidden="true"><use href="#i-wa"/></svg>Kirim lewat WhatsApp</button>
+        <p class="ask-out" id="ask-out" aria-live="polite"></p>
+      </form>
+      <p class="ask-note">Dibalas di jam kerja · tanpa biaya</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand"><img src="img/logo-white.png" alt="WANGJIA" width="87" height="24"><p style="max-width:34ch">Kincir air dan suku cadang untuk tambak udang dan ikan di seluruh Indonesia.</p></div>
+      <div><h4>Produk</h4><ul><li><a href="#model">Kincir air</a></li><li><a href="#model">Jet aerator</a></li><li><a href="#anatomi">Suku cadang</a></li></ul></div>
+      <div><h4>Bantuan</h4><ul><li><a href="#jaminan">Garansi &amp; cek QR</a></li><li><a href="#tanya">Cara beli</a></li><li><a href="#">Pengiriman</a></li></ul></div>
+      <div><h4>Akun</h4><ul><li><a href="#">Masuk</a></li><li><a href="#">Daftar</a></li><li><a href="#">Pesanan saya</a></li></ul></div>
+    </div>
+    <div class="legal mono"><span>© 2026 WANGJIA®</span><span>Bahasa Indonesia · English</span></div>
+  </div>
+</footer>
+
+<div class="buybar" id="buybar" aria-hidden="true">
+  <img src="img/kincir-2hp.webp" width="1000" height="475" alt="">
+  <div class="t"><span>Kincir Air 2 HP · mulai</span><b class="num">Rp&nbsp;6.500.000</b></div>
+  <div class="acts">
+    <a class="btn btn-ghost wa" href="#tanya" aria-label="Tanya via WhatsApp"><svg aria-hidden="true"><use href="#i-wa"/></svg><span>WhatsApp</span></a>
+    <a class="btn btn-primary" href="#model">Lihat</a>
+  </div>
+</div>
+
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="vendor/lenis.min.js"></script>
+<script type="module">
+import { createPondScene } from './a2-scene.bundle.js';
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const q = new URLSearchParams(location.search); // ?still and ?nogl let us test the fallbacks
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches || q.has('still');
+const fine = matchMedia('(pointer: fine)').matches;
+const lowPower = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4 || Math.min(innerWidth, innerHeight) < 520;
+gsap.registerPlugin(ScrollTrigger);
+
+// Reveals: masked lines and fades, once, as each block arrives
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -12% 0px' });
+$$('.rv, .fade').forEach((el) => { if (!el.closest('.hero')) io.observe(el); });
+$$('.rv .ln').forEach((ln, i, all) => { const k = [...ln.parentElement.children].filter((c) => c.classList.contains('ln')).indexOf(ln); ln.style.setProperty('--i', k); });
+
+// Smooth wheel scrolling on desktop only; touch keeps native scrolling
+let lenis = null;
+if (!reduce && fine) {
+  lenis = new Lenis({ lerp: 0.1 }); window.__lenis = lenis;
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((t) => lenis.raf(t * 1000)); gsap.ticker.lagSmoothing(0);
+  $$('a[href^="#"]').forEach((a) => a.addEventListener('click', (e) => { const id = a.getAttribute('href'); if (id.length > 1 && $(id)) { e.preventDefault(); lenis.scrollTo(id, { offset: id === '#top' ? 0 : -64, duration: 1.4 }); } }));
+}
+
+// The scene
+const canvas = $('#scene');
+const probe = Object.assign(document.createElement('div'), { style: 'position:fixed;top:0;height:100lvh;width:0;visibility:hidden' }); document.body.append(probe);
+let scene = null;
+const anatomy = $('#anatomi'), callouts = $$('.callout'), dots = $$('.dot'), leaders = $('#leaders');
+leaders.innerHTML = callouts.map(() => '<polyline/><circle r="4"/>').join('');
+const lines = $$('polyline', leaders), pins = $$('circle', leaders);
+let anaOn = false, anaShown = 0;
+
+function placeLabels() {
+  if (!anaOn || !scene) return;
+  const W = innerWidth, wide = W >= 768;
+  if (!wide) { dots.forEach((d, i) => { const p = scene.project(d.dataset.anchor); d.style.transform = `translate(${p.x}px, ${p.y}px)`; d.classList.toggle('on', i < anaShown); }); return; }
+  const pad = W >= 1024 ? 40 : 32, colX = W - 270 - pad;
+  const pts = callouts.map((c) => ({ c, p: scene.project(c.dataset.anchor), h: c.offsetHeight }));
+  const order = [...pts].sort((a, b) => a.p.y - b.p.y);
+  const top = 112, H = innerHeight, gap = 22; let y = top;
+  order.forEach((o) => { o.y = Math.max(o.p.y - 18, y); y = o.y + o.h + gap; });
+  const over = y - gap - (H - 40); if (over > 0) { let yy = H - 40; [...order].reverse().forEach((o) => { o.y = Math.min(o.y, yy - o.h); yy = o.y - gap; }); }
+  pts.forEach((o, i) => {
+    const on = i < anaShown;
+    o.c.style.transform = `translate(${colX}px, ${o.y}px)`; o.c.classList.toggle('on', on);
+    lines[i].setAttribute('points', `${o.p.x},${o.p.y} ${colX - 40},${o.y + 14} ${colX},${o.y + 14}`); lines[i].classList.toggle('on', on);
+    pins[i].setAttribute('cx', o.p.x); pins[i].setAttribute('cy', o.p.y); pins[i].classList.toggle('on', on);
+  });
+}
+
+try {
+  const veryLow = (navigator.connection && navigator.connection.saveData) || (navigator.deviceMemory || 8) <= 2;
+  if (q.has('nogl') || veryLow) throw new Error('poster only');
+  scene = await createPondScene(canvas, { lowPower: lowPower || q.has('low'), still: reduce, parallax: fine && !reduce, onFrame: placeLabels });
+  const fit = () => scene.resize(innerWidth, probe.offsetHeight || innerHeight);
+  fit(); addEventListener('resize', fit);
+  window.__scene = scene;
+} catch (err) { console.warn('WebGL scene unavailable', err); document.documentElement.classList.add('no-webgl'); }
+
+// Hero entrance after fonts and the first frame
+const heroIn = () => $$('.hero .rv, .hero .fade').forEach((el) => el.classList.add('in'));
+// play the opening only when the scene is ready quickly; after a long wait on the poster, cut straight to it
+if (scene && !reduce && performance.now() < 1500) { scene.set('p0', 0); gsap.to(scene.state, { p0: 1, duration: 2.8, ease: 'expo.out', onUpdate: () => scene.invalidate() }); }
+else if (scene) scene.set('p0', 1);
+if (scene) requestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.add('live')));
+Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), new Promise((r) => setTimeout(r, 300))]).then(() => requestAnimationFrame(heroIn));
+
+// Scroll drives the night: p1 hero to pond, p2 the hours, p3 anatomy, p4 dawn
+if (scene) {
+  const bind = (trigger, key, start, end, cb) => ScrollTrigger.create({ trigger, start, end, onUpdate: (s) => { scene.set(key, reduce ? Math.round(s.progress) : s.progress); cb && cb(s.progress); }, onRefresh: (s) => scene.set(key, s.progress) });
+  const nclock = $('#nclock'), steps = $$('.steps p'), curve = $('#curve'), now = $('#now'), low = $('#low');
+  const curveLen = 1; curve.style.strokeDasharray = '1'; curve.style.strokeDashoffset = '1';
+  const pathEl = curve; const total = pathEl.getTotalLength();
+  bind('#malam', 'p1', 'top bottom', 'top top');
+  bind('#malam', 'p2', 'top top', 'bottom bottom', (p) => {
+    const mins = 18 * 60 + Math.round(p * 12 * 60 / 10) * 10, h = Math.floor(mins / 60) % 24, m = mins % 60;
+    nclock.textContent = `${String(h).padStart(2, '0')}.${String(m).padStart(2, '0')}`;
+    const k = p < 0.34 ? 0 : p < 0.68 ? 1 : 2; steps.forEach((s, i) => s.classList.toggle('on', i === k));
+    curve.style.strokeDashoffset = String(1 - Math.min(1, p * 1.0));
+    const pt = pathEl.getPointAtLength(total * Math.min(1, p)); now.setAttribute('cx', pt.x); now.setAttribute('cy', pt.y);
+    low.classList.toggle('on', p > 0.86);
+  });
+  bind('#anatomi', 'p3', 'top bottom', 'bottom bottom', (p) => { anaShown = p < 0.55 ? 0 : Math.min(5, Math.floor((p - 0.55) / 0.06) + 1); });
+  ScrollTrigger.create({ trigger: '#anatomi', start: 'top 60%', end: 'bottom top', onToggle: (s) => { anaOn = s.isActive; if (!anaOn) { callouts.forEach((c) => c.classList.remove('on')); lines.forEach((l) => l.classList.remove('on')); pins.forEach((l) => l.classList.remove('on')); dots.forEach((d) => d.classList.remove('on')); } } });
+  bind('#tanya', 'p4', 'top bottom', 'top 20%');
+  // render only while a transparent chapter is on screen
+  const seen = new Set();
+  const vis = new IntersectionObserver((es) => { es.forEach((e) => (e.isIntersecting ? seen.add(e.target) : seen.delete(e.target))); scene.setVisible(seen.size > 0); });
+  $$('[data-scene]').forEach((s) => vis.observe(s));
+}
+
+// Pause the ambient motion (WCAG 2.2.2); starts paused for reduced motion
+const pauseBtn = $('#pause');
+const setPauseUI = (playing) => { pauseBtn.setAttribute('aria-pressed', String(!playing)); pauseBtn.querySelector('use').setAttribute('href', playing ? '#i-pause' : '#i-play'); pauseBtn.querySelector('span').textContent = playing ? 'Jeda' : 'Putar'; };
+if (scene) { setPauseUI(scene.playing); pauseBtn.addEventListener('click', () => { scene.play(!scene.playing); setPauseUI(scene.playing); }); } else pauseBtn.hidden = true;
+
+// Jakarta time ties the page to the night shift
+const clock = $('#clock');
+const tick = () => {
+  const t = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
+  const h = +new Date().toLocaleString('en-GB', { hour: '2-digit', hour12: false, timeZone: 'Asia/Jakarta' });
+  clock.innerHTML = `<b>${t} WIB</b> · ${h >= 18 || h < 6 ? 'kincir sedang bekerja' : 'nanti malam kincir bekerja'}`;
+};
+tick(); setInterval(tick, 30000);
+
+// Header turns solid; the buy action follows once the hero is gone
+const hdr = $('#hdr'), bar = $('#buybar'), hero = $('.hero');
+const onScroll = () => {
+  hdr.classList.toggle('solid', scrollY > 24);
+  const past = hero.getBoundingClientRect().bottom < 0;
+  const atEnd = innerHeight + scrollY > document.body.scrollHeight - 260;
+  bar.classList.toggle('show', past && !atEnd); hdr.classList.toggle('buying', past);
+  bar.setAttribute('aria-hidden', String(!(past && !atEnd)));
+};
+addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+// Pond size to a WhatsApp message (shown here instead of opening WhatsApp)
+$$('.chips button').forEach((b) => b.addEventListener('click', () => $$('button', b.parentElement).forEach((x) => x.setAttribute('aria-pressed', String(x === b)))));
+$('#ask').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const pick = (g) => $(`[data-group=${g}] [aria-pressed=true]`).textContent.toLowerCase();
+  const luas = $('#luas').value || '…', dalam = $('#dalam').value || '…';
+  const out = $('#ask-out'); out.textContent = `Pesan yang dikirim: “Halo WANGJIA, saya mau tanya kincir. Luas kolam ${luas} m², kedalaman ${dalam} m, ${pick('jenis')}, listrik ${pick('listrik')}.”`; out.classList.add('show');
+});
+</script>
+</body>
+</html>
