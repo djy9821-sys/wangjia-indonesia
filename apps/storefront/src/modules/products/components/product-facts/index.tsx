@@ -22,13 +22,13 @@ const ProductFacts = ({ product }: { product: HttpTypes.StoreProduct }) => {
     <div className="flex flex-col gap-y-2 w-full">
       {hasManageInventory && (inventoryQuantity > 10 ? (
         <span className="flex items-center gap-x-2 text-neutral-600 text-sm">
-          <CheckCircleSolid className="text-green-500" /> Can be shipped
-          immediately ({inventoryQuantity} in stock)
+          <CheckCircleSolid className="text-green-500" /> Siap kirim
+          ({inventoryQuantity} unit tersedia)
         </span>
       ) : (
         <span className="flex items-center gap-x-2 text-neutral-600 text-sm ">
           <ExclamationCircleSolid className="text-orange-500" />
-          Limited quantity available ({inventoryQuantity} in stock)
+          Stok terbatas ({inventoryQuantity} unit tersedia)
         </span>
       ))}
       <span className="flex items-center gap-x-2 text-neutral-600 text-sm">

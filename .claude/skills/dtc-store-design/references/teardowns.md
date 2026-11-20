@@ -48,6 +48,13 @@ Measured on 2026-11-19 in a real browser (fonts, sizes, colours and timings read
 - "Dive In": each capability is a chapter with a centred title and a one-line subtitle on black, then a full-width film with a progress bar.
 - 14 videos (the first autoplays once, muted; the rest loop with posters, preload metadata). Heavy: 822 KB of scripts and 3.3 MB of images on first load, not a budget to copy.
 
+## DJI Store buy page, DJI Mini 5 Pro (store.dji.com, Chinese store), measured 2026-11-20
+- The plain buy page that sits next to the story page: about 12,300 px (15 screens) at 1470 x 835, 67 images.
+- Gallery on the left, sticky (707 px tall), with a counter (1/8) and tabs for pictures and product introduction. Buy box on the right: title (32 px), the price large, then **the instalment line directly under the price** (interest-free, from 798 a month x 6, with the payment services named), then a card of service promises (7-day returns, trade-in, official warranty), then a short highlights list, then a promotion card.
+- **A fixed bottom bar on desktop**, 84 px: delivery to the visitor's city with the shipping day and the expected arrival date, the price, Add to cart and Buy now. It never leaves the screen.
+- Sections below: choose your bundle (each option with its price), best-selling accessories, deep dive, what is in the box, pictures taken with it, which model suits you (comparison), related questions.
+- Lesson: a buy page is plain and light, the price and the way to pay sit together, delivery is stated before the cart, and the buy action is always one tap away.
+
 ## What they share
 1. One idea carried all the way through (playful industrial minimalism; transparency + dot matrix; "the view you capture"; silence you can see).
 2. Imagery first, and moving: the first screen is footage or a living scene of the product at work in dramatic, consistent light; studio shots and renders carry the rest. Effects are seasoning; motion of the imagery itself is not.

@@ -1,3 +1,5 @@
+import { archivo } from "@/lib/fonts/archivo"
+import { whatsappLink } from "@/lib/util/whatsapp"
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
 import GroupBuyStrip from "@/modules/home/components/group-buy-strip"
 import { GeistMono } from "geist/font/mono"
@@ -5,10 +7,8 @@ import Image from "next/image"
 import { CSSProperties, Suspense } from "react"
 import { getNightHomeData, type PartKey, type Price } from "./data"
 import DawnForm from "./dawn-form"
-import { archivo } from "./fonts"
 import { ArrowIcon, PauseIcon, PlayIcon, WhatsAppIcon } from "./icons"
 import NightStage from "./stage"
-import { whatsappLink } from "./whatsapp"
 import "./night.css"
 
 /*
@@ -90,6 +90,7 @@ export default async function NightHome({ countryCode }: { countryCode: string }
               <span className="price num">
                 <PriceText price={hero.price} />
               </span>
+              <span className="ppn">Belum termasuk PPN 11%</span>
             </div>
             <div className="ctas">
               <LocalizedClientLink href={`/products/${HERO_HANDLE}`} className="btn btn-primary">
@@ -239,7 +240,7 @@ export default async function NightHome({ countryCode }: { countryCode: string }
               </h2>
             </div>
             <p className="lead fade">
-              Harga di bawah adalah harga toko. Ongkos kirim dihitung saat checkout.{" "}
+              Harga toko, belum termasuk PPN 11%. Ongkos kirim dihitung saat checkout.{" "}
               <LocalizedClientLink href="/store" className="lead-link">
                 Lihat semua produk
               </LocalizedClientLink>
@@ -263,6 +264,7 @@ export default async function NightHome({ countryCode }: { countryCode: string }
                     <span className="p num">
                       {m.price?.varies && <small>mulai</small>}
                       <PriceText price={m.price} />
+                      <small className="ppn">belum termasuk PPN</small>
                     </span>
                     <span className="go">
                       <ArrowIcon />
@@ -299,7 +301,7 @@ export default async function NightHome({ countryCode }: { countryCode: string }
                     </tr>
                   ))}
                   <tr className="price-tr">
-                    <th scope="row">Harga</th>
+                    <th scope="row">Harga (belum PPN 11%)</th>
                     {machines.map((m) => (
                       <td key={m.handle}>
                         {m.price

@@ -1,0 +1,2 @@
+/* On product pages the buy box and its bar carry WhatsApp, so the floating button would only cover content. */
+body:has([data-wj-product]) [data-wa-fab] { display: none !important; }

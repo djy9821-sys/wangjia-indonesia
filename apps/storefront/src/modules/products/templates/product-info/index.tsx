@@ -1,30 +1,24 @@
 import { HttpTypes } from "@medusajs/types"
-import { Heading, Text } from "@medusajs/ui"
-import LocalizedClientLink from "@/modules/common/components/localized-client-link"
 
 type ProductInfoProps = {
   product: HttpTypes.StoreProduct
 }
 
+/* Brand label, the product name and its one-line type description (from the catalogue subtitle). */
 const ProductInfo = ({ product }: ProductInfoProps) => {
   return (
-    <div id="product-info">
-      <div className="flex flex-col gap-y-4 w-full">
-        <Heading
-          level="h1"
-          className="text-[2.5rem] leading-10 text-ui-fg-base"
-          data-testid="product-title"
-        >
-          {product.title}
-        </Heading>
-
-        <Text
-          className="text-2xl text-ui-fg-subtle whitespace-pre-line"
-          data-testid="product-description"
-        >
+    <div id="product-info" className="flex flex-col gap-3">
+      <p className="font-[family-name:var(--font-geist-mono)] text-[11px] font-medium uppercase tracking-[0.12em] text-[#6b6f76]">
+        <span translate="no">WANGJIA®</span> · Produk resmi
+      </p>
+      <h1 className="text-[30px] font-semibold leading-[1.08] tracking-[-0.025em] text-[#121417] [text-wrap:balance] small:text-[38px]" data-testid="product-title">
+        {product.title}
+      </h1>
+      {product.subtitle && (
+        <p className="whitespace-pre-line text-[17px] text-[#4a4f57]" data-testid="product-description">
           {product.subtitle}
-        </Text>
-      </div>
+        </p>
+      )}
     </div>
   )
 }

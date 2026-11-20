@@ -28,9 +28,12 @@ export default async function PageLayout(props: {
   return (
     <SessionProvider session={session}>
       <NavigationHeader currencyCode={region?.currency_code} />
-      <div data-announce className="flex items-center text-neutral-50 justify-center small:p-3 p-2 text-center bg-neutral-900 text-sm">
-        Toko resmi WANGJIA® · Kincir air 1 HP & 2 HP · Pembayaran bertahap ·
-        Pengiriman ke seluruh Indonesia · Garansi 1 tahun
+      <div data-announce className="flex items-center text-neutral-50 justify-center small:p-3 p-2 text-center bg-neutral-900 text-[12.5px] small:text-sm">
+        <span className="small:hidden">Toko resmi WANGJIA® · Bayar bertahap · Garansi 1 tahun</span>
+        <span className="hidden small:inline">
+          Toko resmi WANGJIA® · Kincir air 1 HP & 2 HP · Pembayaran bertahap ·
+          Pengiriman ke seluruh Indonesia · Garansi 1 tahun
+        </span>
       </div>
 
       <SessionCartMismatchBanner />

@@ -121,6 +121,7 @@ body:has([data-wj-night]) footer { background: #fff; }
 .wj-night .buy { display: grid; gap: 14px; }
 .wj-night .price-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .wj-night .price-row .name { color: var(--text-2); font-size: 15px; }
+.wj-night .price-row .ppn { flex-basis: 100%; color: var(--text-3); font-size: 13px; }
 .wj-night .price { font-family: var(--display); font-weight: 700; font-stretch: 85%; font-size: 40px; line-height: 1; letter-spacing: -0.01em; }
 .wj-night .ctas { display: grid; gap: 10px; }
 .wj-night .note { color: var(--text-2); font-size: 15px; font-weight: 500; }
@@ -247,6 +248,7 @@ body:has([data-wj-night]) footer { background: #fff; }
 .wj-night .card .bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--line); }
 .wj-night .card .p { font-family: var(--display); font-weight: 700; font-stretch: 85%; font-size: 26px; }
 .wj-night .card .p small { font: 500 10px/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); display: block; margin-bottom: 4px; }
+.wj-night .card .p small.ppn { margin: 6px 0 0; text-transform: none; letter-spacing: 0.02em; font-family: var(--sans); font-size: 11px; }
 .wj-night .card .go { width: 44px; height: 44px; border-radius: 99px; display: grid; place-items: center; border: 1px solid var(--line-2); transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease), color var(--fast) var(--ease); }
 .wj-night .card .go svg { width: 18px; height: 18px; }
 .wj-night .card a.cover { position: absolute; inset: 0; z-index: 1; }

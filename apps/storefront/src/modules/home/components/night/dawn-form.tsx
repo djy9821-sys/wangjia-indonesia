@@ -2,7 +2,7 @@
 
 import { FormEvent, useId, useState } from "react"
 import { WhatsAppIcon } from "./icons"
-import { whatsappLink } from "./whatsapp"
+import { whatsappLink } from "@/lib/util/whatsapp"
 
 /* Pond size, depth, species and power supply turned into a WhatsApp message to the sales team. */
 

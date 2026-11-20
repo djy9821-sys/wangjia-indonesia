@@ -72,13 +72,18 @@ const ImageGallery = ({ product }: ImageGalleryProps) => {
   }, [handleArrowClick])
 
   return (
-    <div className="flex flex-col justify-end items-center bg-neutral-100 p-8 pt-0 gap-6 w-full h-full">
+    <div className="flex w-full flex-col items-center gap-4">
       {/* Catalogue photos are white 1:1 squares, so the stage is a white
           square card and the photo fills it with a small margin. */}
       <div
-        className="relative aspect-square w-full max-w-[640px] overflow-hidden rounded-2xl bg-white shadow-borders-base"
+        className="relative aspect-[4/3] small:aspect-square w-full max-w-[720px] overflow-hidden rounded-3xl border border-[#e3dfd6] bg-white"
         id={selectedImage.id}
       >
+        {images.length > 1 && (
+          <span className="absolute left-4 top-4 z-10 rounded-full bg-white/90 px-2.5 py-1 font-[family-name:var(--font-geist-mono)] text-[11px] font-medium tracking-[0.08em] text-[#4a4f57] tabular-nums">
+            {selectedImageIndex + 1}/{images.length}
+          </span>
+        )}
         {!!selectedImage.url && (
           <Image
             src={selectedImage.url}
@@ -90,9 +95,9 @@ const ImageGallery = ({ product }: ImageGalleryProps) => {
           />
         )}
       </div>
-      <div className="flex small:flex-row flex-col-reverse gap-y-3 justify-between w-full">
+      <div className="flex w-full max-w-[720px] small:flex-row flex-col-reverse gap-y-3 justify-between">
         {images.length > 1 && (
-          <div className="flex flex-row gap-x-2 self-end small:self-auto">
+          <div className="hidden small:flex flex-row gap-x-2 self-end small:self-auto">
             <IconButton
               aria-label="Gambar sebelumnya"
               disabled={selectedImageIndex === 0}
@@ -116,8 +121,8 @@ const ImageGallery = ({ product }: ImageGalleryProps) => {
             <li
               key={image.id}
               className={clx(
-                "flex aspect-[1/1] w-14 h-14 rounded-lg overflow-hidden bg-white shadow-borders-base cursor-pointer",
-                index === selectedImageIndex && "ring-2 ring-ui-fg-interactive"
+                "flex aspect-[1/1] w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-white border border-[#e3dfd6] cursor-pointer",
+                index === selectedImageIndex && "border-[#121417] shadow-[0_0_0_1px_#121417]"
               )}
               onClick={() => handleImageClick(image)}
               role="button"

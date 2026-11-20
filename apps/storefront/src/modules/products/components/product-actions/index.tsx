@@ -4,8 +4,7 @@ import { useSession } from "@/lib/context/session-context"
 import { getProductsById } from "@/lib/data/products"
 import { HttpTypes } from "@medusajs/types"
 import { useEffect, useState } from "react"
-import ProductPrice from "../product-price"
-import ProductVariantsTable from "../product-variants-table"
+import BuyBox from "../buy-box"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -53,12 +52,5 @@ export default function ProductActions({
         }
       : product
 
-  return (
-    <>
-      <div className="flex flex-col gap-y-2 w-full">
-        <ProductPrice product={pricedProduct} />
-        <ProductVariantsTable product={pricedProduct} region={region} />
-      </div>
-    </>
-  )
+  return <BuyBox product={pricedProduct} region={region} />
 }

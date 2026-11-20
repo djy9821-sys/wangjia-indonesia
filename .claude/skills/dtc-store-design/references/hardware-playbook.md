@@ -124,6 +124,9 @@ Phone first (375 px); desktop puts the gallery at 7/12 and a sticky buy box at 5
 11. **Tanya jawab**: six to eight questions from real WhatsApp chats.
 12. **Lainnya**: the other machines and spare parts.
 
+### As built (2026-11-20)
+`apps/storefront/src/modules/products/templates/index.tsx` and `components/buy-box/`: a light paper page in the shop's type; gallery sticky on the left on desktop, 4:3 on phones so the price is on the first screen; label, title, catalogue subtitle; the price with "Belum termasuk PPN 11%" and the payment rule (deposit first, the rest before shipping) right under it; the variant as large buttons each with its own price, never pre-selected when a machine has two power supplies ("Pilih listrik dulu"), with a one-line 1 phase / 3 phase explainer; quantity; Add to cart and an order on WhatsApp (model, variant and quantity in the message); a bar that follows at the bottom once the buttons scroll away; trust list; specifications always open from the `spec:` metadata ("Angka dari katalog"), then the description. The form still posts to `/cart/add` without JavaScript and keeps the `toolname=add_to_cart` attributes for AI agents. Still to add when the owner gives the facts: delivery cost and days per island, the instalment amounts, box contents, a pond film.
+
 ## 11. Assets and facts to request (priority order)
 
 1. Pond footage of the 2 HP at first light (vertical and horizontal), slow-motion spray (most phones film 240 fps), a photo with a farmer for scale.

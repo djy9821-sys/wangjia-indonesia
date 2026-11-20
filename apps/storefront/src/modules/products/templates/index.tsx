@@ -1,15 +1,18 @@
-import { HttpTypes } from "@medusajs/types"
-import ImageGallery from "@/modules/products/components/image-gallery"
+import { archivo } from "@/lib/fonts/archivo"
 import GroupBuyOffer from "@/modules/products/components/group-buy-offer"
+import ImageGallery from "@/modules/products/components/image-gallery"
 import ProductActions from "@/modules/products/components/product-actions"
-import ProductTabs from "@/modules/products/components/product-tabs"
-import WarrantyTrust from "@/modules/products/components/warranty-trust"
+import ProductDetails from "@/modules/products/components/product-details"
 import RelatedProducts from "@/modules/products/components/related-products"
+import WarrantyTrust from "@/modules/products/components/warranty-trust"
 import ProductInfo from "@/modules/products/templates/product-info"
 import SkeletonRelatedProducts from "@/modules/skeletons/templates/skeleton-related-products"
+import { HttpTypes } from "@medusajs/types"
+import { GeistMono } from "geist/font/mono"
 import { notFound } from "next/navigation"
 import React, { Suspense } from "react"
 import ProductFacts from "../components/product-facts"
+import "./product.css"
 
 type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
@@ -17,23 +20,25 @@ type ProductTemplateProps = {
   countryCode: string
 }
 
-const ProductTemplate: React.FC<ProductTemplateProps> = ({
-  product,
-  region,
-  countryCode,
-}) => {
+/*
+  The buy page (the home page is the story): light and plain like the hardware buy pages,
+  in the shop's type and accent. Gallery on the left and sticky on desktop, the buy box on
+  the right; on phones the buy box follows the picture. Specifications are always open.
+*/
+const ProductTemplate: React.FC<ProductTemplateProps> = ({ product, region, countryCode }) => {
   if (!product || !product.id) {
     return notFound()
   }
 
   return (
-    <div className="flex flex-col gap-y-2 my-2">
-      <div
-        className="content-container grid grid-cols-1 md:grid-cols-2 gap-2 w-full h-fit"
-        data-testid="product-container"
-      >
-        <ImageGallery product={product} />
-        <div className="flex flex-col bg-neutral-100 w-full gap-6 items-start justify-center small:p-20 p-6 h-full">
+    <div data-wj-product className={`${archivo.variable} ${GeistMono.variable} bg-[#f6f4ef] text-[#121417]`}>
+      <div className="content-container grid grid-cols-1 gap-8 py-6 small:grid-cols-12 small:gap-12 small:py-12" data-testid="product-container">
+        <div className="small:col-span-7">
+          <div className="small:sticky small:top-28">
+            <ImageGallery product={product} />
+          </div>
+        </div>
+        <div className="flex flex-col gap-8 small:col-span-5">
           <ProductInfo product={product} />
           <ProductActions product={product} region={region} />
           <Suspense fallback={null}>
@@ -43,13 +48,8 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
           <ProductFacts product={product} />
         </div>
       </div>
-      <div className="content-container">
-        <ProductTabs product={product} />
-      </div>
-      <div
-        className="content-container"
-        data-testid="related-products-container"
-      >
+      <ProductDetails product={product} />
+      <div className="content-container pb-28" data-testid="related-products-container">
         <Suspense fallback={<SkeletonRelatedProducts />}>
           <RelatedProducts product={product} countryCode={countryCode} />
         </Suspense>
