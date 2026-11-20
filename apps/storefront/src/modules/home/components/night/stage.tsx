@@ -196,6 +196,7 @@ export default function NightStage({ family }: { family: string }) {
         if (!reduce && performance.now() < 1500) {
           s.set("p0", 0)
           gsap.to(s.state, { p0: 1, duration: 2.8, ease: "expo.out", onUpdate: () => s.invalidate() })
+          cleanups.push(() => gsap.killTweensOf(s.state))
         } else s.set("p0", 1)
         requestAnimationFrame(() => requestAnimationFrame(() => (root.dataset.live = "")))
 
@@ -292,6 +293,8 @@ export default function NightStage({ family }: { family: string }) {
       bind("#tanya", "p4", "top bottom", "top 20%")
       cleanups.push(() => triggers.forEach((t) => t.kill()))
       ScrollTrigger.refresh()
+      // the display face changes heading heights when it arrives; measure again
+      document.fonts?.ready.then(() => !cancelled && ScrollTrigger.refresh())
     }
     setup()
 
