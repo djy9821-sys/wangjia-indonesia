@@ -10,6 +10,7 @@ Read this when a page needs the "wow" the owner keeps asking for and there is no
 5. Budget, fallbacks and accessibility
 6. Testing in the browser pane
 7. Mistakes made on the way
+8. Built into the shop (Next.js)
 
 ## 1. Why this exists
 
@@ -77,3 +78,17 @@ The pane pauses `requestAnimationFrame` and CSS transitions while it is not visi
 - A "pre-dawn" tint during the anatomy chapter turned everything brown through the fog colour; keep the anatomy at full night.
 - Callouts overlapped until they were stacked by measured height.
 - The hero text waited on `document.fonts.ready` and stayed invisible on a slow network; race it against a timeout.
+
+## 8. Built into the shop (Next.js)
+
+A2 became the home page on 2026-11-20: `apps/storefront/src/modules/home/components/night/`.
+- `scene.ts`: the scene as a typed module with `dispose()` (cancels the frame loop, frees geometry, textures and the WebGL context) so client-side navigation away from the home page leaves nothing running.
+- `stage.tsx` (client): the poster `<picture>`, the canvas and the veil; one effect loads GSAP, ScrollTrigger, Lenis and the scene with dynamic `import()` after first paint and undoes everything on unmount (React StrictMode mounts twice in development, so the async setup checks a `cancelled` flag after every await).
+- `index.tsx` (server): all chapter markup, readable without JavaScript; prices come from the shop (`getProductByHandle` per machine and per spare part), "mulai" when variants differ.
+- `night.css`: plain CSS scoped under `.wj-night`, imported by the component. Class names avoid Tailwind utilities (`.wrap` not `.container`, `.chapter` not `.block`, `.gl` not `.grid`).
+- The site header stays: its height is measured into `--hdr`, and the canvas, the poster and the sticky chapters start under it.
+- Fixed layers sit at `z-index: -1` so normal content (and the site footer) paints over them; `body:has([data-wj-night])` rules hide the announcement bar and the floating WhatsApp button and give the transparent footer a white background while the page is mounted.
+- Reveal states are gated by `data-motion` on the root, set by the client, so server-rendered text is never hidden when JavaScript fails; the hero has no reveal at all.
+- The buy bar is `inert` until it shows (no focusable links hidden from screen readers).
+- Archivo is loaded with `next/font/local` from `@fontsource-variable/archivo` (with a `font-stretch: 62% 125%` declaration); the scene draws the giant word with `archivo.style.fontFamily`.
+- Test it at `http://localhost:8000`: Next.js 16 blocks dev resources requested from `127.0.0.1`, so the page renders but never hydrates.

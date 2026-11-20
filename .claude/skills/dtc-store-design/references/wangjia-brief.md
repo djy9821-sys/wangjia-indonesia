@@ -29,7 +29,7 @@ Float blue, paddle orange or yellow, stainless grey, and the logo's blue. The si
 - Next.js 16.3.8 App Router with React 19.0.5 and Tailwind 3 in `apps/storefront` (the repository's AGENTS.md still says Next.js 15); Medusa v2 backend. Measure the shared JavaScript with the storefront's `analyze` script before adding animation libraries. Home sections live in `src/modules/home/components/`, the page in `src/app/[countryCode]/(main)/page.tsx`.
 - `next.config.js` has `images.unoptimized: true`, so ship right-sized WebP yourself; give the hero image `priority`.
 - Google Fonts are unreachable from the development Mac: add fonts as `@fontsource/<font>` with `pnpm --filter @b2b-starter/storefront add @fontsource/<font> --registry=https://registry.npmmirror.com` and import the weight CSS files.
-- The live site has no animation library yet. Mock-up A2 uses three.js, GSAP with ScrollTrigger and Lenis (about 207 KB gzip together); Motion is also acceptable. Plain CSS for interface motion. Respect `prefers-reduced-motion`.
+- Since 2026-11-20 the shop's home page is mock-up A2, built in: three.js 0.187, GSAP 3.15 with ScrollTrigger and Lenis 1.3 are pinned dependencies of the storefront, loaded only by the home page after first paint; Archivo ships through `next/font/local` from `@fontsource-variable/archivo`. Plain CSS for interface motion. Respect `prefers-reduced-motion`.
 - The page body is white on purpose (a dark-mode browser would otherwise show sections without a background on black).
 - Facts and lessons from earlier rounds are in `docs/DESIGN-TEARDOWN.zh-CN.md` and `docs/WORKLOG.zh-CN.md`.
 
@@ -41,6 +41,7 @@ Float blue, paddle orange or yellow, stainless grey, and the logo's blue. The si
 ## What the owner has said about design
 - "很普通没啥创意" about template-looking pages; wants the level of the designs that trend on X.
 - Picked, in order: the dark "night pond" direction over editorial and blueprint mock-ups (still not enough), then MotionSites' "Design World" layout (giant words with the machine in front) for the hero.
+- 2026-11-20: approved A2 ("3D动画结构非常好") and asked for the web version first; it is now the home page. They want the learning to continue: "继续学习优化".
 - 2026-11-19: neither full mock-up (A night, B engineering drawing) was picked; the owner asked whether I should study more. Static, rule-following pages read as ordinary to them; what they admire moves (MotionSites on X, Apple and Bambu Lab product pages).
 - Their reference video (the MotionSites author on TikTok) says: start from a strong existing design, pick a niche, and the beautiful animation and interaction is what clients pay for.
 - Wants it practical, not bloated, and to see options rather than be asked abstract questions.

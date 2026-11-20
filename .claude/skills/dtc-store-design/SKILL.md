@@ -81,7 +81,8 @@ Details and sources: `references/ecommerce-ux.md` and `references/brand-and-moti
 
 ## Working in this repository (WANGJIA)
 
-- Home sections: `apps/storefront/src/modules/home/components/`; page: `apps/storefront/src/app/[countryCode]/(main)/page.tsx`; tokens and keyframes: `apps/storefront/tailwind.config.js`.
+- Home page: `apps/storefront/src/modules/home/components/night/` (the A2 build: `scene.ts` three.js scene, `stage.tsx` scroll choreography, `index.tsx` server markup with prices from the shop, `night.css` scoped styles); route: `apps/storefront/src/app/[countryCode]/(main)/page.tsx`; Tailwind tokens: `apps/storefront/tailwind.config.js`.
+- Open the dev server as `http://localhost:8000`, not `127.0.0.1`: Next.js 16 blocks dev resources for other hosts, so the page never hydrates and nothing moves.
 - `images.unoptimized` is on: produce right-sized WebP with `sharp`; cut subjects out with macOS Vision (`VNGenerateForegroundInstanceMaskRequest`).
 - Fonts come from `@fontsource/*` (Google Fonts are blocked here); install with `--registry=https://registry.npmmirror.com`.
 - three.js 0.187, GSAP 3.15 (ScrollTrigger included, free for commercial use) and Lenis 1.3 install from npmmirror too; esbuild 0.28 is already in `node_modules` for bundling a mock-up. Mock-up A2 (`docs/mockups/home-2026-11-20/`, source in `a2-scene.source.js`) is the reference implementation of a 3D hero and scroll story.

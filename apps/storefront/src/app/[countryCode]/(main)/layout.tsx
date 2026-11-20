@@ -28,7 +28,7 @@ export default async function PageLayout(props: {
   return (
     <SessionProvider session={session}>
       <NavigationHeader currencyCode={region?.currency_code} />
-      <div className="flex items-center text-neutral-50 justify-center small:p-3 p-2 text-center bg-neutral-900 text-sm">
+      <div data-announce className="flex items-center text-neutral-50 justify-center small:p-3 p-2 text-center bg-neutral-900 text-sm">
         Toko resmi WANGJIA® · Kincir air 1 HP & 2 HP · Pembayaran bertahap ·
         Pengiriman ke seluruh Indonesia · Garansi 1 tahun
       </div>

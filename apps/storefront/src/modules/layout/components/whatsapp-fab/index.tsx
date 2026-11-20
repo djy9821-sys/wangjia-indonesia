@@ -11,6 +11,7 @@ const WhatsAppFab = () => {
       target="_blank"
       rel="noreferrer"
       aria-label="Chat WhatsApp"
+      data-wa-fab
       className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-white shadow-lg hover:brightness-95 small:bottom-6 small:right-6"
     >
       <svg viewBox="0 0 32 32" width="22" height="22" fill="currentColor" aria-hidden="true">
