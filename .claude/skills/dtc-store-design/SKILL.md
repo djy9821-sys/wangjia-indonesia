@@ -96,6 +96,7 @@ Details and sources: `references/ecommerce-ux.md` and `references/brand-and-moti
 - `references/teardowns.md`: measured habits of Teenage Engineering, Nothing, DJI, MotionSites, Apple and Bambu Lab; use it to calibrate.
 - `references/craft.md`: motion on two clocks and by role, scroll rules, hover and press, reduced motion, typography and font licences, composition, art direction without photography, a 40-item details list, and what the top design courses teach.
 - `references/hardware-playbook.md`: how hardware brands and 独立站 courses sell a machine, Indonesian payment and delivery norms, the local competition, and the WANGJIA product page outline.
+- `references/moves.md`: the 24 set-piece techniques award sites use, their cost in KB and GPU time on the phones Indonesians buy (Mali-G52 class), the device tiers, and the licences of reference code.
 - `references/visual-craft.md`: when setting type, spacing, colour, depth and finishing details.
 - `references/ecommerce-ux.md`: when designing homepages, listings, product pages, checkout, trust and mobile behaviour.
 - `references/brand-and-motion.md`: when finding the idea, structuring the story, briefing imagery, choosing motion and setting the speed budget.

@@ -53,8 +53,14 @@ Restraint still applies to colour and type. It does not apply to imagery and mot
 
 Measured for A2 (gzip): three.js with the scene code 156 KB, GSAP 28 KB, ScrollTrigger 18 KB, Lenis 5 KB, so about 207 KB of JavaScript. Fonts 206 KB (subset or drop the mono to save 58 KB). HTML 14 KB. Range images load lazily. That is about 440 KB before scrolling, within the 730 KiB page and 365 KiB JavaScript budget.
 
-- **Low-power path** (≤ 4 cores, ≤ 4 GB memory, or a short side under 520 px): pixel ratio 1.25, no MSAA, three distant machines instead of six, 900 particles, reflection at 0.4 scale.
-- **No WebGL:** the canvas keeps a CSS night gradient; the page still works. For production, render a poster frame (WebP) from the same scene and show it until the first frame.
+- **Tiers** (numbers and reasons in `moves.md` section 5; the floor is a Mali-G52 phone such as the Galaxy A06, about a tenth of an iPhone's GPU):
+  - Tier 0, Save-Data or 2 GB memory or no WebGL: the poster only.
+  - Lean tier (≤ 4 cores, ≤ 4 GB memory, or a short side under 520 px): pixel ratio 1, no mirror render (the water reflects a procedural sky with the moon and lamp glints), Lambert and Phong materials instead of PBR, no environment map, no MSAA, three distant machines instead of six, 900 particles.
+  - Full tier: the mirror reflection at half resolution, PBR with a small environment map, pixel ratio up to 1.75.
+  - Shaders compile with `renderer.compileAsync()` before the canvas fades in over the poster.
+- **The poster:** a frame rendered from the same scene (`snapshot()` in the scene code, saved through a loopback helper, then sharp at WebP quality 68: 79 KB landscape, 50 KB portrait). It paints first, is the LCP image, and stays when WebGL is missing. When the scene is ready within 1.5 s the opening plays; after a longer wait it cuts straight to the live frame.
+- **Something to touch:** a tap on empty water starts a ring there (raycast to the water plane, four analytic rings in the water shader, under 0.2 ms).
+- Measure on a real Galaxy A06 or Redmi 13C/14C before launch; the GPU figures so far are estimates.
 - **Ambient motion needs a pause control** (WCAG 2.2.2): a "Jeda" button in the hero. Reduced motion starts paused, snaps chapters instead of flying the camera, and skips smooth scrolling.
 - **Smooth scrolling** (Lenis) only for fine pointers; touch keeps native scrolling.
 - Do not render while hidden; cap the time step; keep the label projection inside the render callback.

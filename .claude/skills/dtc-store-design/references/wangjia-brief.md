@@ -26,7 +26,7 @@
 Float blue, paddle orange or yellow, stainless grey, and the logo's blue. The site has used near-black, white, a yellow accent (#FFD23F) and cyan glows; keep to one accent at a time.
 
 ## Technical frame
-- Next.js 15 App Router + Tailwind 3 in `apps/storefront`; Medusa v2 backend. Home sections live in `src/modules/home/components/`, the page in `src/app/[countryCode]/(main)/page.tsx`.
+- Next.js 16.3.8 App Router with React 19.0.5 and Tailwind 3 in `apps/storefront` (the repository's AGENTS.md still says Next.js 15); Medusa v2 backend. Measure the shared JavaScript with the storefront's `analyze` script before adding animation libraries. Home sections live in `src/modules/home/components/`, the page in `src/app/[countryCode]/(main)/page.tsx`.
 - `next.config.js` has `images.unoptimized: true`, so ship right-sized WebP yourself; give the hero image `priority`.
 - Google Fonts are unreachable from the development Mac: add fonts as `@fontsource/<font>` with `pnpm --filter @b2b-starter/storefront add @fontsource/<font> --registry=https://registry.npmmirror.com` and import the weight CSS files.
 - The live site has no animation library yet. Mock-up A2 uses three.js, GSAP with ScrollTrigger and Lenis (about 207 KB gzip together); Motion is also acceptable. Plain CSS for interface motion. Respect `prefers-reduced-motion`.

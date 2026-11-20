@@ -565,7 +565,7 @@ footer { background: var(--ink-0); color: var(--text-3); padding: 64px 0 120px; 
 
 <div class="buybar" id="buybar" aria-hidden="true">
   <img src="img/kincir-2hp.webp" width="1000" height="475" alt="">
-  <div class="t"><span>Kincir Air 2 HP · mulai</span><b class="num">Rp&nbsp;6.500.000</b></div>
+  <div class="t"><span>Kincir 2 HP · mulai</span><b class="num">Rp&nbsp;6.500.000</b></div>
   <div class="acts">
     <a class="btn btn-ghost wa" href="#tanya" aria-label="Tanya via WhatsApp"><svg aria-hidden="true"><use href="#i-wa"/></svg><span>WhatsApp</span></a>
     <a class="btn btn-primary" href="#model">Lihat</a>
@@ -665,6 +665,12 @@ if (scene) {
   const vis = new IntersectionObserver((es) => { es.forEach((e) => (e.isIntersecting ? seen.add(e.target) : seen.delete(e.target))); scene.setVisible(seen.size > 0); });
   $$('[data-scene]').forEach((s) => vis.observe(s));
 }
+
+// Something to touch: tap the water (empty parts of the scene chapters, not links or controls)
+if (scene) $$('[data-scene]').forEach((sec) => sec.addEventListener('pointerdown', (e) => {
+  if (e.button > 0 || e.target.closest('a, button, input, label, summary, form, .chartmini, .callout')) return;
+  scene.ripple(e.clientX, e.clientY);
+}));
 
 // Pause the ambient motion (WCAG 2.2.2); starts paused for reduced motion
 const pauseBtn = $('#pause');

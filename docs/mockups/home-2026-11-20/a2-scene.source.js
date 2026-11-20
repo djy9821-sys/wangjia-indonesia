@@ -170,7 +170,7 @@ const skyShader = {
     }`,
 };
 
-function waterShader(nIMP) {
+function waterShader(nIMP, cheap) {
   return {
     name: 'PondWater',
     uniforms: {
@@ -178,15 +178,22 @@ function waterShader(nIMP) {
       tNormal: { value: null }, uTime: { value: 0 }, uNight: { value: 1 }, uLamp: { value: 1 },
       uLampPos: { value: new THREE.Vector3(2.8, 2.1, 3.4) }, uMoonDir: { value: new THREE.Vector3() }, uSunDir: { value: new THREE.Vector3() },
       uImp: { value: Array.from({ length: nIMP }, () => new THREE.Vector4(0, 0, 0, 0)) },
+      uRip: { value: Array.from({ length: 4 }, () => new THREE.Vector4(0, 0, -99, 0)) },
     },
-    vertexShader: /* glsl */`
+    vertexShader: cheap
+      ? /* glsl */`varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`
+      : /* glsl */`
       uniform mat4 textureMatrix; varying vec4 vUv; varying vec3 vW;
       void main(){ vUv = textureMatrix * vec4(position, 1.0); vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
     fragmentShader: /* glsl */`
       #define NIMP ${nIMP}
-      uniform sampler2D tDiffuse, tNormal; uniform float uTime, uNight, uLamp;
-      uniform vec3 uLampPos, uMoonDir, uSunDir; uniform vec4 uImp[NIMP];
-      varying vec4 vUv; varying vec3 vW;
+      ${cheap ? '#define CHEAP' : ''}
+      uniform sampler2D tNormal; uniform float uTime, uNight, uLamp;
+      uniform vec3 uLampPos, uMoonDir, uSunDir; uniform vec4 uImp[NIMP]; uniform vec4 uRip[4];
+      #ifndef CHEAP
+      uniform sampler2D tDiffuse; varying vec4 vUv;
+      #endif
+      varying vec3 vW;
       ${NOISE}
       vec3 nmap(vec2 uv){ return texture2D(tNormal, uv).xzy * 2.0 - 1.0; }
       void main(){
@@ -206,10 +213,24 @@ function waterShader(nIMP) {
           foam += im.w * fall * smoothstep(.16, .5, nz + fall * .32);
         }
         n.xz += (vec2(vnoise(p * 9. + t * 4.), vnoise(p * 9. - t * 4. + 7.)) - .5) * churn * .5;
+        // rings where the visitor tapped the water
+        for (int i = 0; i < 4; i++) {
+          vec4 r = uRip[i]; float age = t - r.z; if (r.w <= 0.0 || age < 0.0 || age > 5.0) continue;
+          vec2 d = p - r.xy; float dist = length(d); float front = age * 1.3;
+          float k = exp(-abs(dist - front) * 4.5) * exp(-age * .8);
+          n.xz += normalize(d + 1e-4) * sin((dist - front) * 20.0) * k * .7;
+          foam += k * .25 * smoothstep(0., .4, age);
+        }
         n = normalize(n);
         vec3 V = normalize(vW - cameraPosition); float dist = length(vW - cameraPosition);
+        #ifdef CHEAP
+        vec3 R0 = reflect(V, n); float ry = max(R0.y, 0.0);
+        vec3 refl = mix(mix(vec3(1.0, .42, .17), vec3(.05, .085, .22), pow(ry, .34)), mix(vec3(.012, .022, .05), vec3(.0015, .0035, .010), pow(ry, .38)), uNight)
+                  + uNight * vec3(.16, .22, .48) * pow(max(dot(R0, uMoonDir), 0.), 14.) * .25;
+        #else
         vec4 uv = vUv; uv.xy += n.xz * (.08 + .55 * clamp(1. - dist / 26., 0., 1.)) * uv.w;
         vec3 refl = texture2DProj(tDiffuse, uv).rgb;
+        #endif
         float fres = .03 + .97 * pow(1. - max(dot(-V, n), 0.), 5.);
         vec3 deep = mix(vec3(.05, .045, .05), vec3(.002, .006, .014), uNight);
         vec3 col = mix(deep, refl * .9, clamp(fres * 1.1 + .04, 0., 1.));
@@ -222,7 +243,13 @@ function waterShader(nIMP) {
         vec3 foamCol = mix(vec3(1.0, .80, .66), vec3(.42, .50, .66), uNight) + uLamp * vec3(.30, .16, .05);
         col = mix(col, foamCol, foam * .62);
         col = mix(col, mix(vec3(.95, .46, .22), vec3(.010, .018, .036), uNight), 1. - exp(-dist * .022));
+        #ifdef CHEAP
+        // let the mirrored machine under the surface show through, broken up by the waves
+        float a = clamp(.5 + fres * .55 + abs(n.x + n.z) * 1.4 + foam * .35, 0., 1.);
+        gl_FragColor = vec4(col, mix(a, 1., smoothstep(8., 26., dist)));
+        #else
         gl_FragColor = vec4(col, 1.0);
+        #endif
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`,
@@ -360,7 +387,7 @@ const DISTANT = [[-6.6, -7.8, 0.25], [5.4, -10.6, -0.18], [-1.4, -16.5, 0.06], [
 export async function createPondScene(canvas, opts = {}) {
   const lowPower = !!opts.lowPower;
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !lowPower, powerPreference: 'high-performance', alpha: false });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowPower ? 1.25 : 1.75));
+  renderer.setPixelRatio(lowPower ? 1 : Math.min(window.devicePixelRatio || 1, 1.75));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
 
@@ -375,7 +402,7 @@ export async function createPondScene(canvas, opts = {}) {
   warmBox.position.set(5, 3, 6); warmBox.lookAt(0, 0, 0); envScene.add(warmBox);
   const coolBox = new THREE.Mesh(new THREE.PlaneGeometry(6, 3), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.55, 0.65, 1.0).multiplyScalar(3) }));
   coolBox.position.set(-3, 4, -8); coolBox.lookAt(0, 0, 0); envScene.add(coolBox);
-  scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+  if (!lowPower) scene.environment = pmrem.fromScene(envScene, 0.04).texture;
 
   // sky, shore, lights, mist
   const sky = new THREE.Mesh(new THREE.SphereGeometry(300, 48, 24), new THREE.ShaderMaterial({ ...skyShader, uniforms: THREE.UniformsUtils.clone(skyShader.uniforms), side: THREE.BackSide, depthWrite: false }));
@@ -399,11 +426,24 @@ export async function createPondScene(canvas, opts = {}) {
     cast: new THREE.MeshStandardMaterial({ color: 0x30353e, metalness: 0.45, roughness: 0.55 }),
     motor: new THREE.MeshStandardMaterial({ color: 0x8793a6, metalness: 0.75, roughness: 0.32, envMapIntensity: 1.2 }),
   };
+  if (lowPower) {
+    Object.assign(M, {
+      hdpe: new THREE.MeshPhongMaterial({ color: 0x1f55c2, shininess: 40, specular: 0x223355 }),
+      hdpeDark: new THREE.MeshLambertMaterial({ color: 0x173f90 }),
+      pp: new THREE.MeshLambertMaterial({ color: 0xff951f }),
+      ppPad: new THREE.MeshLambertMaterial({ color: 0xff951f, alphaMap: holes, alphaTest: 0.5, side: THREE.DoubleSide }),
+      steel: new THREE.MeshPhongMaterial({ color: 0x9aa4b2, shininess: 80, specular: 0x8899aa }),
+      cast: new THREE.MeshLambertMaterial({ color: 0x30353e }),
+      motor: new THREE.MeshPhongMaterial({ color: 0x7d8899, shininess: 60, specular: 0x667788 }),
+    });
+  }
   const imp = impellerGeos();
   const G = { float: floatGeo(), cover: coverGeo(), gearbox: gearboxGeo(), motor: motorGeo(), coupling: couplingGeo(), shaft: shaftGeo(), pillow: pillowGeo(), frame: frameGeo(), impSolid: imp.solid, impPads: imp.pads };
 
   const main = buildAerator(G, M); scene.add(main.group); applyExplode(main, 0);
   const mainSpray = makeSpray(lowPower ? 900 : 2600); main.group.add(mainSpray);
+  const mirror = lowPower ? buildAerator(G, M) : null;
+  if (mirror) { mirror.group.scale.y = -1; applyExplode(mirror, 0); scene.add(mirror.group); }
 
   const far = DISTANT.slice(0, lowPower ? 3 : DISTANT.length).map(([x, z, yaw]) => {
     const a = buildAerator(G, M); a.group.position.set(x, 0, z); a.group.rotation.y = yaw; applyExplode(a, 0); scene.add(a.group);
@@ -412,19 +452,24 @@ export async function createPondScene(canvas, opts = {}) {
 
   // water with a real reflection of everything above it
   const nIMP = 4 + far.length * 2;
-  const water = new Reflector(new THREE.PlaneGeometry(400, 400), {
-    shader: waterShader(nIMP), textureWidth: 512, textureHeight: 512, clipBias: 0.002, multisample: lowPower ? 0 : 4,
-  });
-  water.rotation.x = -Math.PI / 2; scene.add(water);
+  let water;
+  if (lowPower) {
+    const sh = waterShader(nIMP, true);
+    water = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.ShaderMaterial({ uniforms: THREE.UniformsUtils.clone(sh.uniforms), vertexShader: sh.vertexShader, fragmentShader: sh.fragmentShader, transparent: true }));
+  } else {
+    water = new Reflector(new THREE.PlaneGeometry(400, 400), { shader: waterShader(nIMP, false), textureWidth: 512, textureHeight: 512, clipBias: 0.002, multisample: 4 });
+    // the giant word is typography, not an object: keep it out of the reflection (layer 1)
+    water.getReflectionCamera(camera).layers.set(0);
+  }
+  camera.layers.enable(1);
+  water.rotation.x = -Math.PI / 2; water.renderOrder = 1; scene.add(water);
   const WU = water.material.uniforms; WU.tNormal.value = waterNormals(lowPower ? 128 : 256);
-  // the giant word is typography, not an object: keep it out of the reflection (layer 1)
-  water.getReflectionCamera(camera).layers.set(0); camera.layers.enable(1);
 
   const mist = makeMist(); scene.add(mist);
 
   // the giant word behind the machine (Design World composition, but lit by the same night)
   const wordMat = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, fog: false, toneMapped: false, color: new THREE.Color(0.66, 0.71, 0.86) });
-  const word = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), wordMat); word.position.set(0, 1, -5.2); word.renderOrder = -1; word.layers.set(1); scene.add(word);
+  const word = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), wordMat); word.position.set(0, 1, -5.2); word.renderOrder = 2; word.layers.set(1); scene.add(word);
   const words = { L: await wordTexture(['KINCIR AIR'], opts.family || 'Archivo'), P: await wordTexture(['KINCIR', 'AIR'], opts.family || 'Archivo') };
 
   // ------------------------------------------------------------ state driven by the page
@@ -438,7 +483,7 @@ export async function createPondScene(canvas, opts = {}) {
   function resize(w, h) {
     W = w; H = h; aspect = w / h; renderer.setSize(w, h, false); camera.aspect = aspect; camera.updateProjectionMatrix();
     const pr = renderer.getPixelRatio(), rs = lowPower ? 0.4 : 0.5;
-    water.getRenderTarget().setSize(Math.round(w * pr * rs), Math.round(h * pr * rs));
+    if (water.getRenderTarget) water.getRenderTarget().setSize(Math.round(w * pr * rs), Math.round(h * pr * rs));
     dirty = true;
   }
   const pk = () => clamp01((1.25 - aspect) / 0.6);
@@ -489,6 +534,7 @@ export async function createPondScene(canvas, opts = {}) {
     main.group.rotation.y = -0.5 * smooth(p3 / 0.5) * (1 - smooth(p4 * 4));
     if (playing) impAngle += dt * 3.4;
     main.parts.imps.forEach((r) => (r.rotation.x = impAngle));
+    if (mirror) { applyExplode(mirror, ex); mirror.group.rotation.y = main.group.rotation.y; mirror.parts.imps.forEach((r) => (r.rotation.x = impAngle)); }
     far.forEach((a, i) => a.parts.imps.forEach((r) => (r.rotation.x = impAngle * (0.94 + i * 0.03) + i)));
 
     const sprayK = (1 - smooth(ex * 4));
@@ -529,6 +575,7 @@ export async function createPondScene(canvas, opts = {}) {
     if (!playing && !dirty) { last = now; return; }
     render(now);
   }
+  try { camera.aspect = 1; camera.updateProjectionMatrix(); await renderer.compileAsync(scene, camera); } catch (e) { /* compile on first render instead */ }
   requestAnimationFrame(loop);
 
   // anchors for HTML labels (machine-local points that follow the exploded parts)
@@ -553,8 +600,16 @@ export async function createPondScene(canvas, opts = {}) {
     renderer.setPixelRatio(pr); resize(pw, ph); dirty = true; return url;
   }
 
+  // a tap on the water starts a ring there (screen point to the water plane)
+  const ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3(); let ri = 0;
+  function ripple(x, y) {
+    ray.setFromCamera(new THREE.Vector2(x / W * 2 - 1, -(y / H) * 2 + 1), camera);
+    if (!ray.ray.intersectPlane(plane, hit) || hit.distanceTo(camera.position) > 60) return false;
+    WU.uRip.value[ri++ % 4].set(hit.x, hit.z, time, 1); dirty = true; return true;
+  }
+
   return {
-    state: S, resize, project, renderer, snapshot,
+    state: S, resize, project, renderer, snapshot, ripple,
     set(k, v) { if (S[k] !== v) { S[k] = v; dirty = true; } },
     play(on) { playing = on; dirty = true; },
     get playing() { return playing; },
