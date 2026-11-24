@@ -54,7 +54,11 @@ const CartDrawer = ({
     [cart, customer]
   )
 
-  const itemRef = useRef<number>(totalItems || 0)
+  // The item count the drawer last saw; null until a cart first appears. Static pages load
+  // the cart in the browser after they show, so a cart that arrives already holding items
+  // is not news: only a change in the count opens the drawer, or a first cart made by
+  // adding (optimistic, so it has no id yet).
+  const itemRef = useRef<number | null>(null)
 
   const timedOpen = () => {
     if (isOpen) {
@@ -87,16 +91,18 @@ const CartDrawer = ({
 
   // open cart dropdown when modifying the cart items, but only if we're not on the cart page
   useEffect(() => {
-    if (
-      itemRef.current !== totalItems &&
-      !pathname.includes("/cart") &&
-      !pathname.includes("/account")
-    ) {
-      timedOpen()
+    // a placeholder before the cart loads has neither an id nor items
+    if (!cart || (!cart.id && totalItems === 0)) {
       return
     }
+    const seen = itemRef.current
+    itemRef.current = totalItems
+    const changed = seen === null ? !cart.id && totalItems > 0 : seen !== totalItems
+    if (changed && !pathname.includes("/cart") && !pathname.includes("/account")) {
+      timedOpen()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [totalItems, itemRef.current])
+  }, [cart, totalItems])
 
   //close cart drawer when navigating to a different page
   useEffect(() => {
