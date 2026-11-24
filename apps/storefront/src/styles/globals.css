@@ -110,3 +110,43 @@
     @apply text-[32px] leading-[44px] font-semibold;
   }
 }
+
+/*
+  Night pages (the home page and the product pages): the header joins the night, as in
+  mock-up A2. The white logo replaces the ink one, hovers lighten instead of turning grey,
+  and the cart count takes the one accent.
+*/
+body:has([data-wj-night], [data-wj-product]) {
+  background: #060b15;
+}
+body:has([data-wj-night], [data-wj-product]) [data-site-header] {
+  background: rgba(6, 11, 21, 0.86);
+  color: #f2f4f7;
+  border-color: rgba(190, 210, 255, 0.12);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+body:has([data-wj-night], [data-wj-product]) [data-site-header] [data-logo="ink"] {
+  display: none;
+}
+body:has([data-wj-night], [data-wj-product]) [data-site-header] [data-logo="night"] {
+  display: block;
+}
+body:has([data-wj-night], [data-wj-product]) [data-site-header] :is(a, button):hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+body:has([data-wj-night], [data-wj-product]) [data-site-header] .bg-neutral-300 {
+  background-color: rgba(190, 210, 255, 0.24);
+}
+body:has([data-wj-night], [data-wj-product]) [data-site-header] .bg-blue-500 {
+  background-color: #ffb547;
+  color: #1a1205;
+}
+@media (max-width: 767px) {
+  body:has([data-wj-night], [data-wj-product]) [data-site-header] {
+    background: rgba(6, 11, 21, 0.96);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}

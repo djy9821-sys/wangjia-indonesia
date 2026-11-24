@@ -1,4 +1,5 @@
 import { archivo } from "@/lib/fonts/archivo"
+import { machineByHandle } from "@/lib/util/machines"
 import GroupBuyOffer from "@/modules/products/components/group-buy-offer"
 import ImageGallery from "@/modules/products/components/image-gallery"
 import ProductActions from "@/modules/products/components/product-actions"
@@ -21,9 +22,10 @@ type ProductTemplateProps = {
 }
 
 /*
-  The buy page (the home page is the story): light and plain like the hardware buy pages,
-  in the shop's type and accent. Gallery on the left and sticky on desktop, the buy box on
-  the right; on phones the buy box follows the picture. Specifications are always open.
+  The buy page in the night of the home page (mock-up A2, which the owner picked): the same
+  ink, type and one accent. Gallery on the left and sticky on desktop, the buy box on the
+  right; on phones the buy box follows the picture. Specifications are always open. The
+  related products sit on a light band below, where the night ends.
 */
 const ProductTemplate: React.FC<ProductTemplateProps> = ({ product, region, countryCode }) => {
   if (!product || !product.id) {
@@ -31,11 +33,11 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({ product, region, coun
   }
 
   return (
-    <div data-wj-product className={`${archivo.variable} ${GeistMono.variable} bg-[#f6f4ef] text-[#121417]`}>
+    <div data-wj-product className={`wj-pdp ${archivo.variable} ${GeistMono.variable}`}>
       <div className="content-container grid grid-cols-1 gap-8 py-6 small:grid-cols-12 small:gap-12 small:py-12" data-testid="product-container">
         <div className="small:col-span-7">
           <div className="small:sticky small:top-28">
-            <ImageGallery product={product} />
+            <ImageGallery product={product} stage={machineByHandle(product.handle)} />
           </div>
         </div>
         <div className="flex flex-col gap-8 small:col-span-5">
@@ -49,11 +51,17 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({ product, region, coun
         </div>
       </div>
       <ProductDetails product={product} />
-      <div className="content-container pb-28" data-testid="related-products-container">
-        <Suspense fallback={<SkeletonRelatedProducts />}>
-          <RelatedProducts product={product} countryCode={countryCode} />
-        </Suspense>
-      </div>
+      <Suspense
+        fallback={
+          <div className="bg-[#f6f4ef] pb-28">
+            <div className="content-container">
+              <SkeletonRelatedProducts />
+            </div>
+          </div>
+        }
+      >
+        <RelatedProducts product={product} countryCode={countryCode} />
+      </Suspense>
     </div>
   )
 }

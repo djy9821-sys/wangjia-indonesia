@@ -3,10 +3,13 @@ import { toJsonLd } from "@/lib/util/product-structured-data"
 import { getSiteOrigin, listCountryCodes, STORE_NAME } from "@/lib/util/site"
 import { buildRegionsReturnPolicies } from "@/lib/util/store-policies"
 import NightHome from "@/modules/home/components/night"
-import { Metadata } from "next"
+import { Metadata, Viewport } from "next"
 
 export const dynamic = "force-static"
 export const revalidate = 60
+
+// the phone browser bar takes the night colour of this page
+export const viewport: Viewport = { themeColor: "#060b15" }
 
 export async function generateMetadata(props: {
   params: Promise<{ countryCode: string }>

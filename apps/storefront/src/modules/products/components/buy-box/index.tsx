@@ -27,7 +27,7 @@ const label = (v: HttpTypes.StoreProductVariant) =>
   v.title ||
   ""
 
-const MONO = "font-[family-name:var(--font-geist-mono)] text-[11px] font-medium uppercase tracking-[0.12em] text-[#6b6f76]"
+const MONO = "font-[family-name:var(--font-geist-mono)] text-[11px] font-medium uppercase tracking-[0.12em] text-[var(--text-3)]"
 const PRICE = "font-[family-name:var(--font-archivo)] [font-stretch:85%] font-bold tabular-nums tracking-[-0.01em]"
 
 export default function BuyBox({ product, region }: { product: HttpTypes.StoreProduct; region: HttpTypes.StoreRegion }) {
@@ -98,8 +98,8 @@ export default function BuyBox({ product, region }: { product: HttpTypes.StorePr
               {shownPrice ?? "Tanya harga"}
             </span>
           </p>
-          <p className="mt-2 text-[13px] text-[#6b6f76]">Belum termasuk PPN 11% · ongkos kirim dihitung saat checkout</p>
-          <p className="mt-3 text-[15px] font-medium text-[#2b2f35]">Bisa bayar bertahap: uang muka dulu, pelunasan sebelum dikirim.</p>
+          <p className="mt-2 text-[13px] text-[var(--text-3)]">Belum termasuk PPN 11% · ongkos kirim dihitung saat checkout</p>
+          <p className="mt-3 text-[15px] font-medium text-[var(--text-2)]">Bisa bayar bertahap: uang muka dulu, pelunasan sebelum dikirim.</p>
         </div>
 
         {choose ? (
@@ -113,20 +113,22 @@ export default function BuyBox({ product, region }: { product: HttpTypes.StorePr
                   <label
                     key={v.id}
                     className={clx(
-                      "relative flex min-h-[64px] cursor-pointer flex-col justify-center gap-0.5 rounded-2xl border bg-white px-4 py-3 transition-[border-color,box-shadow] duration-150 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#ffb547]",
-                      on ? "border-[#121417] shadow-[0_0_0_1px_#121417]" : "border-[#dcd7cd] [@media(hover:hover)]:hover:border-[#9a958b]",
+                      "relative flex min-h-[64px] cursor-pointer flex-col justify-center gap-0.5 rounded-2xl border px-4 py-3 transition-[border-color,background-color,color] duration-150 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#ffb547]",
+                      on
+                        ? "border-[var(--text)] bg-[var(--text)] text-[var(--ink-1)]"
+                        : "border-[var(--line-2)] bg-white/[0.03] text-[var(--text)] [@media(hover:hover)]:hover:border-[rgba(190,210,255,0.5)]",
                       !stock && "cursor-not-allowed opacity-50"
                     )}
                   >
                     <input type="radio" name="variant_id" value={v.id} checked={on} disabled={!stock} onChange={() => setVariantId(v.id)} className="sr-only" />
-                    <span className="text-[15px] font-semibold leading-tight text-[#121417]">{label(v)}</span>
-                    <span className="text-[14px] tabular-nums text-[#4a4f57]">{getProductPrice({ product, variantId: v.id }).variantPrice?.calculated_price}</span>
-                    {!stock && <span className="text-[12px] text-[#b42318]">Stok habis</span>}
+                    <span className="text-[15px] font-semibold leading-tight">{label(v)}</span>
+                    <span className="text-[14px] tabular-nums opacity-75">{getProductPrice({ product, variantId: v.id }).variantPrice?.calculated_price}</span>
+                    {!stock && <span className="text-[12px] text-[#ff8a7a]">Stok habis</span>}
                   </label>
                 )
               })}
             </div>
-            {optionTitle === "Listrik" && <p className="mt-2 text-[13px] text-[#6b6f76]">1 phase: listrik rumah 220 V. 3 phase: listrik 380 V.</p>}
+            {optionTitle === "Listrik" && <p className="mt-2 text-[13px] text-[var(--text-3)]">1 phase: listrik rumah 220 V. 3 phase: listrik 380 V.</p>}
           </fieldset>
         ) : (
           <input type="hidden" name="variant_id" value={variantId} />
@@ -134,7 +136,7 @@ export default function BuyBox({ product, region }: { product: HttpTypes.StorePr
 
         <div className="flex items-center gap-4">
           <span className={MONO}>Jumlah</span>
-          <div className="flex items-center rounded-full border border-[#dcd7cd] bg-white">
+          <div className="flex items-center rounded-full border border-[var(--line-2)]">
             <button type="button" aria-label="Kurangi jumlah" onClick={() => setQty((q) => Math.max(1, q - 1))} className="grid h-11 w-11 place-items-center rounded-full text-[20px] active:scale-[0.94]">
               −
             </button>
@@ -157,7 +159,7 @@ export default function BuyBox({ product, region }: { product: HttpTypes.StorePr
             type="submit"
             disabled={hydrated && (!selected || !inStock)}
             data-testid="add-product-button"
-            className="h-[52px] rounded-full bg-[#ffb547] px-6 text-[16px] font-semibold text-[#1a1205] transition-[background-color,transform] duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 [@media(hover:hover)]:hover:bg-[#ffcb80]"
+            className="h-[52px] rounded-full bg-[#ffb547] px-6 text-[16px] font-semibold text-[#1a1205] transition-[background-color,transform] duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:bg-white/[0.08] disabled:text-[var(--text-2)] [@media(hover:hover)]:enabled:hover:bg-[#ffcb80]"
           >
             {addText}
           </button>
@@ -165,9 +167,9 @@ export default function BuyBox({ product, region }: { product: HttpTypes.StorePr
             href={wa}
             target="_blank"
             rel="noreferrer"
-            className="flex h-[52px] items-center justify-center gap-2 rounded-full border border-[#121417] px-6 text-[16px] font-semibold text-[#121417] transition-transform duration-150 active:scale-[0.97]"
+            className="flex h-[52px] items-center justify-center gap-2 rounded-full border border-[var(--line-2)] bg-[rgba(6,11,21,0.35)] px-6 text-[16px] font-semibold text-[var(--text)] transition-[border-color,transform] duration-150 active:scale-[0.97] [@media(hover:hover)]:hover:border-[rgba(190,210,255,0.5)]"
           >
-            <WhatsAppIcon className="h-[18px] w-[18px] text-[#1a9c4b]" />
+            <WhatsAppIcon className="h-[18px] w-[18px] text-[#25d366]" />
             Pesan via WhatsApp
           </a>
         </div>
@@ -176,7 +178,7 @@ export default function BuyBox({ product, region }: { product: HttpTypes.StorePr
       {/* follows at the bottom, like DJI Store's bar: what you are buying, its price, and the two ways to buy */}
       <div
         className={clx(
-          "fixed inset-x-0 bottom-0 z-40 border-t border-[#e3dfd6] bg-white/95 pb-[env(safe-area-inset-bottom)] transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none",
+          "fixed inset-x-0 bottom-0 z-40 border-t border-[var(--line)] bg-[rgba(6,11,21,0.95)] pb-[env(safe-area-inset-bottom)] transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none",
           stuck ? "translate-y-0" : "translate-y-[calc(100%+24px)]"
         )}
         inert={!stuck}
@@ -184,18 +186,18 @@ export default function BuyBox({ product, region }: { product: HttpTypes.StorePr
       >
         <div className="content-container flex items-center gap-3 py-2.5">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] text-[#4a4f57]">
+            <p className="truncate text-[13px] text-[var(--text-2)]">
               {product.title}
               {selected && choose ? ` · ${label(selected)}` : ""}
             </p>
-            <p className={clx(PRICE, "text-[20px] leading-tight text-[#121417]")}>
+            <p className={clx(PRICE, "text-[20px] leading-tight text-[var(--text)]")}>
               {!selected && varies ? "mulai " : ""}
               {shownPrice ?? "Tanya harga"}
             </p>
-            <p className="hidden text-[12px] text-[#6b6f76] small:block">Kirim ke seluruh Indonesia · belum termasuk PPN 11%</p>
+            <p className="hidden text-[12px] text-[var(--text-3)] small:block">Kirim ke seluruh Indonesia · belum termasuk PPN 11%</p>
           </div>
-          <a href={wa} target="_blank" rel="noreferrer" aria-label="Pesan via WhatsApp" className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#121417]">
-            <WhatsAppIcon className="h-5 w-5 text-[#1a9c4b]" />
+          <a href={wa} target="_blank" rel="noreferrer" aria-label="Pesan via WhatsApp" className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[var(--line-2)]">
+            <WhatsAppIcon className="h-5 w-5 text-[#25d366]" />
           </a>
           <button type="button" onClick={() => add()} className="h-11 shrink-0 rounded-full bg-[#ffb547] px-5 text-[15px] font-semibold text-[#1a1205] active:scale-[0.97]">
             {selected ? (added ? "✓" : "Tambah") : `Pilih ${optionTitle.toLowerCase()}`}

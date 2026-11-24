@@ -6,7 +6,7 @@ const GroupBuyOffer = async ({ productId, countryCode }: { productId: string; co
   const groupBuys = await listGroupBuys(productId).catch(() => [])
   if (!groupBuys.length) return null
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 rounded-2xl bg-[#f6f4ef] p-4 text-[#121417]">
       <p className="text-sm text-ui-fg-subtle">
         Patungan: beberapa petambak pesan bersama, harga turun kalau unit minimum terpenuhi sebelum batas waktu.
         Kalau tidak terpenuhi, pembayaran dikembalikan atau pesanan lanjut dengan harga normal.

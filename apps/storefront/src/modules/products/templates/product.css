@@ -1,2 +1,71 @@
-/* On product pages the buy box and its bar carry WhatsApp, so the floating button would only cover content. */
+/*
+  Product pages in the night of the home page (mock-up A2): the same ink, lines, text greys
+  and the one accent, the paddle orange. Scoped to .wj-pdp, except the :has() rules that
+  hide the floating WhatsApp button (the buy box and its bar carry WhatsApp) and tint the
+  announcement bar. The header joins the night in styles/globals.css.
+*/
 body:has([data-wj-product]) [data-wa-fab] { display: none !important; }
+body:has([data-wj-product]) [data-announce] { background: #0a1222; color: #a7b1c4; border-bottom: 1px solid rgba(190, 210, 255, 0.12); }
+
+.wj-pdp {
+  --ink-1: #060b15;
+  --ink-2: #0a1222;
+  --line: rgba(190, 210, 255, 0.12);
+  --line-2: rgba(190, 210, 255, 0.24);
+  --text: #f2f4f7;
+  --text-2: #a7b1c4;
+  --text-3: #7f8aa0;
+  --amber: #ffb547;
+  --amber-2: #ffcb80;
+  --on-amber: #1a1205;
+  color: var(--text);
+  background: radial-gradient(900px 560px at 8% -4%, rgba(120, 150, 255, 0.12), transparent 70%), var(--ink-1);
+  -webkit-font-smoothing: antialiased;
+}
+.wj-pdp ::selection { background: rgba(255, 181, 71, 0.35); color: var(--text); }
+.wj-pdp :focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+
+/* the stage: sky, a low moon, the horizon, dark water */
+.wj-stage { container-type: inline-size; isolation: isolate; background: var(--ink-2); }
+.wj-night-slide {
+  background:
+    radial-gradient(circle at 14% 15%, #f3efe2 0, #f3efe2 2.2cqw, rgba(243, 239, 226, 0) 2.5cqw),
+    radial-gradient(circle at 14% 15%, rgba(185, 200, 255, 0.24), rgba(185, 200, 255, 0) 30%),
+    linear-gradient(180deg, #121d3d 0%, #0d1631 63.4%, #1a2647 63.8%, #0b1326 67%, #060b15 100%);
+}
+.wj-word {
+  position: absolute;
+  inset: 8% 0 auto;
+  text-align: center;
+  white-space: nowrap;
+  font-family: var(--font-archivo), "Arial Narrow", sans-serif;
+  font-stretch: 62%;
+  font-weight: 850;
+  font-size: 27cqw;
+  line-height: 0.8;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: #e9edf4;
+}
+.wj-machine, .wj-reflect { position: absolute; left: 7%; right: 7%; height: 40%; }
+.wj-machine { top: 24%; }
+.wj-reflect {
+  top: 64%;
+  transform: scaleY(-1);
+  opacity: 0.3;
+  filter: blur(1.5px);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 72%);
+  mask-image: linear-gradient(to top, #000 0%, transparent 72%);
+}
+@media (min-width: 1024px) {
+  .wj-word { font-size: 33cqw; inset: 9% 0 auto; }
+  .wj-machine, .wj-reflect { height: 36%; }
+  .wj-machine { top: 28%; }
+}
+
+/* a catalogue photo in a pool of moonlight */
+.wj-photo-slide {
+  background:
+    radial-gradient(ellipse 72% 72% at 50% 48%, #eef1f6 0%, #e4e9f1 52%, rgba(228, 233, 241, 0) 100%),
+    linear-gradient(180deg, #121d3d, #070d1b);
+}

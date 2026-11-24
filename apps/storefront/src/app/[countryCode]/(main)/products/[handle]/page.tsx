@@ -11,12 +11,15 @@ import {
 import { getSiteOrigin, listCountryCodes, STORE_NAME } from "@/lib/util/site"
 import ProductTemplate from "@/modules/products/templates"
 import { HttpTypes } from "@medusajs/types"
-import { Metadata } from "next"
+import { Metadata, Viewport } from "next"
 import { notFound } from "next/navigation"
 
 export const dynamicParams = true
 export const dynamic = "force-static"
 export const revalidate = 60
+
+// the phone browser bar takes the night colour of this page
+export const viewport: Viewport = { themeColor: "#060b15" }
 
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>

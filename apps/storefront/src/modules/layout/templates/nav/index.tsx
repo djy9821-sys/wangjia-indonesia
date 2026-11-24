@@ -5,6 +5,7 @@ import { MegaMenuWrapper } from "@/modules/layout/components/mega-menu"
 import NavSessionActions from "@/modules/layout/components/nav-session-actions"
 import Search from "@/modules/layout/components/search"
 import SkeletonMegaMenu from "@/modules/skeletons/components/skeleton-mega-menu"
+import Image from "next/image"
 import { Suspense } from "react"
 
 export async function NavigationHeader({
@@ -22,7 +23,9 @@ export async function NavigationHeader({
               href="/"
             >
               <span className="small:text-base text-sm font-medium flex items-center">
-                <img src="/wangjia-logo-horizontal.png" alt="WANGJIA" width={1444} height={400} className="h-9 w-[130px] shrink-0 object-contain" />
+                <img src="/wangjia-logo-horizontal.png" alt="WANGJIA" width={1444} height={400} data-logo="ink" className="h-9 w-[130px] shrink-0 object-contain" />
+                {/* the white logo, shown instead on the night pages (home and products), see globals.css */}
+                <Image src="/wangjia-logo-white.png" alt="WANGJIA" width={289} height={80} data-logo="night" className="hidden h-9 w-[130px] shrink-0 object-contain" />
               </span>
             </LocalizedClientLink>
 

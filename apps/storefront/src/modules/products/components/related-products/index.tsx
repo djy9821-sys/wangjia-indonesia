@@ -51,18 +51,21 @@ export default async function RelatedProducts({
     return null
   }
 
+  // where the night ends: the shop's light cards on a paper band, as on the listing pages
   return (
-    <div className="flex flex-col gap-y-6 border-t border-[#e3dfd6] py-12 small:py-16">
-      <Heading level="h2" className="text-[24px] font-semibold tracking-[-0.02em] text-[#121417]">
-        Produk lain yang sering dilihat
-      </Heading>
-      <ul className="grid grid-cols-1 small:grid-cols-3 medium:grid-cols-4 gap-x-2 gap-y-8">
-        {products.map((product) => (
-          <li key={product.id}>
-            <Product region={region} product={product} />
-          </li>
-        ))}
-      </ul>
-    </div>
+    <section className="bg-[#f6f4ef] text-[#121417]" data-testid="related-products-container">
+      <div className="content-container flex flex-col gap-y-6 pb-28 pt-12 small:pt-16">
+        <Heading level="h2" className="text-[24px] font-semibold tracking-[-0.02em] text-[#121417]">
+          Produk lain yang sering dilihat
+        </Heading>
+        <ul className="grid grid-cols-1 small:grid-cols-3 medium:grid-cols-4 gap-x-2 gap-y-8">
+          {products.map((product) => (
+            <li key={product.id}>
+              <Product region={region} product={product} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
   )
 }
