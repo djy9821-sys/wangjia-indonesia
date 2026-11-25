@@ -19,8 +19,9 @@ export default async function Footer() {
     }),
   ])
 
+  // white on every page: the night pages darken the body behind it
   return (
-    <footer className="border-t border-ui-border-base w-full">
+    <footer className="w-full border-t border-ui-border-base bg-white">
       <div className="content-container flex flex-col w-full">
         <div className="flex flex-col gap-y-6 xsmall:flex-row items-start justify-between py-40">
           <div>

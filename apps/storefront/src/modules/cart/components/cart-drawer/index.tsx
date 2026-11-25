@@ -130,7 +130,9 @@ const CartDrawer = ({
         {...(props as any)}
       >
         <Drawer.Trigger asChild>
-          <button className="transition-fg relative inline-flex w-fit items-center justify-center overflow-hidden outline-none txt-compact-small-plus gap-x-1.5 px-3 py-1.5 rounded-full hover:bg-neutral-100">
+          <button
+            aria-label={totalItems > 0 ? `Keranjang, ${totalItems} barang` : "Keranjang"}
+            className="transition-fg relative inline-flex w-fit items-center justify-center overflow-hidden outline-none txt-compact-small-plus gap-x-1.5 px-3 py-1.5 rounded-full hover:bg-neutral-100">
             <ShoppingBag />
             <span className="text-sm font-normal hidden small:inline-block">
               {cart && items && items.length > 0
@@ -140,9 +142,12 @@ const CartDrawer = ({
                   })
                 : "Keranjang"}
             </span>
-            <div className="bg-blue-500 text-white text-xs px-1.5 py-px rounded-full">
-              {totalItems}
-            </div>
+            {/* no "0": the count showed 0 on every page until the cart had loaded */}
+            {totalItems > 0 && (
+              <div className="bg-blue-500 text-white text-xs px-1.5 py-px rounded-full">
+                {totalItems}
+              </div>
+            )}
           </button>
         </Drawer.Trigger>
         <Drawer.Content
@@ -183,7 +188,12 @@ const CartDrawer = ({
                     />
                   )}
                   <div className="flex justify-between">
-                    <Text>Subtotal</Text>
+                    <div>
+                      <Text>Subtotal</Text>
+                      <Text className="text-xs text-ui-fg-muted">
+                        Belum termasuk ongkir & PPN
+                      </Text>
+                    </div>
                     <Text>
                       {convertToLocale({
                         amount: subtotal,

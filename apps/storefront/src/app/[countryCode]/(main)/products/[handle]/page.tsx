@@ -59,6 +59,24 @@ export async function generateStaticParams() {
   }
 }
 
+// Search results and WhatsApp link previews show this: the first sentences of the description in
+// plain text, at most about 160 characters, instead of the whole page of markdown.
+const summary = (text: string, max = 160) => {
+  const plain = text.split(/\n\s*\n/)[0].replace(/[*_#`]/g, "").replace(/\s+/g, " ").trim()
+  if (plain.length <= max) {
+    return plain
+  }
+  let out = ""
+  for (const sentence of plain.split(/(?<=\.)\s+/)) {
+    const next = out ? `${out} ${sentence}` : sentence
+    if (next.length > max) {
+      break
+    }
+    out = next
+  }
+  return out || `${plain.slice(0, plain.lastIndexOf(" ", max - 1))}…`
+}
+
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
   const { handle } = params
@@ -77,7 +95,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const [origin, regions] = await Promise.all([getSiteOrigin(), listRegions()])
   const path = `/products/${product.handle}`
   const productUrl = `${origin}/${params.countryCode}${path}`
-  const description = product.description || product.title
+  const description = summary(product.description || product.title)
 
   return {
     title: `${product.title} | ${STORE_NAME}`,
@@ -86,7 +104,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       canonical: productUrl,
       languages: Object.fromEntries(
         listCountryCodes(regions).map((code) => [
-          `en-${code.toUpperCase()}`,
+          code === "id" ? "id-ID" : `en-${code.toUpperCase()}`,
           `${origin}/${code}${path}`,
         ])
       ),

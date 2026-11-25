@@ -10,8 +10,9 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout(props: { children: React.ReactNode }) {
+  // the shop is in Indonesian: "en" made Chrome offer to translate every page
   return (
-    <html lang="en" data-mode="light" className={GeistSans.variable}>
+    <html lang="id" data-mode="light" className={GeistSans.variable}>
       <head>
         <link rel="ucp" href="/.well-known/ucp" />
       </head>

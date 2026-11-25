@@ -15,16 +15,14 @@ const LineItemPrice = ({
   className,
   currencyCode,
 }: LineItemPriceProps) => {
-  const adjustmentsSum = (item.adjustments || []).reduce(
-    (acc, adjustment) => adjustment.amount + acc,
-    0
-  )
+  // Lines show amounts before PPN, like the product pages and the subtotal under them; PPN
+  // is added once, in the totals. With the total (PPN included) a Rp 6.500.000 machine read
+  // Rp 7.215.000 above a subtotal of Rp 6.500.000.
+  const originalPrice = item.subtotal ?? 0
+  const discount = (item.discount_total ?? 0) - (item.discount_tax_total ?? 0)
+  const currentPrice = originalPrice - discount
 
-  const originalPrice = item.original_total ?? 0 / item.quantity
-
-  const currentPrice = item.total ?? 0 / item.quantity - adjustmentsSum
-
-  const hasReducedPrice = currentPrice < originalPrice
+  const hasReducedPrice = discount > 0
 
   return (
     <Text
@@ -50,7 +48,7 @@ const LineItemPrice = ({
               <span className="text-base-regular text-ui-fg-interactive">
                 -
                 {convertToLocale({
-                  amount: adjustmentsSum,
+                  amount: discount,
                   currency_code: currencyCode ?? "eur",
                 })}
               </span>
