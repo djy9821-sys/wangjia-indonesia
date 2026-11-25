@@ -274,8 +274,10 @@ export default async function initial_data_seed({
   ).run({
     input: {
       product_categories: [
-        { name: "Kincir Air (Aerator)", is_active: true },
-        { name: "Suku Cadang", is_active: true },
+        // handles set by hand: from the name the first one became "kincir-air-(aerator)",
+        // a link WhatsApp cuts at the bracket
+        { name: "Kincir Air (Aerator)", handle: "kincir-air", is_active: true },
+        { name: "Suku Cadang", handle: "suku-cadang", is_active: true },
       ],
     },
   });
@@ -357,11 +359,10 @@ ${KEUNGGULAN}
 
 **Isi paket (9 koli)**: 2 dus (motor, gearbox, 2 kopel, 2 pillow block, 1 set baut & mur), 2 pelampung, 2 impeller, 2 poros stainless, 1 penutup motor, 1 rangka stainless.
 
-${PERAWATAN}
-
-WANGJIA 1HP 双叶轮增氧水车：0.75 kW 电机，1:14 伞齿轮机械密封减速箱，SS304 机架与轴，HDPE 浮筒。单相/三相可选，另有 4SP 油封款。`,
+${PERAWATAN}`,
       weight: 62000,
       metadata: {
+        note_zh: "WANGJIA 1HP 双叶轮增氧水车：0.75 kW 电机，1:14 伞齿轮机械密封减速箱，SS304 机架与轴，HDPE 浮筒。单相/三相可选，另有 4SP 油封款。",
         brand: "WANGJIA",
         "spec:01 Tipe": "YC-0.75A (9 spline) · YC-90-4 (4SP)",
         "spec:02 Daya motor": "1 HP (0,75 kW), 1.400 rpm, 50 Hz",
@@ -397,11 +398,10 @@ ${KEUNGGULAN}
 
 **Isi paket (12 koli)**: 2 dus (motor, gearbox, 2 kopel, 2 pillow block, 1 set baut & mur), 3 pelampung, 4 impeller, 2 poros stainless, 1 penutup motor, 1 rangka stainless.
 
-${PERAWATAN}
-
-WANGJIA 2HP 四叶轮增氧水车：1.5 kW 电机，三浮筒，适合高密度养殖。单相/三相可选。`,
+${PERAWATAN}`,
       weight: 90000,
       metadata: {
+        note_zh: "WANGJIA 2HP 四叶轮增氧水车：1.5 kW 电机，三浮筒，适合高密度养殖。单相/三相可选。",
         brand: "WANGJIA",
         "spec:01 Tipe": "YC-1.5A (9 spline)",
         "spec:02 Daya motor": "2 HP (1,5 kW), 1.400 rpm, 50 Hz",
@@ -429,11 +429,10 @@ WANGJIA 2HP 四叶轮增氧水车：1.5 kW 电机，三浮筒，适合高密度�
       title: "Jet Aerator WANGJIA 2 HP",
       handle: "jet-aerator-wangjia-2-hp",
       subtitle: "3 phase · 2.800 rpm · DO > 0,75 kg O₂/jam",
-      description: `Jet aerator WANGJIA 2 HP untuk menambah oksigen terlarut sekaligus membuat arus di dasar kolam. Motor 3 phase 3,6 A, 2.800 rpm, gearbox bevel gear mechanical seal dari titanium alloy & manganese. Cocok dipadukan dengan kincir air pada tambak intensif atau kolam dalam.
-
-WANGJIA 2HP 射流增氧机：三相 3.6 A，2800 rpm，溶氧 >0.75 kg/h，适合与水车搭配用于深水池。`,
+      description: `Jet aerator WANGJIA 2 HP untuk menambah oksigen terlarut sekaligus membuat arus di dasar kolam. Motor 3 phase 3,6 A, 2.800 rpm, gearbox bevel gear mechanical seal dari titanium alloy & manganese. Cocok dipadukan dengan kincir air pada tambak intensif atau kolam dalam.`,
       weight: 45000,
       metadata: {
+        note_zh: "WANGJIA 2HP 射流增氧机：三相 3.6 A，2800 rpm，溶氧 >0.75 kg/h，适合与水车搭配用于深水池。",
         brand: "WANGJIA",
         "spec:01 Daya motor": "2 HP (1,5 kW), 2.800 rpm",
         "spec:02 Listrik": "3 phase 320–400 V, 3,6 A",
@@ -450,11 +449,10 @@ WANGJIA 2HP 射流增氧机：三相 3.6 A，2800 rpm，溶氧 >0.75 kg/h，适�
       title: "Kincir Air WANGJIA YC-055 Tanpa Gearbox",
       handle: "kincir-air-wangjia-yc-055",
       subtitle: "Motor anti karat & anti air 550 W · 2 impeller · direct drive",
-      description: `Kincir air model 2 kipas tanpa gearbox: motor 0,55 kW anti karat dan anti air langsung memutar poros, sehingga tidak perlu isi oli dan perawatannya minimal. Cocok untuk kolam kecil, kolam bundar, atau tambak tradisional. Tersedia 1 phase (220 V) dan 3 phase (380 V), 50 Hz.
-
-WANGJIA YC-055 直驱水车：0.55 kW 防水防锈电机，无齿轮箱免加油，适合小塘/圆池。`,
+      description: `Kincir air model 2 kipas tanpa gearbox: motor 0,55 kW anti karat dan anti air langsung memutar poros, sehingga tidak perlu isi oli dan perawatannya minimal. Cocok untuk kolam kecil, kolam bundar, atau tambak tradisional. Tersedia 1 phase (220 V) dan 3 phase (380 V), 50 Hz.`,
       weight: 35000,
       metadata: {
+        note_zh: "WANGJIA YC-055 直驱水车：0.55 kW 防水防锈电机，无齿轮箱免加油，适合小塘/圆池。",
         brand: "WANGJIA",
         "spec:01 Tipe": "YC-055 (direct drive, tanpa gearbox)",
         "spec:02 Daya motor": "0,55 kW (550 W), 50 Hz",
@@ -477,11 +475,10 @@ WANGJIA YC-055 直驱水车：0.55 kW 防水防锈电机，无齿轮箱免加油
       title: "Impeller (Kipas) Kincir WANGJIA",
       handle: "impeller-kincir-wangjia",
       subtitle: "PP tahan UV · model kaki bebek · Ø 67 cm · per pcs",
-      description: `Impeller kincir air WANGJIA dari polypropylene (PP) full cor tahan sinar UV, bentuk aerodinamis model kaki bebek sehingga buih oksigen maksimal. Lubang poros Ø 25 mm (1 inci) berlapis kuningan, daun kipas bisa dilepas-pasang. Cocok untuk kincir WANGJIA 1 HP & 2 HP dan merk lain dengan poros 25 mm. Harga per 1 pcs.
-
-WANGJIA 水车叶轮，PP 抗 UV，鸭掌型 8 叶，轴孔 25 mm 铜套，单只价。`,
+      description: `Impeller kincir air WANGJIA dari polypropylene (PP) full cor tahan sinar UV, bentuk aerodinamis model kaki bebek sehingga buih oksigen maksimal. Lubang poros Ø 25 mm (1 inci) berlapis kuningan, daun kipas bisa dilepas-pasang. Cocok untuk kincir WANGJIA 1 HP & 2 HP dan merk lain dengan poros 25 mm. Harga per 1 pcs.`,
       weight: 3000,
       metadata: {
+        note_zh: "WANGJIA 水车叶轮，PP 抗 UV，鸭掌型 8 叶，轴孔 25 mm 铜套，单只价。",
         brand: "WANGJIA",
         "spec:01 Bahan": "Polypropylene (PP) tahan UV, full cor",
         "spec:02 Diameter": "66–67 cm",
@@ -501,11 +498,10 @@ WANGJIA 水车叶轮，PP 抗 UV，鸭掌型 8 叶，轴孔 25 mm 铜套，单�
       title: "Gearbox Kincir WANGJIA (Bevel Gear 1:14)",
       handle: "gearbox-kincir-wangjia",
       subtitle: "Mechanical seal 9 spline · nylon / cast iron / stainless · untuk 1 HP & 2 HP",
-      description: `Gearbox (reducer) kincir WANGJIA tipe NR dengan bevel gear rasio 1:14 dan mechanical seal: 25 % lebih hemat listrik dibanding worm gear, ada tutup samping sehingga servis tanpa mengangkat motor, dan kebocoran oli jauh lebih kecil. Empat gear dari titanium alloy & manganese, poros keluar stainless SS304 dengan bearing roller. Pilih bahan rumah gearbox nylon (anti karat, 10 kg), cast iron (13 kg) atau stainless. Tersedia juga model lama 4 spline dengan oil seal. Satu gearbox untuk kincir 1 HP maupun 2 HP, kompatibel dengan merk lain bermodel 9 spline.
-
-WANGJIA 水车减速箱 NR 型：1:14 伞齿轮，机械密封，尼龙/铸铁/不锈钢壳体可选，另有 4SP 油封旧款。`,
+      description: `Gearbox (reducer) kincir WANGJIA tipe NR dengan bevel gear rasio 1:14 dan mechanical seal: 25 % lebih hemat listrik dibanding worm gear, ada tutup samping sehingga servis tanpa mengangkat motor, dan kebocoran oli jauh lebih kecil. Empat gear dari titanium alloy & manganese, poros keluar stainless SS304 dengan bearing roller. Pilih bahan rumah gearbox nylon (anti karat, 10 kg), cast iron (13 kg) atau stainless. Tersedia juga model lama 4 spline dengan oil seal. Satu gearbox untuk kincir 1 HP maupun 2 HP, kompatibel dengan merk lain bermodel 9 spline.`,
       weight: 12000,
       metadata: {
+        note_zh: "WANGJIA 水车减速箱 NR 型：1:14 伞齿轮，机械密封，尼龙/铸铁/不锈钢壳体可选，另有 4SP 油封旧款。",
         brand: "WANGJIA",
         "spec:01 Rasio": "1:14, bevel gear",
         "spec:02 Seal": "Mechanical seal (9 spline) · oil seal (4 spline)",
@@ -529,11 +525,10 @@ WANGJIA 水车减速箱 NR 型：1:14 伞齿轮，机械密封，尼龙/铸铁/�
       title: "Dinamo Motor Kincir WANGJIA",
       handle: "dinamo-motor-kincir-wangjia",
       subtitle: "1 HP / 2 HP · 1.400 rpm · kumparan tembaga murni",
-      description: `Elektromotor pengganti untuk kincir WANGJIA dan kincir lain dengan gearbox model NR 9 spline (Dolpin, Nanrong, Taiyihsun). Kumparan 100 % tembaga murni sehingga awet, stabil dan hemat listrik. 1 HP: 0,75 kW, 1,3–1,6 A. 2 HP: 1,5 kW, 3,6 A. 1.400 rpm, 50 Hz.
-
-WANGJIA 水车电机：1 HP / 2 HP，1400 rpm，纯铜线圈，9 花键轴。`,
+      description: `Elektromotor pengganti untuk kincir WANGJIA dan kincir lain dengan gearbox model NR 9 spline (Dolpin, Nanrong, Taiyihsun). Kumparan 100 % tembaga murni sehingga awet, stabil dan hemat listrik. 1 HP: 0,75 kW, 1,3–1,6 A. 2 HP: 1,5 kW, 3,6 A. 1.400 rpm, 50 Hz.`,
       weight: 18000,
       metadata: {
+        note_zh: "WANGJIA 水车电机：1 HP / 2 HP，1400 rpm，纯铜线圈，9 花键轴。",
         brand: "WANGJIA",
         "spec:01 Daya": "1 HP (0,75 kW) atau 2 HP (1,5 kW)",
         "spec:02 Listrik": "1 phase 220–280 V / 3 phase 320–420 V, 50 Hz",
@@ -555,11 +550,10 @@ WANGJIA 水车电机：1 HP / 2 HP，1400 rpm，纯铜线圈，9 花键轴。`,
       title: "Pelampung HDPE Kincir WANGJIA",
       handle: "pelampung-kincir-wangjia",
       subtitle: "175 × 32 × 20 cm · HDPE tahan UV · per pcs",
-      description: `Pelampung (floating boat) kincir WANGJIA dari HDPE tebal berkualitas tinggi, tahan sinar matahari (UV protection), tidak mudah bocor. Ukuran 175 × 32 × 20 cm, ±6,5 kg. Kincir 1 HP memakai 2 pcs, kincir 2 HP memakai 3 pcs. Harga per 1 pcs.
-
-WANGJIA 水车 HDPE 浮筒，175 × 32 × 20 cm，抗 UV，单只价。`,
+      description: `Pelampung (floating boat) kincir WANGJIA dari HDPE tebal berkualitas tinggi, tahan sinar matahari (UV protection), tidak mudah bocor. Ukuran 175 × 32 × 20 cm, ±6,5 kg. Kincir 1 HP memakai 2 pcs, kincir 2 HP memakai 3 pcs. Harga per 1 pcs.`,
       weight: 6500,
       metadata: {
+        note_zh: "WANGJIA 水车 HDPE 浮筒，175 × 32 × 20 cm，抗 UV，单只价。",
         brand: "WANGJIA",
         "spec:01 Bahan": "HDPE tebal, UV protection",
         "spec:02 Dimensi": "175 × 32 × 20 cm",
@@ -574,11 +568,9 @@ WANGJIA 水车 HDPE 浮筒，175 × 32 × 20 cm，抗 UV，单只价。`,
       title: "Penutup Motor HDPE Kincir WANGJIA",
       handle: "penutup-motor-kincir-wangjia",
       subtitle: "Motor cover HDPE tahan UV",
-      description: `Penutup motor (motor cover) kincir WANGJIA dari HDPE spesial dengan UV protection, melindungi dinamo dari hujan dan cipratan air tambak. Cocok untuk kincir 1 HP dan 2 HP.
-
-WANGJIA 水车电机罩，HDPE 抗 UV。`,
+      description: `Penutup motor (motor cover) kincir WANGJIA dari HDPE spesial dengan UV protection, melindungi dinamo dari hujan dan cipratan air tambak. Cocok untuk kincir 1 HP dan 2 HP.`,
       weight: 2500,
-      metadata: { brand: "WANGJIA", "spec:01 Bahan": "HDPE spesial, UV protection", "spec:02 Kompatibel": "Kincir 1 HP & 2 HP" },
+      metadata: { note_zh: "WANGJIA 水车电机罩，HDPE 抗 UV。", brand: "WANGJIA", "spec:01 Bahan": "HDPE spesial, UV protection", "spec:02 Kompatibel": "Kincir 1 HP & 2 HP" },
       ...single("WJ-COVER", 350_000),
     },
     {
@@ -587,11 +579,9 @@ WANGJIA 水车电机罩，HDPE 抗 UV。`,
       title: "Gear Set 9 Spline Gearbox WANGJIA (4 Gear)",
       handle: "gear-set-9-spline-wangjia",
       subtitle: "Bevel gear titanium alloy & manganese · untuk gearbox model NR",
-      description: `Satu set 4 gear bevel pengganti untuk gearbox kincir WANGJIA model NR 9 spline (mechanical seal). Bahan titanium alloy & manganese, tahan aus. Ganti gear jika gearbox berbunyi kasar atau putaran impeller melemah.
-
-WANGJIA 水车减速箱 9 花键伞齿轮 4 件套。`,
+      description: `Satu set 4 gear bevel pengganti untuk gearbox kincir WANGJIA model NR 9 spline (mechanical seal). Bahan titanium alloy & manganese, tahan aus. Ganti gear jika gearbox berbunyi kasar atau putaran impeller melemah.`,
       weight: 4000,
-      metadata: { brand: "WANGJIA", "spec:01 Isi": "4 gear bevel (1 set)", "spec:02 Bahan": "Titanium alloy & manganese", "spec:03 Untuk": "Gearbox model NR, 9 spline" },
+      metadata: { note_zh: "WANGJIA 水车减速箱 9 花键伞齿轮 4 件套。", brand: "WANGJIA", "spec:01 Isi": "4 gear bevel (1 set)", "spec:02 Bahan": "Titanium alloy & manganese", "spec:03 Untuk": "Gearbox model NR, 9 spline" },
       ...single("WJ-GEAR-9SP", 950_000),
     },
     {
@@ -600,11 +590,9 @@ WANGJIA 水车减速箱 9 花键伞齿轮 4 件套。`,
       title: "Pillow Block (Dudukan AS) Kincir WANGJIA",
       handle: "pillow-block-kincir-wangjia",
       subtitle: "Double roller · 3 posisi tinggi · per pcs",
-      description: `Pillow block atau pangkon AS kincir WANGJIA dengan sistem double roller (bambu roller) sehingga putaran stabil dan ampere motor rendah. Tinggi dudukan bisa diatur dalam 3 posisi. Tinggi 125 mm. Harga per 1 pcs (1 kincir memakai 2 pcs).
-
-WANGJIA 水车轴座，双滚轮，三档可调，单只价。`,
+      description: `Pillow block atau pangkon AS kincir WANGJIA dengan sistem double roller (bambu roller) sehingga putaran stabil dan ampere motor rendah. Tinggi dudukan bisa diatur dalam 3 posisi. Tinggi 125 mm. Harga per 1 pcs (1 kincir memakai 2 pcs).`,
       weight: 1200,
-      metadata: { brand: "WANGJIA", "spec:01 Model": "Double roller, adjustable 3 posisi", "spec:02 Tinggi": "125 mm", "spec:03 Kebutuhan": "2 pcs per kincir" },
+      metadata: { note_zh: "WANGJIA 水车轴座，双滚轮，三档可调，单只价。", brand: "WANGJIA", "spec:01 Model": "Double roller, adjustable 3 posisi", "spec:02 Tinggi": "125 mm", "spec:03 Kebutuhan": "2 pcs per kincir" },
       ...single("WJ-PB", 90_000),
     },
     {
@@ -613,11 +601,9 @@ WANGJIA 水车轴座，双滚轮，三档可调，单只价。`,
       title: "Kopel (Moveable Joint) Kincir WANGJIA",
       handle: "kopel-kincir-wangjia",
       subtitle: "6 pin · karet kuat · cast iron atau stainless · per pcs",
-      description: `Kopel / moveable joint penghubung gearbox ke poros impeller, dengan 6 titik kunci (6 pin) dan karet kuat sehingga lebih kokoh. Pilihan bahan cast iron atau stainless anti karat. Kompatibel dengan semua kincir berporos standar 25 mm. Harga per 1 pcs (1 kincir memakai 2 pcs).
-
-WANGJIA 水车联轴器，6 销橡胶缓冲，铸铁/不锈钢可选，单只价。`,
+      description: `Kopel / moveable joint penghubung gearbox ke poros impeller, dengan 6 titik kunci (6 pin) dan karet kuat sehingga lebih kokoh. Pilihan bahan cast iron atau stainless anti karat. Kompatibel dengan semua kincir berporos standar 25 mm. Harga per 1 pcs (1 kincir memakai 2 pcs).`,
       weight: 1500,
-      metadata: { brand: "WANGJIA", "spec:01 Model": "6 pin circle coupling, karet kuat", "spec:02 Lubang poros": "Ø 25 mm", "spec:03 Kebutuhan": "2 pcs per kincir" },
+      metadata: { note_zh: "WANGJIA 水车联轴器，6 销橡胶缓冲，铸铁/不锈钢可选，单只价。", brand: "WANGJIA", "spec:01 Model": "6 pin circle coupling, karet kuat", "spec:02 Lubang poros": "Ø 25 mm", "spec:03 Kebutuhan": "2 pcs per kincir" },
       options: [{ title: "Bahan", values: ["Cast iron", "Stainless"] }],
       variants: [
         { title: "Cast iron", sku: "WJ-MJ-CI", options: { Bahan: "Cast iron" }, manage_inventory: false, prices: idr(125_000) },
@@ -630,11 +616,9 @@ WANGJIA 水车联轴器，6 销橡胶缓冲，铸铁/不锈钢可选，单只价
       title: "Poros (AS) Stainless Kincir WANGJIA",
       handle: "as-kincir-wangjia",
       subtitle: "Solid SS304 · Ø 25 mm × 550 mm · per pcs",
-      description: `Poros (shaft / AS) kincir WANGJIA dari stainless steel SS304 full solid (padat), bukan pipa sepuh, sehingga tidak karatan dan tidak bengkok. Ukuran Ø 25 mm (1 inci) × 550 mm. Kompatibel dengan kincir merk lain model 2 kipas. Harga per 1 pcs (1 kincir memakai 2 pcs).
-
-WANGJIA 水车 SS304 实心轴，Ø25 × 550 mm，单根价。`,
+      description: `Poros (shaft / AS) kincir WANGJIA dari stainless steel SS304 full solid (padat), bukan pipa sepuh, sehingga tidak karatan dan tidak bengkok. Ukuran Ø 25 mm (1 inci) × 550 mm. Kompatibel dengan kincir merk lain model 2 kipas. Harga per 1 pcs (1 kincir memakai 2 pcs).`,
       weight: 2200,
-      metadata: { brand: "WANGJIA", "spec:01 Bahan": "Stainless steel SS304 full solid", "spec:02 Ukuran": "Ø 25 mm × 550 mm", "spec:03 Kebutuhan": "2 pcs per kincir" },
+      metadata: { note_zh: "WANGJIA 水车 SS304 实心轴，Ø25 × 550 mm，单根价。", brand: "WANGJIA", "spec:01 Bahan": "Stainless steel SS304 full solid", "spec:02 Ukuran": "Ø 25 mm × 550 mm", "spec:03 Kebutuhan": "2 pcs per kincir" },
       ...single("WJ-SHAFT", 325_000),
     },
     {
@@ -643,11 +627,9 @@ WANGJIA 水车 SS304 实心轴，Ø25 × 550 mm，单根价。`,
       title: "Rangka (Frame) Stainless Kincir WANGJIA",
       handle: "rangka-kincir-wangjia",
       subtitle: "SS304 · 107 × 35 cm (1 HP) · tersedia model 4 kipas",
-      description: `Rangka / frame kincir WANGJIA dari stainless steel SS304, penyambung pelampung sekaligus dudukan gearbox dan motor. Ukuran model 1 HP (2 kipas) 107 × 35 cm; tersedia juga model 2 HP (4 kipas). Kompatibel dengan kincir Dolpin, Nanrong, Taiyihsun dan merk lain model 1 HP.
-
-WANGJIA 水车 SS304 机架，1 HP 款 107 × 35 cm，另有 2 HP 四叶轮款。`,
+      description: `Rangka / frame kincir WANGJIA dari stainless steel SS304, penyambung pelampung sekaligus dudukan gearbox dan motor. Ukuran model 1 HP (2 kipas) 107 × 35 cm; tersedia juga model 2 HP (4 kipas). Kompatibel dengan kincir Dolpin, Nanrong, Taiyihsun dan merk lain model 1 HP.`,
       weight: 9000,
-      metadata: { brand: "WANGJIA", "spec:01 Bahan": "Stainless steel SS304", "spec:02 Ukuran": "1 HP: 107 × 35 cm · 2 HP: model 4 kipas", "spec:03 Kompatibel": "WANGJIA, Dolpin, Nanrong, Taiyihsun (1 HP)" },
+      metadata: { note_zh: "WANGJIA 水车 SS304 机架，1 HP 款 107 × 35 cm，另有 2 HP 四叶轮款。", brand: "WANGJIA", "spec:01 Bahan": "Stainless steel SS304", "spec:02 Ukuran": "1 HP: 107 × 35 cm · 2 HP: model 4 kipas", "spec:03 Kompatibel": "WANGJIA, Dolpin, Nanrong, Taiyihsun (1 HP)" },
       options: [{ title: "Tipe", values: ["1 HP (2 kipas)", "2 HP (4 kipas)"] }],
       variants: [
         { title: "1 HP (2 kipas)", sku: "WJ-FRAME-1HP", options: { Tipe: "1 HP (2 kipas)" }, manage_inventory: false, prices: idr(750_000) },
@@ -660,11 +642,9 @@ WANGJIA 水车 SS304 机架，1 HP 款 107 × 35 cm，另有 2 HP 四叶轮款�
       title: "Mechanical Seal + Tutup Samping Gearbox 9 Spline",
       handle: "mechanical-seal-kincir-wangjia",
       subtitle: "1 set: mechanical seal + tutupan stainless",
-      description: `Satu set mechanical seal dan tutup samping (stainless) untuk gearbox kincir model 9 spline — WANGJIA, Dolpin, dan merk lain yang sama modelnya. Ganti seal bila oli gearbox merembes.
-
-WANGJIA 9 花键减速箱机械密封 + 不锈钢侧盖，1 套。`,
+      description: `Satu set mechanical seal dan tutup samping (stainless) untuk gearbox kincir model 9 spline — WANGJIA, Dolpin, dan merk lain yang sama modelnya. Ganti seal bila oli gearbox merembes.`,
       weight: 600,
-      metadata: { brand: "WANGJIA", "spec:01 Isi": "Mechanical seal + tutup samping stainless (1 set)", "spec:02 Untuk": "Gearbox model 9 spline (WANGJIA, Dolpin, dll.)" },
+      metadata: { note_zh: "WANGJIA 9 花键减速箱机械密封 + 不锈钢侧盖，1 套。", brand: "WANGJIA", "spec:01 Isi": "Mechanical seal + tutup samping stainless (1 set)", "spec:02 Untuk": "Gearbox model 9 spline (WANGJIA, Dolpin, dll.)" },
       ...single("WJ-MSEAL", 275_000),
     },
   ];

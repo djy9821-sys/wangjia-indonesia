@@ -20,7 +20,9 @@ import { WANGJIA_PRODUCTS } from "../migration-scripts/initial-data-seed";
   - A product whose options (titles or values) changed in the seed is deleted
     and re-created; orders keep their own line-item snapshots.
 */
-const CATEGORIES = ["Kincir Air (Aerator)", "Suku Cadang"];
+// handles as in the seed: a bracket in a link breaks it in WhatsApp
+const HANDLES: Record<string, string> = { "Kincir Air (Aerator)": "kincir-air", "Suku Cadang": "suku-cadang" };
+const CATEGORIES = Object.keys(HANDLES);
 
 export async function syncCatalog(container: MedusaContainer, { recreate = false } = {}) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
@@ -31,7 +33,7 @@ export async function syncCatalog(container: MedusaContainer, { recreate = false
   const missingCats = CATEGORIES.filter((n) => !categories.some((c) => c.name === n));
   if (missingCats.length) {
     await createProductCategoriesWorkflow(container).run({
-      input: { product_categories: missingCats.map((name) => ({ name, is_active: true })) },
+      input: { product_categories: missingCats.map((name) => ({ name, handle: HANDLES[name], is_active: true })) },
     });
     categories = await productModule.listProductCategories({ name: CATEGORIES });
   }
