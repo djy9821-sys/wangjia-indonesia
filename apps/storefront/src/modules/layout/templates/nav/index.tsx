@@ -1,4 +1,5 @@
 import { SEARCH_PRICE_CURRENCIES } from "@/lib/search-client"
+import { asset, IS_PREVIEW } from "@/lib/util/preview"
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
 import LogoIcon from "@/modules/common/icons/logo"
 import { MegaMenuWrapper } from "@/modules/layout/components/mega-menu"
@@ -23,7 +24,7 @@ export async function NavigationHeader({
               href="/"
             >
               <span className="small:text-base text-sm font-medium flex items-center">
-                <img src="/wangjia-logo-horizontal.png" alt="WANGJIA" width={1444} height={400} data-logo="ink" className="h-9 w-[130px] shrink-0 object-contain" />
+                <img src={asset("/wangjia-logo-horizontal.png")} alt="WANGJIA" width={1444} height={400} data-logo="ink" className="h-9 w-[130px] shrink-0 object-contain" />
                 {/* the white logo, shown instead on the night pages (home and products), see globals.css */}
                 <Image src="/wangjia-logo-white.png" alt="WANGJIA" width={289} height={80} data-logo="night" className="hidden h-9 w-[130px] shrink-0 object-contain" />
               </span>
@@ -40,9 +41,13 @@ export async function NavigationHeader({
             </nav>
           </div>
           <div className="flex justify-end items-center gap-2">
-            <Search currencyCode={currencyCode} />
-
-            <div className="h-4 w-px bg-neutral-300" />
+            {/* search, sign-in and quotes need the backend: not in the browse-only copy */}
+            {!IS_PREVIEW && (
+              <>
+                <Search currencyCode={currencyCode} />
+                <div className="h-4 w-px bg-neutral-300" />
+              </>
+            )}
 
             <NavSessionActions />
           </div>

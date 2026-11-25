@@ -3,6 +3,7 @@ import RefinementList from "@/modules/store/components/refinement-list"
 import { SortOptions } from "@/modules/store/components/refinement-list/sort-products"
 import StoreBreadcrumb from "@/modules/store/components/store-breadcrumb"
 import PaginatedProducts from "@/modules/store/templates/paginated-products"
+import "@/modules/store/templates/listing.css"
 import { HttpTypes } from "@medusajs/types"
 import { Suspense } from "react"
 
@@ -21,7 +22,7 @@ const StoreTemplate = ({
   const sort = sortBy || "created_at"
 
   return (
-    <div className="bg-neutral-100">
+    <div data-wj-list className="wj-list">
       <div
         className="flex flex-col py-6 content-container gap-4"
         data-testid="category-container"

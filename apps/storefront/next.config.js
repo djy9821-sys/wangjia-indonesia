@@ -10,11 +10,19 @@ const backend = new URL(
 )
 const backendIsLocal = ["localhost", "127.0.0.1"].includes(backend.hostname)
 
+// The browse-only copy for GitHub Pages (scripts/build-preview.mjs, src/lib/util/preview.ts):
+// built under the repository's path into its own folder, with pictures from files made ahead,
+// because a static host has no image service.
+const preview = process.env.NEXT_PUBLIC_WJ_PREVIEW === "1"
+
 /**
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
   reactStrictMode: true,
+  ...(preview
+    ? { basePath: process.env.NEXT_PUBLIC_BASE_PATH || "", distDir: ".next-preview" }
+    : {}),
   agentRules: false,
   async headers() {
     return [
@@ -53,6 +61,9 @@ const nextConfig = {
   },
   images: {
     qualities: [50, 75],
+    ...(preview
+      ? { loader: "custom", loaderFile: "./src/lib/preview-image-loader.js" }
+      : {}),
     // on a developer's machine the backend is localhost, which Next 16 refuses unless told
     dangerouslyAllowLocalIP: backendIsLocal,
     remotePatterns: [

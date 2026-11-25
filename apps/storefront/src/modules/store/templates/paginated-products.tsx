@@ -1,3 +1,4 @@
+import { IS_PREVIEW } from "@/lib/util/preview"
 import { listProductsWithSort } from "@/lib/data/products"
 import { getRegion } from "@/lib/data/regions"
 import ProductPreview from "@/modules/products/components/product-preview"
@@ -6,7 +7,8 @@ import { SortOptions } from "@/modules/store/components/refinement-list/sort-pro
 import { B2BCustomer } from "@/types"
 import { Container } from "@medusajs/ui"
 
-const PRODUCT_LIMIT = 12
+// the browse-only copy cannot follow ?page=2, so it shows every product on one page
+const PRODUCT_LIMIT = IS_PREVIEW ? 100 : 12
 
 type PaginatedProductsParams = {
   limit: number
@@ -37,7 +39,7 @@ export default async function PaginatedProducts({
   optionValueIds?: string[]
 }) {
   const queryParams: PaginatedProductsParams = {
-    limit: 12,
+    limit: PRODUCT_LIMIT,
   }
 
   if (collectionId) {

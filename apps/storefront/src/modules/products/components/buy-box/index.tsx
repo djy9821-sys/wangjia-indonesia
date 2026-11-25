@@ -1,6 +1,7 @@
 "use client"
 
 import { addToCartEventBus } from "@/lib/data/cart-event-bus"
+import { IS_PREVIEW } from "@/lib/util/preview"
 import { getProductPrice } from "@/lib/util/get-product-price"
 import { isVariantInStock } from "@/lib/util/inventory"
 import { whatsappLink } from "@/lib/util/whatsapp"
@@ -70,6 +71,8 @@ export default function BuyBox({ product, region }: { product: HttpTypes.StorePr
       return
     }
     addToCartEventBus.emitCartAdd({ lineItems: [{ productVariant: { ...selected, product }, quantity: qty }], regionId: region.id })
+    // the browse-only copy only says it cannot order yet (cart-context.tsx)
+    if (IS_PREVIEW) return
     setAdded(true)
     window.setTimeout(() => setAdded(false), 2400)
   }

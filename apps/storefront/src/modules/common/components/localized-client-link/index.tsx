@@ -1,5 +1,6 @@
 "use client"
 
+import { BASE_PATH, IS_PREVIEW } from "@/lib/util/preview"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import React from "react"
@@ -21,6 +22,16 @@ const LocalizedClientLink = ({
   [x: string]: any
 }) => {
   const { countryCode } = useParams()
+
+  if (IS_PREVIEW) {
+    // the browse-only copy has no server for client-side navigation: plain page loads
+    const { prefetch, passHref, replace, scroll, shallow, ...rest } = props
+    return (
+      <a href={`${BASE_PATH}/${countryCode}${href}`} {...rest}>
+        {children}
+      </a>
+    )
+  }
 
   return (
     <Link href={`/${countryCode}${href}`} {...props}>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useSession } from "@/lib/context/session-context"
+import { IS_PREVIEW } from "@/lib/util/preview"
 import AccountButton from "@/modules/account/components/account-button"
 import CartButton from "@/modules/cart/components/cart-button"
 import FilePlus from "@/modules/common/icons/file-plus"
@@ -16,6 +17,10 @@ const QuoteButton = () => (
 
 export default function NavSessionActions() {
   const { customer, cart } = useSession()
+
+  if (IS_PREVIEW) {
+    return <CartButton />
+  }
 
   return (
     <>

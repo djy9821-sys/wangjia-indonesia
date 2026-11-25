@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import type { AnchorName, Phase, PondScene } from "./scene"
+import { asset } from "@/lib/util/preview"
 
 /*
   The fixed scene behind the night home page and everything that moves:
@@ -315,9 +316,9 @@ export default function NightStage({ family }: { family: string }) {
     <>
       {/* A poster frame of the same scene: the first paint, and the picture when WebGL is missing. */}
       <picture className="poster">
-        <source media="(max-aspect-ratio: 7/10)" srcSet="/home/night-poster-p.webp" />
-        <source media="(max-aspect-ratio: 13/10)" srcSet="/home/night-poster-s.webp" />
-        <img src="/home/night-poster-l.webp" alt="" fetchPriority="high" decoding="async" />
+        <source media="(max-aspect-ratio: 7/10)" srcSet={asset("/home/night-poster-p.webp")} />
+        <source media="(max-aspect-ratio: 13/10)" srcSet={asset("/home/night-poster-s.webp")} />
+        <img src={asset("/home/night-poster-l.webp")} alt="" fetchPriority="high" decoding="async" />
       </picture>
       <canvas ref={canvasRef} className="scene" aria-hidden="true" />
       <div className="veil" aria-hidden="true" />

@@ -7,6 +7,7 @@ import {
   updateLineItem,
 } from "@/lib/data/cart"
 import { addToCartEventBus } from "@/lib/data/cart-event-bus"
+import { IS_PREVIEW } from "@/lib/util/preview"
 import { ApprovalStatusType } from "@/types/approval"
 import { B2BCart } from "@/types/global"
 import type {
@@ -77,6 +78,12 @@ export function CartProvider({
 
   const handleOptimisticAddToCart = useCallback(
     async (payload: AddToCartEventPayload) => {
+      if (IS_PREVIEW) {
+        // the browse-only copy has no cart to put it in (an optimistic item would vanish at once)
+        toast.info("Versi pratinjau · 预览版：还不能加入购物车和下单")
+        return
+      }
+
       let prevCart = {} as B2BCart
 
       if (
@@ -84,7 +91,7 @@ export function CartProvider({
           (approval) => approval.status === ApprovalStatusType.PENDING
         )
       ) {
-        toast.error("Cart is locked for approval.")
+        toast.error("Keranjang sedang menunggu persetujuan.")
         return
       }
 
@@ -109,6 +116,8 @@ export function CartProvider({
               newItems[existingItemIndex] = {
                 ...item,
                 quantity: item.quantity + lineItem.quantity,
+                subtotal:
+                  (item.subtotal || 0) + lineItem.quantity * item.unit_price,
                 total: (item.total || 0) + lineItem.quantity * item.unit_price,
                 original_total:
                   (item.original_total || 0) +
@@ -174,9 +183,9 @@ export function CartProvider({
           .then(onCartUpdated)
           .catch((e) => {
             if (e.message === "Cart is pending approval") {
-              toast.error("Cart is locked for approval.")
+              toast.error("Keranjang sedang menunggu persetujuan.")
             } else {
-              toast.error("Failed to add to cart")
+              toast.error("Gagal menambahkan ke keranjang")
             }
             setOptimisticCart(prevCart)
           })

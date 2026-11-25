@@ -45,6 +45,8 @@
   "exclude": [
     "node_modules",
     ".next",
+    ".next-preview",
+    ".preview",
     ".nyc_output",
     "coverage",
     "jest-coverage"

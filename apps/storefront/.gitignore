@@ -16,6 +16,10 @@
 /.next/
 /out/
 
+# the browse-only copy (scripts/build-preview.mjs)
+/.next-preview/
+/.preview/
+
 # production
 /build
 

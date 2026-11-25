@@ -10,6 +10,7 @@ import {
   useEffect,
   useState,
 } from "react"
+import { IS_PREVIEW } from "@/lib/util/preview"
 
 type SessionContextValue = StorefrontSession & {
   refreshSession: () => Promise<void>
@@ -50,7 +51,8 @@ export function SessionProvider({
   }, [serverSession])
 
   useEffect(() => {
-    if (!hasServerSession) {
+    // the browse-only copy has no server to ask
+    if (!hasServerSession && !IS_PREVIEW) {
       refreshSession()
     }
   }, [hasServerSession, pathname, refreshSession])

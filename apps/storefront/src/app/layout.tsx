@@ -1,4 +1,5 @@
 import { getBaseURL } from "@/lib/util/env"
+import { IS_PREVIEW } from "@/lib/util/preview"
 import { Toaster } from "@medusajs/ui"
 import { Analytics } from "@vercel/analytics/next"
 import { GeistSans } from "geist/font/sans"
@@ -7,6 +8,8 @@ import "@/styles/globals.css"
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
+  // the browse-only copy is for people with the link, not for search engines
+  ...(IS_PREVIEW ? { robots: { index: false, follow: false } } : {}),
 }
 
 export default function RootLayout(props: { children: React.ReactNode }) {
@@ -21,7 +24,8 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <body className="bg-white">
         <main className="relative">{props.children}</main>
         <Toaster className="z-[99999]" position="bottom-left" />
-        <Analytics />
+        {/* Vercel's analytics script exists only on Vercel; elsewhere every page asked for it in vain */}
+        {process.env.NEXT_PUBLIC_VERCEL_ENV && <Analytics />}
       </body>
     </html>
   )
