@@ -1,0 +1,101 @@
+/*
+  Listing pages (all products, categories, collections) in the night of the home page and the
+  product pages (mock-up A2): the same ink, lines, greys and one accent. The filters, the sort,
+  checkboxes and pagination are Medusa UI pieces that draw from its CSS variables, so those
+  variables take night values inside .wj-list. The product card uses the same variables and
+  stays light on the paper band under a product page. The header joins the night in globals.css.
+*/
+body:has([data-wj-list]) [data-announce] { background: #0a1222; color: #a7b1c4; border-bottom: 1px solid rgba(190, 210, 255, 0.12); }
+
+.wj-list {
+  --ink-1: #060b15;
+  --ink-2: #0a1222;
+  --text: #f2f4f7;
+
+  --bg-base: #0b1426;
+  --bg-base-hover: #111c33;
+  --bg-base-pressed: #16223d;
+  --bg-subtle: #081020;
+  --bg-subtle-hover: #0e182b;
+  --bg-subtle-pressed: #131f37;
+  --bg-component: #121d35;
+  --bg-component-hover: #17243f;
+  --bg-component-pressed: #1c2a48;
+  --bg-field: rgba(255, 255, 255, 0.04);
+  --bg-field-hover: rgba(255, 255, 255, 0.07);
+  --bg-field-component: #0b1426;
+  --bg-field-component-hover: #111c33;
+  --bg-highlight: rgba(255, 181, 71, 0.1);
+  --bg-highlight-hover: rgba(255, 181, 71, 0.16);
+  --bg-interactive: #ffb547;
+  --bg-switch-off: rgba(190, 210, 255, 0.2);
+  --bg-switch-off-hover: rgba(190, 210, 255, 0.28);
+  --bg-disabled: rgba(255, 255, 255, 0.04);
+  --bg-overlay: rgba(3, 6, 12, 0.6);
+  --border-base: rgba(190, 210, 255, 0.12);
+  --border-strong: rgba(190, 210, 255, 0.24);
+  --border-interactive: #ffb547;
+  --fg-base: #f2f4f7;
+  --fg-subtle: #a7b1c4;
+  --fg-muted: #7f8aa0;
+  --fg-disabled: #4f5a70;
+  --fg-interactive: #ffb547;
+  --fg-interactive-hover: #ffcb80;
+  --fg-on-color: #1a1205;
+  --fg-on-inverted: #060b15;
+  --button-inverted: #f2f4f7;
+  --button-inverted-hover: #ffffff;
+  --button-inverted-pressed: #dfe4ec;
+  --button-neutral: rgba(255, 255, 255, 0.04);
+  --button-neutral-hover: rgba(255, 255, 255, 0.08);
+  --button-neutral-pressed: rgba(255, 255, 255, 0.12);
+  --button-transparent-hover: rgba(255, 255, 255, 0.06);
+  --button-transparent-pressed: rgba(255, 255, 255, 0.1);
+  --borders-base: 0 0 0 1px rgba(190, 210, 255, 0.12);
+  --buttons-neutral: 0 0 0 1px rgba(190, 210, 255, 0.24);
+  --borders-interactive-with-active: 0 0 0 1px #ffb547, 0 0 0 4px rgba(255, 181, 71, 0.2);
+  --borders-interactive-with-focus: 0 0 0 1px #ffb547, 0 0 0 2px #060b15, 0 0 0 4px rgba(255, 181, 71, 0.6);
+  --borders-interactive-with-shadow: 0 0 0 1px #ffb547;
+  --borders-focus: 0 0 0 1px #060b15, 0 0 0 3px rgba(255, 181, 71, 0.6);
+  --wj-card-hover: rgba(190, 210, 255, 0.5);
+  color: var(--text);
+  color-scheme: dark;
+  background: radial-gradient(900px 560px at 8% -4%, rgba(120, 150, 255, 0.12), transparent 70%), var(--ink-1);
+  -webkit-font-smoothing: antialiased;
+}
+.wj-list ::selection { background: rgba(255, 181, 71, 0.35); color: var(--text); }
+
+/* the product card, in both themes */
+@media (hover: hover) {
+  .wj-card:hover { box-shadow: 0 0 0 1px var(--wj-card-hover, rgba(0, 0, 0, 0.24)); }
+}
+
+/* a catalogue photo: its white square multiplied onto a pool of light */
+.wj-card-media { isolation: isolate; }
+.wj-list .wj-card-media {
+  background:
+    radial-gradient(ellipse 70% 70% at 50% 50%, #eef1f6 0%, #e4e9f1 50%, rgba(228, 233, 241, 0) 100%),
+    linear-gradient(180deg, #121d3d, #070d1b);
+}
+
+/* a machine on night water, the stage of its product page in small: sky, a low moon, the
+   horizon, dark water and the reflection (percent radii: the stage is square) */
+.wj-card-stage { isolation: isolate; }
+.wj-list .wj-card-stage {
+  background:
+    radial-gradient(3.4% 3.4% at 16% 16%, #f3efe2 82%, rgba(243, 239, 226, 0) 100%),
+    radial-gradient(30% 30% at 16% 16%, rgba(185, 200, 255, 0.22), rgba(185, 200, 255, 0)),
+    linear-gradient(180deg, #121d3d 0%, #0d1631 63.4%, #1a2647 63.8%, #0b1326 67%, #060b15 100%);
+}
+.wj-card-machine, .wj-card-reflect { position: absolute; left: 8%; right: 8%; height: 36%; }
+.wj-card-machine { top: 28%; }
+.wj-card-reflect {
+  display: none;
+  top: 64%;
+  transform: scaleY(-1);
+  opacity: 0.3;
+  filter: blur(1.5px);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 72%);
+  mask-image: linear-gradient(to top, #000 0%, transparent 72%);
+}
+.wj-list .wj-card-reflect { display: block; }

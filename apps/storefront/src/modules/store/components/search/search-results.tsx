@@ -39,17 +39,17 @@ const SearchResults = ({ currencyCode }: { currencyCode: string }) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <Text className="text-sm text-neutral-500" data-testid="product-count">
+      <Text className="text-sm text-ui-fg-muted" data-testid="product-count">
         {nbHits} produk
       </Text>
 
       {items.length === 0 ? (
-        <Container className="text-center text-sm text-neutral-500">
+        <Container className="text-center text-sm text-ui-fg-muted">
           Tidak ada produk yang cocok dengan filter ini.
         </Container>
       ) : (
         <ul
-          className="grid grid-cols-1 w-full small:grid-cols-3 medium:grid-cols-4 gap-3"
+          className="grid w-full grid-cols-2 gap-3 small:grid-cols-3 medium:grid-cols-4"
           data-testid="products-list"
         >
           {items.map((hit) => (

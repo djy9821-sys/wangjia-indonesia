@@ -2,7 +2,6 @@
 
 import { addToCartEventBus } from "@/lib/data/cart-event-bus"
 import { StoreProduct, StoreRegion } from "@medusajs/types"
-import { Button } from "@medusajs/ui"
 import ShoppingBag from "@/modules/common/icons/shopping-bag"
 import { useState } from "react"
 
@@ -36,17 +35,15 @@ const PreviewAddToCart = ({
     setIsAdding(false)
   }
   return (
-    <Button
-      className="rounded-full p-3 border-none shadow-none"
-      aria-label={`Add ${product.title} to cart`}
-      onClick={(e) => {
-        e.preventDefault()
-        handleAddToCart()
-      }}
-      isLoading={isAdding}
+    <button
+      type="button"
+      className="grid h-11 w-11 place-items-center rounded-full bg-ui-button-inverted text-ui-fg-on-inverted transition-transform duration-150 active:scale-[0.97] disabled:opacity-60"
+      aria-label={`Tambah ${product.title} ke keranjang`}
+      onClick={handleAddToCart}
+      disabled={isAdding}
     >
-      <ShoppingBag fill="#fff" />
-    </Button>
+      <ShoppingBag fill="currentColor" width={16} height={16} />
+    </button>
   )
 }
 

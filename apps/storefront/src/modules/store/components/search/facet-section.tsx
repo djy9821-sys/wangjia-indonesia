@@ -14,8 +14,8 @@ const FacetSection = ({
   <AccordionPrimitive.Item value={value} className="px-4 py-3">
     <AccordionPrimitive.Header>
       <AccordionPrimitive.Trigger className="group flex w-full items-center justify-between">
-        <Text className="text-sm font-medium text-neutral-950">{title}</Text>
-        <div className="relative w-[18px] h-[18px]">
+        <Text className="text-sm font-medium text-ui-fg-base">{title}</Text>
+        <div className="relative h-[18px] w-[18px] text-ui-fg-muted">
           <CircleMinus className="absolute inset-0 opacity-0 group-data-[state=open]:opacity-100" />
           <CirclePlus className="absolute inset-0 opacity-100 group-data-[state=open]:opacity-0" />
         </div>

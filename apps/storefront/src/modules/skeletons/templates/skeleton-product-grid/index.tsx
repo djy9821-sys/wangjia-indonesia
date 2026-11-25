@@ -6,7 +6,7 @@ const SkeletonProductGrid = ({ count = 8 }: { count?: number }) => {
 
   return (
     <ul
-      className="grid grid-cols-1 small:grid-cols-3 medium:grid-cols-4 gap-3 flex-1"
+      className="grid flex-1 grid-cols-2 gap-3 small:grid-cols-3 medium:grid-cols-4"
       data-testid="products-list-loader"
     >
       {repeat(countToRender).map((index) => (

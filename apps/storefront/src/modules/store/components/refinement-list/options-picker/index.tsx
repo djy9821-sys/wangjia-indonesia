@@ -60,7 +60,7 @@ const OptionsPicker = ({ options }: OptionsPickerProps) => {
       <AccordionPrimitive.Root
         type="multiple"
         defaultValue={options.map((o) => o.id)}
-        className="divide-y divide-neutral-200"
+        className="divide-y divide-ui-border-base"
       >
         {options.map((option) => (
           <AccordionPrimitive.Item
@@ -70,10 +70,10 @@ const OptionsPicker = ({ options }: OptionsPickerProps) => {
           >
             <AccordionPrimitive.Header>
               <AccordionPrimitive.Trigger className="group flex w-full items-center justify-between">
-                <Text className="text-sm font-medium text-neutral-950">
+                <Text className="text-sm font-medium text-ui-fg-base">
                   {option.title}
                 </Text>
-                <div className="relative w-[18px] h-[18px]">
+                <div className="relative h-[18px] w-[18px] text-ui-fg-muted">
                   <CircleMinus className="absolute inset-0 opacity-0 group-data-[state=open]:opacity-100" />
                   <CirclePlus className="absolute inset-0 opacity-100 group-data-[state=open]:opacity-0" />
                 </div>
@@ -91,8 +91,8 @@ const OptionsPicker = ({ options }: OptionsPickerProps) => {
                       className={clx(
                         "px-3 py-1 text-xs rounded-full border transition-colors",
                         active
-                          ? "bg-neutral-900 text-white border-neutral-900"
-                          : "bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400"
+                          ? "bg-ui-button-inverted text-ui-fg-on-inverted border-ui-button-inverted"
+                          : "bg-ui-bg-base text-ui-fg-subtle border-ui-border-base hover:border-ui-border-strong"
                       )}
                       aria-pressed={active}
                     >

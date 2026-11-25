@@ -26,7 +26,7 @@ const OnSaleFacet = ({ currencyCode }: { currencyCode: string }) => {
           data-testid="facet-on-sale"
         />
         {typeof value.onFacetValue?.count === "number" && (
-          <Text className="text-xs text-neutral-500 tabular-nums">
+          <Text className="text-xs text-ui-fg-muted tabular-nums">
             {value.onFacetValue.count}
           </Text>
         )}

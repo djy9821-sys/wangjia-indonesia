@@ -66,14 +66,14 @@ const OptionValuesFacet = () => {
   return (
     <FacetSection value={OPTION_VALUES_ATTRIBUTE} title="Pilihan">
       {groups.length === 0 ? (
-        <Text className="text-xs text-neutral-500">
+        <Text className="text-xs text-ui-fg-muted">
           Tidak ada pilihan untuk hasil ini.
         </Text>
       ) : (
         <div className="flex flex-col gap-y-4">
           {groups.map((group) => (
             <div key={group.title} className="flex flex-col gap-y-2">
-              <Text className="text-xs font-medium text-neutral-600">
+              <Text className="text-xs font-medium text-ui-fg-subtle">
                 {group.title}
               </Text>
               <div className="flex flex-wrap gap-2">
@@ -86,8 +86,8 @@ const OptionValuesFacet = () => {
                     className={clx(
                       "px-3 py-1 text-xs rounded-full border transition-colors",
                       value.isRefined
-                        ? "bg-neutral-900 text-white border-neutral-900"
-                        : "bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400"
+                        ? "bg-ui-button-inverted text-ui-fg-on-inverted border-ui-button-inverted"
+                        : "bg-ui-bg-base text-ui-fg-subtle border-ui-border-base hover:border-ui-border-strong"
                     )}
                     data-testid={`facet-option-${value.value}`}
                   >

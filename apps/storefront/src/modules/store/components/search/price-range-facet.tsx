@@ -81,7 +81,7 @@ const PriceRangeFacet = ({ currencyCode }: { currencyCode: string }) => {
         setDragging(null)
         refine([undefined, undefined])
       }}
-      className="self-start text-xs text-neutral-600 underline hover:text-neutral-900"
+      className="self-start text-xs text-ui-fg-subtle underline hover:text-ui-fg-base"
       data-testid="facet-price-reset"
     >
       Atur ulang
@@ -92,7 +92,7 @@ const PriceRangeFacet = ({ currencyCode }: { currencyCode: string }) => {
     return (
       <FacetSection value={PRICE_ATTRIBUTE} title="Harga">
         <div className="flex flex-col gap-y-2">
-          <Text className="text-xs text-neutral-500">
+          <Text className="text-xs text-ui-fg-muted">
             Tidak ada rentang harga.
           </Text>
           {reset}
@@ -139,10 +139,10 @@ const PriceRangeFacet = ({ currencyCode }: { currencyCode: string }) => {
         <style>{PRICE_RANGE_STYLES}</style>
 
         <div className="flex items-center justify-between">
-          <Text className="text-xs text-neutral-600 tabular-nums">
+          <Text className="text-xs text-ui-fg-subtle tabular-nums">
             {format(values[0])}
           </Text>
-          <Text className="text-xs text-neutral-600 tabular-nums">
+          <Text className="text-xs text-ui-fg-subtle tabular-nums">
             {format(values[1])}
           </Text>
         </div>
@@ -151,9 +151,9 @@ const PriceRangeFacet = ({ currencyCode }: { currencyCode: string }) => {
           className="relative flex h-4 w-full items-center"
           data-testid="facet-price-slider"
         >
-          <div className="absolute inset-x-0 h-1 rounded-full bg-neutral-200" />
+          <div className="absolute inset-x-0 h-1 rounded-full bg-ui-bg-switch-off" />
           <div
-            className="absolute h-1 rounded-full bg-neutral-900"
+            className="absolute h-1 rounded-full bg-ui-button-inverted"
             style={{
               left: thumbCenter(values[0]),
               right: `calc(100% - ${thumbCenter(values[1])})`,

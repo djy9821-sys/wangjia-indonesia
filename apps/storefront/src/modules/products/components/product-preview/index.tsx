@@ -1,82 +1,57 @@
 import { getProductPrice } from "@/lib/util/get-product-price"
 import { isVariantInStock } from "@/lib/util/inventory"
 import { HttpTypes } from "@medusajs/types"
-import { Text, clx } from "@medusajs/ui"
-import LocalizedClientLink from "@/modules/common/components/localized-client-link"
-import Thumbnail from "../thumbnail"
+import ProductCard from "../product-card"
 import PreviewAddToCart from "./preview-add-to-cart"
-import PreviewPrice from "./price"
 
 export default async function ProductPreview({
   product,
-  isFeatured,
   region,
 }: {
   product: HttpTypes.StoreProduct
   isFeatured?: boolean
   region: HttpTypes.StoreRegion
 }) {
-  if (!product) {
+  if (!product?.handle) {
     return null
   }
 
-  const { cheapestPrice } = getProductPrice({
-    product,
-  })
-
-  const inventoryQuantity = product.variants?.reduce((acc, variant) => {
-    return acc + (variant?.inventory_quantity || 0)
-  }, 0)
-  const inStock = product.variants?.some((variant) => isVariantInStock(variant)) ?? false
-  const stockLabel = !inStock
-    ? "Stok habis"
-    : inventoryQuantity && inventoryQuantity > 0 && inventoryQuantity <= 5
-      ? `Sisa ${inventoryQuantity} unit`
-      : "Tersedia"
+  const { cheapestPrice } = getProductPrice({ product })
+  const variants = product.variants ?? []
+  const inStock = variants.some((variant) => isVariantInStock(variant))
+  const left = variants.reduce((n, v) => n + (v?.inventory_quantity || 0), 0)
+  const amounts = new Set(
+    variants
+      .map((v) => v.calculated_price?.calculated_amount)
+      .filter((n) => n !== null && n !== undefined)
+  )
+  const sale = cheapestPrice?.price_type === "sale"
 
   return (
-    <LocalizedClientLink href={`/products/${product.handle}`} className="group">
-      <div
-        data-testid="product-wrapper"
-        className="flex flex-col gap-4 relative aspect-[3/5] w-full overflow-hidden p-4 bg-white shadow-borders-base rounded-lg group-hover:shadow-[0_0_0_4px_rgba(0,0,0,0.1)] transition-shadow ease-in-out duration-150"
-      >
-        <div className="w-full h-full p-10">
-          <Thumbnail
-            thumbnail={product.thumbnail}
-            images={product.images}
-            alt={product.title}
-            size="square"
-            isFeatured={isFeatured}
-          />
-        </div>
-        <div className="flex flex-col txt-compact-medium">
-          <Text className="text-neutral-600 text-xs">WANGJIA®</Text>
-          <Text className="text-ui-fg-base" data-testid="product-title">
-            {product.title}
-          </Text>
-        </div>
-        <div className="flex flex-col gap-0">
-          {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
-          <Text className="text-neutral-600 text-[0.6rem]">Belum termasuk PPN</Text>
-        </div>
-        <div className="flex justify-between">
-          <div className="flex flex-row gap-1 items-center">
-            <span
-              className={clx({
-                "text-green-500": inStock && stockLabel === "Tersedia",
-                "text-orange-500": inStock && stockLabel !== "Tersedia",
-                "text-red-500": !inStock,
-              })}
-            >
-              •
-            </span>
-            <Text className="text-neutral-600 text-xs">
-              {stockLabel}
-            </Text>
-          </div>
+    <ProductCard
+      handle={product.handle}
+      title={product.title}
+      thumbnail={product.thumbnail ?? product.images?.[0]?.url}
+      note={
+        !inStock ? "Stok habis" : left > 0 && left <= 5 ? `Sisa ${left} unit` : null
+      }
+      price={
+        cheapestPrice
+          ? {
+              amount: cheapestPrice.calculated_price,
+              from: amounts.size > 1,
+              original: sale ? cheapestPrice.original_price : null,
+              discount: sale ? cheapestPrice.percentage_diff : null,
+            }
+          : null
+      }
+      // Machines come in 1 phase and 3 phase: adding the first variant blindly could
+      // send the wrong machine, so only products with a single variant get the quick add.
+      action={
+        variants.length === 1 && inStock ? (
           <PreviewAddToCart product={product} region={region} />
-        </div>
-      </div>
-    </LocalizedClientLink>
+        ) : null
+      }
+    />
   )
 }

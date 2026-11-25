@@ -5,6 +5,7 @@ import SkeletonProductGrid from "@/modules/skeletons/templates/skeleton-product-
 import RefinementList from "@/modules/store/components/refinement-list"
 import { SortOptions } from "@/modules/store/components/refinement-list/sort-products"
 import PaginatedProducts from "@/modules/store/templates/paginated-products"
+import "@/modules/store/templates/listing.css"
 import { ArrowUturnLeft } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Container, Text } from "@medusajs/ui"
@@ -30,7 +31,7 @@ export default function CategoryTemplate({
   if (!currentCategory || !countryCode) notFound()
 
   return (
-    <div className="bg-neutral-100">
+    <div data-wj-list className="wj-list">
       <div
         className="flex flex-col py-6 content-container gap-4"
         data-testid="category-container"
@@ -50,7 +51,7 @@ export default function CategoryTemplate({
           />
           <div className="w-full">
             {currentCategory.products?.length === 0 ? (
-              <Container className="flex flex-col gap-2 justify-center text-center items-center text-sm text-neutral-500">
+              <Container className="flex flex-col gap-2 justify-center text-center items-center text-sm text-ui-fg-muted">
                 <Text className="font-medium">
                   Belum ada produk di kategori ini.
                 </Text>

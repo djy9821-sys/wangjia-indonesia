@@ -75,7 +75,7 @@ export default async function PaginatedProducts({
   return (
     <>
       <ul
-        className="grid grid-cols-1 w-full small:grid-cols-3 medium:grid-cols-4 gap-3"
+        className="grid w-full grid-cols-2 gap-3 small:grid-cols-3 medium:grid-cols-4"
         data-testid="products-list"
       >
         {products.length > 0 ? (
@@ -87,7 +87,7 @@ export default async function PaginatedProducts({
             )
           })
         ) : (
-          <Container className="text-center text-sm text-neutral-500">
+          <Container className="text-center text-sm text-ui-fg-muted">
             Belum ada produk di kategori ini.
           </Container>
         )}

@@ -84,7 +84,7 @@ const CategoryList = ({
       <li key={category.id}>
         <div className={`flex items-center gap-2 mb-2 pl-${paddingLeft}`}>
           {hasChildren ? (
-            <div className="flex items-center gap-2 hover:text-neutral-700">
+            <div className="flex items-center gap-2 hover:text-ui-fg-subtle">
               <button onClick={() => toggleCategory(category.id)}>
                 {isExpanded ? (
                   <SquareMinus className="h-3 mx-1" />
@@ -96,7 +96,7 @@ const CategoryList = ({
                 href={`/categories/${category.handle}${
                   searchParams.size ? `?${searchParams.toString()}` : ""
                 }`}
-                className="flex gap-2 items-center hover:text-neutral-700"
+                className="flex gap-2 items-center hover:text-ui-fg-subtle"
               >
                 {category.name} ({category.products?.length})
               </LocalizedClientLink>
@@ -106,7 +106,7 @@ const CategoryList = ({
               href={`/categories/${category.handle}${
                 searchParams.size ? `?${searchParams.toString()}` : ""
               }`}
-              className="flex gap-2 items-center hover:text-neutral-700 text-start hover:cursor-pointer"
+              className="flex gap-2 items-center hover:text-ui-fg-subtle text-start hover:cursor-pointer"
             >
               <Radio checked={isCurrentCategory(category.handle)} />
               {category.name} ({category.products?.length})
@@ -128,19 +128,19 @@ const CategoryList = ({
   }
 
   return (
-    <Container className="flex flex-col p-0 divide-y divide-neutral-200">
+    <Container className="flex flex-col p-0 divide-y divide-ui-border-base">
       <div className="flex justify-between items-center p-3">
         <Text className="text-sm font-medium">Kategori</Text>
         {pathname.includes("/categories") && (
           <LocalizedClientLink
             href="/store"
-            className="text-xs text-neutral-500 hover:text-neutral-700"
+            className="text-xs text-ui-fg-muted hover:text-ui-fg-subtle"
           >
             Hapus
           </LocalizedClientLink>
         )}
       </div>
-      <ul className="flex flex-col gap-3 text-sm p-3 text-neutral-500">
+      <ul className="flex flex-col gap-3 text-sm p-3 text-ui-fg-muted">
         {categories
           .filter((cat) => cat.parent_category_id === null)
           .map(renderCategory)}

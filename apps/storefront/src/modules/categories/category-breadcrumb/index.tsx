@@ -10,9 +10,9 @@ const CategoryBreadcrumbItem = ({
   handle?: string
 }) => {
   return (
-    <li className="text-neutral-500" key={handle}>
+    <li className="text-ui-fg-muted" key={handle}>
       <LocalizedClientLink
-        className="hover:text-neutral-900"
+        className="hover:text-ui-fg-base"
         href={handle ? `/categories/${handle}` : "/store"}
       >
         {title}
@@ -49,7 +49,7 @@ const CategoryBreadcrumb = ({
     while (currentCategory) {
       breadcrumbs.unshift(
         <li
-          className="text-neutral-500"
+          className="text-ui-fg-muted"
           key={`separator-parent-${currentCategory.id}`}
         >
           {">"}
@@ -70,7 +70,7 @@ const CategoryBreadcrumb = ({
     }
 
     breadcrumbs.unshift(
-      <li className="text-neutral-500" key={`separator-parent-base`}>
+      <li className="text-ui-fg-muted" key={`separator-parent-base`}>
         {">"}
       </li>
     )

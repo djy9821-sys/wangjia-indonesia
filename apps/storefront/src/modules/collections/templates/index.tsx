@@ -5,6 +5,7 @@ import { SortOptions } from "@/modules/store/components/refinement-list/sort-pro
 import PaginatedProducts from "@/modules/store/templates/paginated-products"
 import { HttpTypes } from "@medusajs/types"
 import { Suspense } from "react"
+import "@/modules/store/templates/listing.css"
 
 export default function CollectionTemplate({
   sortBy,
@@ -21,7 +22,7 @@ export default function CollectionTemplate({
   const sort = sortBy || "created_at"
 
   return (
-    <div className="bg-neutral-100">
+    <div data-wj-list className="wj-list">
       <div className="flex flex-col py-6 content-container gap-4">
         <CollectionBreadcrumb collection={collection} />
         <div className="flex flex-col small:flex-row small:items-start gap-3">

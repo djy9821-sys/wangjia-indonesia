@@ -30,12 +30,14 @@ const SortSelect = ({ currencyCode }: { currencyCode: string }) => {
   })
 
   return (
-    <div className="flex items-center gap-2 text-sm p-2 justify-between">
-      <span className="text-neutral-500">Urutkan:</span>
+    <div className="flex w-full items-center justify-between gap-2 px-3 py-2 text-sm">
+      {/* on phones the label gives its room to the choice; the select keeps its name */}
+      <span className="hidden text-ui-fg-muted xsmall:inline">Urutkan:</span>
       <div className="relative">
         <select
-          className="w-full pr-8 overflow-hidden focus:outline-none appearance-none"
+          className="w-full appearance-none overflow-hidden bg-transparent pr-8 text-ui-fg-base focus:outline-none"
           title="Urutkan"
+          aria-label="Urutkan"
           value={currentRefinement}
           onChange={(event) => refine(event.target.value)}
           data-testid="sort-by-container"
@@ -47,7 +49,7 @@ const SortSelect = ({ currencyCode }: { currencyCode: string }) => {
           ))}
         </select>
         <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-          <ChevronUpDown className="w-4 h-4 text-neutral-500" />
+          <ChevronUpDown className="w-4 h-4 text-ui-fg-muted" />
         </div>
       </div>
     </div>

@@ -10,7 +10,7 @@ import { useClearRefinements, useCurrentRefinements } from "react-instantsearch"
 const OPTION_VALUES_ATTRIBUTE = "option_values"
 
 const chipClassName =
-  "flex items-center gap-x-1 rounded-full bg-white border border-neutral-200 px-3 py-1 text-xs text-neutral-700 transition-colors hover:border-neutral-400"
+  "flex items-center gap-x-1 rounded-full bg-ui-bg-base border border-ui-border-base px-3 py-1 text-xs text-ui-fg-subtle transition-colors hover:border-ui-border-strong"
 
 const priceLabelFor = (
   item: CurrentRefinementsConnectorParamsItem | undefined,
@@ -112,7 +112,7 @@ const AppliedRefinements = ({ currencyCode }: { currencyCode: string }) => {
       className="flex flex-wrap items-center gap-2"
       data-testid="applied-refinements"
     >
-      <Text className="text-xs text-neutral-500">Filter:</Text>
+      <Text className="text-xs text-ui-fg-muted">Filter:</Text>
 
       {priceLabel && (
         <PriceChip label={priceLabel} attribute={priceAttributeName} />
@@ -138,7 +138,7 @@ const AppliedRefinements = ({ currencyCode }: { currencyCode: string }) => {
       <button
         type="button"
         onClick={clearAll}
-        className="text-xs text-neutral-600 underline hover:text-neutral-900"
+        className="text-xs text-ui-fg-subtle underline hover:text-ui-fg-base"
         data-testid="clear-refinements"
       >
         Hapus semua

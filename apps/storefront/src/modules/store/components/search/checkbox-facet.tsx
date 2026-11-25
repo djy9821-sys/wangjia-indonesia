@@ -31,7 +31,7 @@ const CheckboxFacet = ({
   return (
     <FacetSection value={attribute} title={title}>
       {items.length === 0 ? (
-        <Text className="text-xs text-neutral-500">
+        <Text className="text-xs text-ui-fg-muted">
           Tidak ada pilihan untuk hasil ini.
         </Text>
       ) : (
@@ -47,7 +47,7 @@ const CheckboxFacet = ({
                 onChange={() => refine(item.value)}
                 data-testid={`facet-${attribute}-${item.value}`}
               />
-              <Text className="text-xs text-neutral-500 tabular-nums">
+              <Text className="text-xs text-ui-fg-muted tabular-nums">
                 {item.count}
               </Text>
             </div>
@@ -57,7 +57,7 @@ const CheckboxFacet = ({
             <button
               type="button"
               onClick={toggleShowMore}
-              className="self-start text-xs text-neutral-600 underline hover:text-neutral-900"
+              className="self-start text-xs text-ui-fg-subtle underline hover:text-ui-fg-base"
             >
               {isShowingMore ? "Lebih sedikit" : "Lebih banyak"}
             </button>
