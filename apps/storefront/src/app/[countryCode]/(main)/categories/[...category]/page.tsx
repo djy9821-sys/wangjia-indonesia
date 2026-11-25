@@ -1,5 +1,6 @@
 import { getCategoryByHandle, listCategories } from "@/lib/data/categories"
 import { listRegions } from "@/lib/data/regions"
+import { getSiteOrigin } from "@/lib/util/site"
 import CategoryTemplate from "@/modules/categories/templates"
 import { SortOptions } from "@/modules/store/components/refinement-list/sort-products"
 import { Metadata } from "next"
@@ -23,13 +24,15 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
     const title = product_category.name
 
-    const description = product_category.description ?? `${title} category.`
+    const description =
+      product_category.description || `${title} WANGJIA: harga, spesifikasi dan foto.`
 
     return {
       title: `${title} | WANGJIA`,
       description,
       alternates: {
-        canonical: `${params.category.join("/")}`,
+        // a full address: the bare handle resolved to /kincir-air, a page that does not exist
+        canonical: `${await getSiteOrigin()}/${params.countryCode}/categories/${params.category.join("/")}`,
       },
     }
   } catch (error) {
