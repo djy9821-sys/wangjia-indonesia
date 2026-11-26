@@ -5,6 +5,8 @@
   the announcement bar are night on every page (nav/index.tsx, the main layout).
 */
 body:has([data-wj-product]) [data-wa-fab] { display: none !important; }
+/* room under the footer's last line for the buy bar that follows at the bottom of the screen */
+body:has([data-wj-product]) footer { padding-bottom: 88px; }
 
 .wj-pdp {
   --ink-1: #060b15;

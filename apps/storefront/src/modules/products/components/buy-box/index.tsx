@@ -1,6 +1,7 @@
 "use client"
 
 import { addToCartEventBus } from "@/lib/data/cart-event-bus"
+import LocalizedClientLink from "@/modules/common/components/localized-client-link"
 import { IS_PREVIEW } from "@/lib/util/preview"
 import { getProductPrice } from "@/lib/util/get-product-price"
 import { isVariantInStock } from "@/lib/util/inventory"
@@ -103,6 +104,13 @@ export default function BuyBox({ product, region }: { product: HttpTypes.StorePr
           </p>
           <p className="mt-2 text-[13px] text-[var(--text-3)]">Belum termasuk PPN 11% · ongkos kirim dihitung saat checkout</p>
           <p className="mt-3 text-[15px] font-medium text-[var(--text-2)]">Bisa bayar bertahap: uang muka dulu, pelunasan sebelum dikirim.</p>
+          {/* the delivery times of the shipping page, where people look for them: beside the price */}
+          <p className="mt-1.5 text-[14px] leading-snug text-[var(--text-3)]">
+            Dikirim dari Jakarta: Jawa 2–5 hari kerja, pulau lain 5–20 hari kerja setelah pelunasan.{" "}
+            <LocalizedClientLink href="/shipping" className="whitespace-nowrap text-[var(--text-2)] underline underline-offset-4">
+              Rincian pengiriman
+            </LocalizedClientLink>
+          </p>
         </div>
 
         {choose ? (

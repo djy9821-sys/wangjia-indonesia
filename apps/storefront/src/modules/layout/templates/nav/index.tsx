@@ -1,15 +1,11 @@
 import { SEARCH_PRICE_CURRENCIES } from "@/lib/search-client"
 import { IS_PREVIEW } from "@/lib/util/preview"
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
-import LogoIcon from "@/modules/common/icons/logo"
 import { listCategories } from "@/lib/data/categories"
-import { MegaMenuWrapper } from "@/modules/layout/components/mega-menu"
 import MobileMenu from "@/modules/layout/components/mobile-menu"
 import NavSessionActions from "@/modules/layout/components/nav-session-actions"
 import Search from "@/modules/layout/components/search"
-import SkeletonMegaMenu from "@/modules/skeletons/components/skeleton-mega-menu"
 import Image from "next/image"
-import { Suspense } from "react"
 
 export async function NavigationHeader({
   currencyCode = SEARCH_PRICE_CURRENCIES[0],
@@ -21,6 +17,12 @@ export async function NavigationHeader({
     .filter((c) => !c.parent_category_id)
     .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
     .map((c) => ({ name: c.name, handle: c.handle, count: c.products?.length ?? 0 }))
+  const links = [
+    ["Semua produk", "/store"],
+    ...categories.map((c) => [c.name, `/categories/${c.handle}`]),
+    ["Panduan", "/panduan"],
+    ["Cek garansi", "/garansi"],
+  ]
 
   return (
     <div data-site-header className="sticky top-0 inset-x-0 group bg-[rgba(6,11,21,0.97)] text-[#f2f4f7] small:p-4 p-2 text-sm border-b duration-200 border-[rgba(190,210,255,0.12)] z-50">
@@ -37,13 +39,16 @@ export async function NavigationHeader({
               </span>
             </LocalizedClientLink>
 
-            <nav>
-              <ul className="space-x-4 hidden small:flex">
-                <li>
-                  <Suspense fallback={<SkeletonMegaMenu />}>
-                    <MegaMenuWrapper />
-                  </Suspense>
-                </li>
+            {/* on desktop the few destinations sit in the bar itself (a hover menu held two categories) */}
+            <nav aria-label="Menu utama" className="hidden small:block">
+              <ul className="flex items-center gap-1">
+                {links.map(([label, href]) => (
+                  <li key={href}>
+                    <LocalizedClientLink href={href} className="rounded-full px-3 py-2 text-[14px] text-[#c9d1e0]">
+                      {label}
+                    </LocalizedClientLink>
+                  </li>
+                ))}
               </ul>
             </nav>
           </div>
