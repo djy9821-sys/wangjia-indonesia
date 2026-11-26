@@ -1,0 +1,1 @@
+self.__SSG_MANIFEST=new Set(["\u002F[countryCode]","\u002F[countryCode]\u002Fcontact","\u002F[countryCode]\u002Fpanduan","\u002F[countryCode]\u002Fprivacy","\u002F[countryCode]\u002Fproducts\u002F[handle]","\u002F[countryCode]\u002Freturns","\u002F[countryCode]\u002Fshipping","\u002F[countryCode]\u002Fterms"]);self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB()
