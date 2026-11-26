@@ -119,25 +119,28 @@ const ItemFull = ({
               item={item}
               currencyCode={currencyCode}
             />
-            <div className="flex gap-x-2">
-              <div className="flex gap-x-3 shadow-[0_0_0_1px_rgba(0,0,0,0.1)] rounded-full w-fit p-px items-center">
+            <div className="flex items-center gap-x-2">
+              {/* buttons a thumb can hit: the starter's minus and plus were 16 px squares */}
+              <div className="flex h-11 w-fit items-center rounded-full shadow-[0_0_0_1px_rgba(0,0,0,0.14)]">
                 <button
+                  type="button"
+                  aria-label="Kurangi jumlah"
                   className={clx(
-                    "w-4 h-4 flex items-center justify-center text-neutral-600 hover:bg-neutral-100 rounded-full text-md",
+                    "grid h-11 w-11 place-items-center rounded-full text-[18px] text-neutral-700 hover:bg-neutral-100 disabled:opacity-40",
                     disabled ? "opacity-50 pointer-events-none" : "opacity-100"
                   )}
                   onClick={() => changeQuantity(item.quantity - 1)}
                   disabled={item.quantity <= 1 || disabled}
                 >
-                  -
+                  −
                 </button>
-                <span className="w-4 h-4 flex items-center justify-center text-neutral-950 text-xs">
+                <span className="grid h-11 w-9 place-items-center text-neutral-950">
                   {updating ? (
                     <Spinner size="12" />
                   ) : (
                     <Input
                       className={clx(
-                        "w-10 h-4 flex items-center justify-center text-center text-neutral-950 text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-transparent shadow-none",
+                        "h-11 w-9 p-0 text-center text-[16px] tabular-nums text-neutral-950 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-transparent shadow-none",
                         disabled
                           ? "opacity-50 pointer-events-none"
                           : "opacity-100"
@@ -156,8 +159,10 @@ const ItemFull = ({
                   )}
                 </span>
                 <button
+                  type="button"
+                  aria-label="Tambah jumlah"
                   className={clx(
-                    "w-4 h-4 flex items-center justify-center text-neutral-600 hover:bg-neutral-100 rounded-full text-md",
+                    "grid h-11 w-11 place-items-center rounded-full text-[18px] text-neutral-700 hover:bg-neutral-100 disabled:opacity-40",
                     disabled ? "opacity-50 pointer-events-none" : "opacity-100"
                   )}
                   onClick={() => changeQuantity(item.quantity + 1)}

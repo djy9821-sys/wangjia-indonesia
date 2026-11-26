@@ -43,8 +43,7 @@
   .wj-night { --pad: 40px; font-size: 17px; }
 }
 
-/* while the night page is on screen: no floating button over the scene, no second bar */
-body:has([data-wj-night]) [data-wa-fab],
+/* while the night page is on screen: no second bar under the header */
 body:has([data-wj-night]) [data-announce] { display: none !important; }
 
 .wj-night a { color: inherit; text-decoration: none; }

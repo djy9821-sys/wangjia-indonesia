@@ -7,7 +7,6 @@ import {
   SessionFreeShippingNudge,
 } from "@/modules/layout/components/session-banners"
 import Footer from "@/modules/layout/templates/footer"
-import WhatsAppFab from "@/modules/layout/components/whatsapp-fab"
 import { NavigationHeader } from "@/modules/layout/templates/nav"
 import { Metadata } from "next"
 import { IS_PREVIEW } from "@/lib/util/preview"
@@ -28,7 +27,7 @@ export default async function PageLayout(props: {
 
   return (
     <SessionProvider session={session}>
-      <NavigationHeader currencyCode={region?.currency_code} />
+      <NavigationHeader currencyCode={region?.currency_code} countryCode={countryCode} />
       <div data-announce className="flex items-center justify-center border-b border-[rgba(190,210,255,0.12)] bg-[#0a1222] p-2 text-center text-[12.5px] text-[#a7b1c4] small:p-3 small:text-sm">
         {IS_PREVIEW ? (
           <span>Versi pratinjau · 预览版：可以浏览，还不能下单</span>
@@ -49,7 +48,6 @@ export default async function PageLayout(props: {
 
       <Footer />
 
-      <WhatsAppFab />
       <SessionFreeShippingNudge />
     </SessionProvider>
   )

@@ -1,4 +1,5 @@
 import { archivo } from "@/lib/fonts/archivo"
+import { whatsappLink } from "@/lib/util/whatsapp"
 
 /*
   The reading pages (delivery, returns, terms, privacy, contact, the installation guide), on
@@ -27,6 +28,18 @@ export const PolicyPage = ({
       </div>
       <div className="flex max-w-[68ch] flex-col gap-5 text-[17px] leading-relaxed text-[#2b2f36] small:col-span-8 [&_a]:underline [&_a]:underline-offset-4 [&_h2]:mt-4 [&_h2]:text-[20px] [&_h2]:font-semibold [&_h2]:text-[#121417] [&_strong]:font-semibold [&_strong]:text-[#121417]">
         {children}
+        {/* every reading page ends with a person to ask */}
+        <p className="mt-2 border-t border-[#dedad0] pt-5 text-[16px] text-[#3d4350]">
+          Masih ada yang belum jelas?{" "}
+          <a
+            href={whatsappLink(`Halo WANGJIA, saya punya pertanyaan tentang ${title.toLowerCase()}.`)}
+            target="_blank"
+            rel="noreferrer"
+            className="font-semibold text-[#121417]"
+          >
+            Tanya lewat WhatsApp
+          </a>
+        </p>
       </div>
     </div>
   </div>

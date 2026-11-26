@@ -10,34 +10,36 @@ import { CSSProperties, useState } from "react"
 
 /*
   The menu on phones and tablets (the desktop bar shows its own links). A full-screen night
-  sheet on every page: the products first in large type, then help, then WhatsApp and the
-  account. Before it a phone had no menu: categories and help were reachable only from the
-  footer. Styles and the entrance are under .wj-menu in styles/globals.css.
+  sheet on every page: the four machines by name with their prices, the spare parts, then
+  help, WhatsApp and the account. With four machines the menu can be the range itself, one
+  tap from any page. Before it a phone had no menu: products and help were reachable only
+  from the footer. Styles and the entrance are under .wj-menu in styles/globals.css.
 */
+export type MenuMachine = { name: string; handle: string; price: string | null; from: boolean }
 export type MenuCategory = { name: string; handle: string; count: number }
 
-const HELP = [
+const HELP: readonly (readonly [string, string])[] = [
   ["Cek keaslian & garansi", "/garansi"],
   ["Panduan pemasangan & perawatan", "/panduan"],
   ["Panduan tambak & kincir air", "/blog"],
   ["Patungan (pesan bersama)", "/patungan"],
   ["Informasi pengiriman", "/shipping"],
   ["Hubungi kami", "/contact"],
-] as const
+]
 
 // only the first rows arrive one after another; a long list in sequence feels slow
 const step = (i: number) => ({ "--i": Math.min(i, 5) }) as CSSProperties
 
-export default function MobileMenu({ categories }: { categories: MenuCategory[] }) {
+const ROW = "flex min-h-[52px] items-center justify-between gap-4 py-2 text-[20px] font-medium leading-tight tracking-[-0.01em]"
+const SIDE = "shrink-0 whitespace-nowrap text-[14px] font-normal tabular-nums tracking-normal text-[#a7b1c4]"
+
+export default function MobileMenu({ machines, categories }: { machines: MenuMachine[]; categories: MenuCategory[] }) {
   const [open, setOpen] = useState(false)
   const { customer } = useSession()
   // a tapped link closes the sheet, also when it leads to the page already open
   const close = () => setOpen(false)
-
-  const products = [
-    { label: "Semua produk", href: "/store", count: null as number | null },
-    ...categories.map((c) => ({ label: c.name, href: `/categories/${c.handle}`, count: c.count })),
-  ]
+  // the search page needs the backend, which the browse-only copy does not have
+  const help = IS_PREVIEW ? HELP : [...HELP, ["Cari produk", "/search"] as const]
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -75,33 +77,40 @@ export default function MobileMenu({ categories }: { categories: MenuCategory[] 
 
           <nav aria-label="Menu utama" className="flex flex-1 flex-col px-5 pb-8">
             <ul className="border-t border-[rgba(190,210,255,0.12)]">
-              {products.map((item, i) => (
-                <li key={item.href} className="wj-menu-item border-b border-[rgba(190,210,255,0.12)]" style={step(i)}>
-                  <LocalizedClientLink
-                    href={item.href}
-                    onClick={close}
-                    className="flex min-h-[64px] items-center justify-between gap-4 py-3 text-[26px] font-medium leading-tight tracking-[-0.02em]"
-                  >
-                    <span>{item.label}</span>
-                    {item.count !== null && (
-                      <span className="text-[14px] font-normal tabular-nums tracking-normal text-[#7f8aa0]">{item.count}</span>
+              {machines.map((m, i) => (
+                <li key={m.handle} className="wj-menu-item border-b border-[rgba(190,210,255,0.12)]" style={step(i)}>
+                  <LocalizedClientLink href={`/products/${m.handle}`} onClick={close} className={ROW}>
+                    <span>{m.name}</span>
+                    {m.price && (
+                      <span className={SIDE}>
+                        {m.from ? "mulai " : ""}
+                        {m.price}
+                      </span>
                     )}
+                  </LocalizedClientLink>
+                </li>
+              ))}
+              {categories.map((c, i) => (
+                <li key={c.handle} className="wj-menu-item border-b border-[rgba(190,210,255,0.12)]" style={step(machines.length + i)}>
+                  <LocalizedClientLink href={`/categories/${c.handle}`} onClick={close} className={ROW}>
+                    <span>{c.name}</span>
+                    <span className={SIDE}>{c.count} produk</span>
                   </LocalizedClientLink>
                 </li>
               ))}
             </ul>
 
-            <ul className="mt-5 flex flex-col">
-              {HELP.map(([label, href], i) => (
-                <li key={href} className="wj-menu-item" style={step(products.length + i)}>
-                  <LocalizedClientLink href={href} onClick={close} className="flex min-h-[48px] items-center text-[17px] text-[#a7b1c4]">
+            <ul className="mt-4 flex flex-col">
+              {help.map(([label, href]) => (
+                <li key={href} className="wj-menu-item" style={step(5)}>
+                  <LocalizedClientLink href={href} onClick={close} className="flex min-h-[44px] items-center text-[16px] text-[#a7b1c4]">
                     {label}
                   </LocalizedClientLink>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-auto flex flex-col gap-3 pt-8">
+            <div className="mt-auto flex flex-col gap-3 pt-6">
               <a
                 href={whatsappLink("Halo WANGJIA, saya mau tanya tentang kincir air.")}
                 target="_blank"

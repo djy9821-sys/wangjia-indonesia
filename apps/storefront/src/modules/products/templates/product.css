@@ -1,10 +1,9 @@
 /*
   Product pages in the night of the home page (mock-up A2): the same ink, lines, text greys
-  and the one accent, the paddle orange. Scoped to .wj-pdp, except the :has() rules that
-  hide the floating WhatsApp button (the buy box and its bar carry WhatsApp). The header and
-  the announcement bar are night on every page (nav/index.tsx, the main layout).
+  and the one accent, the paddle orange. Scoped to .wj-pdp, except the :has() rule for the
+  footer below. The header and the announcement bar are night on every page (nav/index.tsx,
+  the main layout).
 */
-body:has([data-wj-product]) [data-wa-fab] { display: none !important; }
 /* room under the footer's last line for the buy bar that follows at the bottom of the screen */
 body:has([data-wj-product]) footer { padding-bottom: 88px; }
 

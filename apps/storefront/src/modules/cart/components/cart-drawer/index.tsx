@@ -48,6 +48,7 @@ const CartDrawer = ({
     }, 0) || 0
 
   const subtotal = useMemo(() => cart?.item_subtotal ?? 0, [cart])
+  const money = (amount: number) => convertToLocale({ amount, currency_code: cart?.currency_code ?? "idr" })
 
   const spendLimitExceeded = useMemo(
     () => checkSpendingLimit(cart, customer),
@@ -132,7 +133,7 @@ const CartDrawer = ({
         <Drawer.Trigger asChild>
           <button
             aria-label={totalItems > 0 ? `Keranjang, ${totalItems} barang` : "Keranjang"}
-            className="transition-fg relative inline-flex w-fit items-center justify-center overflow-hidden outline-none txt-compact-small-plus gap-x-1.5 px-3 py-1.5 rounded-full hover:bg-neutral-100">
+            className="transition-fg relative inline-flex min-h-[44px] w-fit items-center justify-center overflow-hidden outline-none txt-compact-small-plus gap-x-1.5 px-3 py-1.5 rounded-full hover:bg-neutral-100">
             <ShoppingBag />
             <span className="text-sm font-normal hidden small:inline-block">
               {cart && items && items.length > 0
@@ -187,20 +188,22 @@ const CartDrawer = ({
                       freeShippingPrices={freeShippingPrices}
                     />
                   )}
-                  <div className="flex justify-between">
-                    <div>
-                      <Text>Subtotal</Text>
-                      <Text className="text-xs text-ui-fg-muted">
-                        Belum termasuk ongkir & PPN
-                      </Text>
+                  {/* the whole sum here: a total that first appears at checkout is the top reason carts are left */}
+                  <dl className="flex flex-col gap-1 text-[15px] tabular-nums">
+                    <div className="flex justify-between text-ui-fg-subtle">
+                      <dt>Subtotal</dt>
+                      <dd>{money(subtotal)}</dd>
                     </div>
-                    <Text>
-                      {convertToLocale({
-                        amount: subtotal,
-                        currency_code: cart?.currency_code,
-                      })}
-                    </Text>
-                  </div>
+                    <div className="flex justify-between text-ui-fg-subtle">
+                      <dt>PPN 11%</dt>
+                      <dd>{money(cart?.tax_total ?? 0)}</dd>
+                    </div>
+                    <div className="flex justify-between pt-1 text-[17px] font-semibold text-ui-fg-base">
+                      <dt>Total</dt>
+                      <dd>{money(cart?.total ?? 0)}</dd>
+                    </div>
+                    <p className="text-[13px] text-ui-fg-muted">Ongkos kirim kargo dihitung sesuai alamat.</p>
+                  </dl>
                   <div className="flex flex-col gap-y-2">
                     <LocalizedClientLink href="/cart">
                       <Button

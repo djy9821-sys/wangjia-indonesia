@@ -50,7 +50,7 @@ const AddNoteButton = ({
       {!note && !isOpen && (
         <button
           className={clx(
-            "text-neutral-950 text-xs shadow-[0_0_0_1px_rgba(0,0,0,0.1)] rounded-full px-2 py-1 w-fit min-w-20 h-6 flex items-center justify-center hover:bg-neutral-100 transition-all duration-300",
+            "flex h-11 w-fit min-w-20 items-center justify-center rounded-full px-4 text-[14px] text-neutral-950 shadow-[0_0_0_1px_rgba(0,0,0,0.14)] hover:bg-neutral-100 transition-opacity duration-300",
             isOpen ? "opacity-0 pointer-events-none" : "opacity-100",
             disabled ? "opacity-50 pointer-events-none" : "opacity-100"
           )}
