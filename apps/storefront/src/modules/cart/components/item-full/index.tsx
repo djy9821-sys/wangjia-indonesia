@@ -119,7 +119,7 @@ const ItemFull = ({
               item={item}
               currencyCode={currencyCode}
             />
-            <div className="flex items-center gap-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               {/* buttons a thumb can hit: the starter's minus and plus were 16 px squares */}
               <div className="flex h-11 w-fit items-center rounded-full shadow-[0_0_0_1px_rgba(0,0,0,0.14)]">
                 <button

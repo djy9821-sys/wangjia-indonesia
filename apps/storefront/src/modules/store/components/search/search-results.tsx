@@ -1,6 +1,8 @@
 "use client"
 
 import useSearchSettled from "@/lib/hooks/use-search-settled"
+import { PRODUCT_INDEX_NAME } from "@/lib/search-client"
+import { byShopOrder } from "@/lib/util/machines"
 import type { ProductHit } from "@/modules/layout/components/search/hit"
 import SkeletonProductGrid from "@/modules/skeletons/templates/skeleton-product-grid"
 import { Container, Text } from "@medusajs/ui"
@@ -12,7 +14,10 @@ import SearchPagination from "./search-pagination"
 const SearchResults = ({ currencyCode }: { currencyCode: string }) => {
   const { items } = useHits<ProductHit>()
   const { nbHits } = useStats()
-  const { status, error } = useInstantSearch()
+  const { status, error, indexUiState } = useInstantSearch()
+  // nothing typed and no sort chosen: the shop's own order (machines first), not the index's
+  const unsorted = !indexUiState.query && (!indexUiState.sortBy || indexUiState.sortBy === PRODUCT_INDEX_NAME)
+  const shown = unsorted ? byShopOrder(items) : items
   const { isSettled } = useSearchSettled()
 
   if (status === "error") {
@@ -52,7 +57,7 @@ const SearchResults = ({ currencyCode }: { currencyCode: string }) => {
           className="grid w-full grid-cols-2 gap-3 small:grid-cols-3 medium:grid-cols-4"
           data-testid="products-list"
         >
-          {items.map((hit) => (
+          {shown.map((hit) => (
             <li key={hit.objectID}>
               <ProductHitCard hit={hit} currencyCode={currencyCode} />
             </li>

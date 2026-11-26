@@ -68,7 +68,7 @@ const PromotionCode: React.FC<PromotionCodeProps> = ({ cart }) => {
             <button
               onClick={() => setIsOpen(!isOpen)}
               type="button"
-              className="flex gap-x-1 my-2 items-center txt-medium text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
+              className="flex min-h-[44px] items-center gap-x-1 txt-medium text-ui-fg-base underline decoration-[#b9b4a6] underline-offset-4"
               data-testid="add-discount-button"
             >
               Punya kode promo?{" "}

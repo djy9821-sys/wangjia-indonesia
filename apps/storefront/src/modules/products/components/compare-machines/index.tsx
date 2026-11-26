@@ -53,9 +53,13 @@ export default async function CompareMachines({
   if (cols.length < 2) {
     return null
   }
-  const rows = ROWS.map((label) => [label, cols.map((c) => spec(c.product, label))] as const).filter(
+  const all = ROWS.map((label) => [label, cols.map((c) => spec(c.product, label))] as const).filter(
     ([, values]) => values.filter(Boolean).length >= 2
   )
+  // a row that reads the same for every machine does not help the choice: it leaves the table
+  // and becomes part of one sentence under it
+  const same = all.filter(([, values]) => values.every((v) => v && v === values[0]))
+  const rows = all.filter((row) => !same.includes(row))
 
   return (
     <div className="border-t border-[var(--line)]">
@@ -117,6 +121,11 @@ export default async function CompareMachines({
             </tbody>
           </table>
         </div>
+        {same.length > 0 && (
+          <p className="mt-5 max-w-[70ch] text-[14px] leading-relaxed text-[var(--text-2)]" data-testid="compare-same">
+            Sama di semua tipe: {same.map(([label, values]) => `${label}: ${values[0]}`).join(" · ")}
+          </p>
+        )}
         <p className="mt-4 text-[13px] text-[var(--text-3)]">Angka dari katalog. Tanda – berarti katalog tidak menyebutkannya.</p>
       </section>
     </div>

@@ -1,6 +1,7 @@
 import { listProducts } from "@/lib/data/products"
 import { getProductPrice } from "@/lib/util/get-product-price"
 import { MachineInfo } from "@/lib/util/machines"
+import { whatsappLink } from "@/lib/util/whatsapp"
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
@@ -58,6 +59,18 @@ export default async function MachineParts({
           </h2>
           <p className="mt-4 max-w-[36ch] text-[16px] leading-relaxed text-[var(--text-2)]">
             {rows.length} bagian {machine.name} dijual satuan, harganya tertulis di sini.
+          </p>
+          {/* a farmer often knows what broke only by sight: a photo settles it */}
+          <p className="mt-4 max-w-[36ch] text-[15px] leading-relaxed text-[var(--text-2)]">
+            Tidak yakin bagian mana yang rusak?{" "}
+            <a
+              href={whatsappLink(`Halo WANGJIA, saya mau tanya suku cadang untuk ${machine.name}. Saya kirim fotonya.`)}
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-[var(--text)] underline underline-offset-4"
+            >
+              Kirim fotonya lewat WhatsApp
+            </a>
           </p>
         </div>
 

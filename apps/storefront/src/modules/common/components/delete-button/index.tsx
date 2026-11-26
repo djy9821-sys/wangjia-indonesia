@@ -30,7 +30,7 @@ const DeleteButton = ({
     >
       <button
         className={clx(
-          "flex h-11 min-w-20 items-center justify-center rounded-full px-4 text-[14px] text-neutral-950 shadow-[0_0_0_1px_rgba(0,0,0,0.14)] hover:bg-neutral-100",
+          "flex h-11 items-center justify-center rounded-full px-4 text-[14px] text-neutral-950 shadow-[0_0_0_1px_rgba(0,0,0,0.14)] hover:bg-neutral-100",
           disabled ? "opacity-50 pointer-events-none" : "opacity-100"
         )}
         onClick={() => handleDelete(id)}

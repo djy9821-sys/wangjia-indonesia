@@ -63,6 +63,25 @@ body:has([data-wj-product]) footer { padding-bottom: 88px; }
   .wj-machine { top: 28%; }
 }
 
+/*
+  The stage answers the scroll, in CSS alone and on the compositor: while the first screen
+  leaves, the model's name sinks behind the machine and the reflection thins out. Browsers
+  without scroll-driven animations show the stage as it is; reduced motion too.
+*/
+@keyframes wj-word-sink { to { transform: translateY(18%); } }
+@keyframes wj-reflect-thin { to { opacity: 0.1; } }
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .wj-word, .wj-reflect {
+      animation: linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0px 70vh;
+    }
+    .wj-word { animation-name: wj-word-sink; }
+    .wj-reflect { animation-name: wj-reflect-thin; }
+  }
+}
+
 /* a catalogue photo in a pool of moonlight */
 .wj-photo-slide {
   background:

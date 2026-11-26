@@ -1,4 +1,4 @@
-import { machineByHandle } from "@/lib/util/machines"
+import { machineByHandle, machinesForPart } from "@/lib/util/machines"
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
 import { clx } from "@medusajs/ui"
 import Image from "next/image"
@@ -41,6 +41,9 @@ export default function ProductCard({
   action?: ReactNode
 }) {
   const machine = machineByHandle(handle)
+  // under the name: what separates the machines (paddles and floats), or the machines a part fits
+  const fits = machine ? [] : machinesForPart(handle).map((f) => f.machine.word).sort()
+  const line = machine ? machine.specs[0] : fits.length ? `Untuk kincir ${fits.join(" & ")}` : null
 
   return (
     <div
@@ -72,6 +75,11 @@ export default function ProductCard({
         >
           {title}
         </LocalizedClientLink>
+        {line && (
+          <p className="mt-1 text-[12px] leading-snug text-ui-fg-subtle" data-testid="product-card-line">
+            {line}
+          </p>
+        )}
 
         <div className="mt-auto flex items-end justify-between gap-2 pt-3">
           <div className="min-w-0">

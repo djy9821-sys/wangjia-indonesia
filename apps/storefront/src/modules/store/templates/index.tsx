@@ -19,7 +19,7 @@ const StoreTemplate = ({
   categories?: HttpTypes.StoreProductCategory[]
 }) => {
   const pageNumber = page ? parseInt(page) : 1
-  const sort = sortBy || "created_at"
+  const sort = sortBy || "shop"
 
   return (
     <div data-wj-list className="wj-list">

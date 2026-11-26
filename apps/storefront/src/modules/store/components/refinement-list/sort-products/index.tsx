@@ -2,7 +2,8 @@
 
 import { ChevronUpDown } from "@medusajs/icons"
 
-export type SortOptions = "price_asc" | "price_desc" | "created_at"
+// "shop" is the listing nobody has sorted: machines first, then parts (lib/util/machines.ts)
+export type SortOptions = "shop" | "price_asc" | "price_desc" | "created_at"
 
 type SortProductsProps = {
   sortBy: SortOptions
@@ -11,6 +12,10 @@ type SortProductsProps = {
 }
 
 const sortOptions = [
+  {
+    value: "shop",
+    label: "Paling sesuai",
+  },
   {
     value: "created_at",
     label: "Terbaru",

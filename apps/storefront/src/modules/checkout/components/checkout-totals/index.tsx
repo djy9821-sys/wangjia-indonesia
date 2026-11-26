@@ -20,14 +20,14 @@ const CheckoutTotals: React.FC<{
     discount_total,
     gift_card_total,
   } = cartOrOrder
+  // until an address and a cargo service are chosen there is no delivery cost: "Rp 0" reads as free delivery
+  const hasShipping = (cartOrOrder.shipping_methods?.length ?? 0) > 0
 
   return (
     <div>
       <div className="flex flex-col gap-y-2 txt-medium text-ui-fg-subtle ">
         <div className="flex items-center justify-between">
-          <Text className="flex gap-x-1 items-center">
-            Subtotal (belum termasuk ongkir & PPN)
-          </Text>
+          <Text className="flex gap-x-1 items-center">Subtotal</Text>
           <Text
             data-testid="cart-item-subtotal"
             data-value={item_subtotal || 0}
@@ -49,13 +49,13 @@ const CheckoutTotals: React.FC<{
           </div>
         )}
         <div className="flex items-center justify-between">
-          <Text>Ongkir</Text>
+          <Text>Ongkos kirim</Text>
           <Text data-testid="cart-shipping" data-value={shipping_total || 0}>
-            {convertToLocale({ amount: shipping_total ?? 0, currency_code })}
+            {hasShipping ? convertToLocale({ amount: shipping_total ?? 0, currency_code }) : "Dihitung sesuai alamat"}
           </Text>
         </div>
         <div className="flex justify-between">
-          <Text className="flex gap-x-1 items-center ">PPN</Text>
+          <Text className="flex gap-x-1 items-center ">PPN 11%</Text>
           <Text data-testid="cart-taxes" data-value={tax_total || 0}>
             {convertToLocale({ amount: tax_total ?? 0, currency_code })}
           </Text>

@@ -82,3 +82,22 @@ export const machinesForPart = (handle?: string | null) =>
     const part = m.parts?.find((p) => p.handle === handle)
     return part ? [{ machine: m, qty: part.qty, note: part.note }] : []
   })
+
+/*
+  The shop's own order for a listing nobody has sorted yet: the four machines as a range,
+  then their parts in the order of the packing list, then everything else as it came. The
+  search index and the API return products in no order a buyer would choose (a Rp 90.000
+  bearing block came first, the machines were scattered among the parts).
+*/
+const SHOP_ORDER = [...MACHINES.map((m) => m.handle), ...(MACHINES[0].parts ?? []).map((p) => p.handle)]
+
+export const byShopOrder = <T extends { handle?: string | null }>(items: readonly T[]): T[] => {
+  const rank = (handle?: string | null) => {
+    const i = SHOP_ORDER.indexOf(handle ?? "")
+    return i === -1 ? SHOP_ORDER.length : i
+  }
+  return items
+    .map((item, i) => [item, i] as const)
+    .sort((a, b) => rank(a[0].handle) - rank(b[0].handle) || a[1] - b[1])
+    .map(([item]) => item)
+}

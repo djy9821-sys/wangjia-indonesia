@@ -26,8 +26,9 @@ export const paymentInfoMap: Record<
     title: "PayPal",
     icon: <PayPal />,
   },
+  // this shop's manual method: a bank transfer, the proof is uploaded on the order page
   pp_system_default: {
-    title: "Pay by invoice",
+    title: "Transfer bank",
     icon: <FilePlus />,
   },
   // Add more payment providers here

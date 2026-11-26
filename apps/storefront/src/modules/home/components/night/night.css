@@ -269,6 +269,18 @@ body:has([data-wj-night]) [data-announce] { display: none !important; }
 .wj-night .compare { margin-top: 24px; border: 1px solid var(--line); border-radius: 20px; }
 .wj-night .compare summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; min-height: 64px; padding: 0 20px; font-weight: 600; }
 .wj-night .compare summary::-webkit-details-marker { display: none; }
+/* the table grows open where the browser can animate to a natural height; elsewhere it opens at once */
+@supports (interpolate-size: allow-keywords) {
+  @media (prefers-reduced-motion: no-preference) {
+    .wj-night .compare { interpolate-size: allow-keywords; }
+    .wj-night .compare::details-content {
+      block-size: 0;
+      overflow: clip;
+      transition: block-size 0.35s cubic-bezier(0.2, 0.7, 0.2, 1), content-visibility 0.35s allow-discrete;
+    }
+    .wj-night .compare[open]::details-content { block-size: auto; }
+  }
+}
 .wj-night .compare .plus { width: 28px; height: 28px; border-radius: 99px; border: 1px solid var(--line-2); display: grid; place-items: center; transition: transform var(--fast) var(--ease); }
 .wj-night .compare[open] .plus { transform: rotate(45deg); }
 .wj-night .table-wrap { overflow-x: auto; padding: 0 20px 20px; }

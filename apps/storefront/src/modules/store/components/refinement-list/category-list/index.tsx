@@ -141,8 +141,10 @@ const CategoryList = ({
         )}
       </div>
       <ul className="flex flex-col gap-3 text-sm p-3 text-ui-fg-muted">
+        {/* by the rank set in the admin, like the bar and the menu: machines before parts */}
         {categories
           .filter((cat) => cat.parent_category_id === null)
+          .sort((x, y) => (x.rank ?? 0) - (y.rank ?? 0))
           .map(renderCategory)}
       </ul>
     </Container>

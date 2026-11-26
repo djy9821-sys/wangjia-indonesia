@@ -25,12 +25,12 @@ const SignInPrompt = () => (
     </p>
     <div className="relative flex shrink-0 flex-col gap-2 small:flex-row small:gap-3">
       <LocalizedClientLink href="/account?view=log-in">
-        <Button variant="primary" className="h-10 min-w-28 small:min-w-36" data-testid="sign-in-button">
+        <Button variant="primary" className="h-11 min-w-28 small:min-w-36" data-testid="sign-in-button">
           Masuk
         </Button>
       </LocalizedClientLink>
       <LocalizedClientLink href="/account?view=register">
-        <Button variant="secondary" className="h-10 min-w-28 small:min-w-36" data-testid="register-button">
+        <Button variant="secondary" className="h-11 min-w-28 small:min-w-36" data-testid="register-button">
           Daftar
         </Button>
       </LocalizedClientLink>

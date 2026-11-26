@@ -9,7 +9,8 @@ import "@/modules/store/templates/listing.css"
 import type { SearchClient } from "instantsearch.js"
 import { Configure, InstantSearch } from "react-instantsearch"
 
-const HITS_PER_PAGE = 12
+// the whole range on one page: 15 products do not need a second one
+const HITS_PER_PAGE = 24
 
 const SearchStoreTemplate = ({ currencyCode }: { currencyCode: string }) => (
   <div data-wj-list className="wj-list">

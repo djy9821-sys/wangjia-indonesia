@@ -1,3 +1,4 @@
+import { byShopOrder } from "@/lib/util/machines"
 import { IS_PREVIEW } from "@/lib/util/preview"
 import { listProductsWithSort } from "@/lib/data/products"
 import { getRegion } from "@/lib/data/regions"
@@ -8,7 +9,7 @@ import { B2BCustomer } from "@/types"
 import { Container } from "@medusajs/ui"
 
 // the browse-only copy cannot follow ?page=2, so it shows every product on one page
-const PRODUCT_LIMIT = IS_PREVIEW ? 100 : 12
+const PRODUCT_LIMIT = IS_PREVIEW ? 100 : 24
 
 type PaginatedProductsParams = {
   limit: number
@@ -55,6 +56,8 @@ export default async function PaginatedProducts({
   if (sortBy === "created_at") {
     queryParams["order"] = "created_at"
   }
+  // no sort chosen: the shop's own order, laid over what the API returns
+  const shopOrder = !sortBy || sortBy === "shop"
 
   const region = await getRegion(countryCode)
 
@@ -67,10 +70,13 @@ export default async function PaginatedProducts({
   } = await listProductsWithSort({
     page,
     queryParams,
-    sortBy,
+    sortBy: shopOrder ? undefined : sortBy,
     countryCode,
     optionValueIds,
   })
+  if (shopOrder) {
+    products = byShopOrder(products)
+  }
 
   const totalPages = Math.ceil(count / PRODUCT_LIMIT)
 

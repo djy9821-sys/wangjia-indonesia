@@ -72,8 +72,9 @@ export async function NavigationHeader({
           <div className="flex items-center small:space-x-4">
             <MobileMenu machines={machines} categories={otherCategories} />
             <LocalizedClientLink
-              className="flex items-center w-fit shrink-0"
+              className="flex min-h-[44px] w-fit shrink-0 items-center"
               href="/"
+              aria-label="WANGJIA, ke beranda"
             >
               <span className="small:text-base text-sm font-medium flex items-center">
                 <Image src="/wangjia-logo-white.png" alt="WANGJIA" width={289} height={80} priority className="h-9 w-[130px] shrink-0 object-contain" />
