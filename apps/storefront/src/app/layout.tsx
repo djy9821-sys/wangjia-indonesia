@@ -16,9 +16,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
   // the shop is in Indonesian: "en" made Chrome offer to translate every page
   return (
     <html lang="id" data-mode="light" className={GeistSans.variable}>
-      <head>
-        <link rel="ucp" href="/.well-known/ucp" />
-      </head>
+      <head>{!IS_PREVIEW && <link rel="ucp" href="/.well-known/ucp" />}</head>
       {/* An explicit page colour: a browser in dark mode would otherwise put the sections without
           their own background on a dark canvas. Paper, the surface of every page that is not in
           the night (the night pages darken the body themselves, styles/globals.css). */}
