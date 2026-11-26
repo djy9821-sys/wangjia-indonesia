@@ -231,7 +231,7 @@ export function CartProvider({
     await deleteLineItem(lineItem)
       .then(onCartUpdated)
       .catch((e) => {
-        toast.error("Failed to delete item")
+        toast.error("Gagal menghapus barang")
         setOptimisticCart(prevCart)
       })
   }
@@ -294,7 +294,7 @@ export function CartProvider({
       })
         .then(onCartUpdated)
         .catch((e) => {
-          toast.error("Failed to update cart quantity")
+          toast.error("Gagal mengubah jumlah")
           setOptimisticCart(prevCart)
         })
     }
@@ -315,7 +315,7 @@ export function CartProvider({
     await emptyCart()
       .then(onCartUpdated)
       .catch((e) => {
-        toast.error("Failed to empty cart")
+        toast.error("Gagal mengosongkan keranjang")
         setOptimisticCart(prevCart)
       })
   }

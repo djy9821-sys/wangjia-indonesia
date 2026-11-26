@@ -30,12 +30,12 @@ const CompanyCard = ({
   const handleSave = async () => {
     setIsSaving(true)
     await updateCompany(companyData).catch(() => {
-      toast.error("Error updating company")
+      toast.error("Gagal memperbarui data perusahaan")
     })
     setIsSaving(false)
     setIsEditing(false)
 
-    toast.success("Company updated")
+    toast.success("Data perusahaan diperbarui")
   }
 
   const currenciesInRegions = Array.from(

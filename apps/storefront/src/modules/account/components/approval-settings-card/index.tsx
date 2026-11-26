@@ -35,13 +35,13 @@ const ApprovalSettingsCard = ({
     setIsSaving(true)
     await updateApprovalSettings(company.id, requiresAdminApproval).catch(
       () => {
-        toast.error("Error updating approval settings")
+        toast.error("Gagal menyimpan pengaturan persetujuan")
       }
     )
     setIsSaving(false)
     setIsEditing(false)
 
-    toast.success("Company updated")
+    toast.success("Pengaturan persetujuan disimpan")
   }
 
   return (

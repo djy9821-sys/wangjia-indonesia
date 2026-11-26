@@ -22,7 +22,7 @@ const InviteEmployeeCard = ({ company }: { company: QueryCompany }) => {
         </div>
       </div>
       <div className="flex items-center justify-end gap-2 bg-neutral-50 p-4">
-        <Button variant="primary" onClick={() => toast.info("Not implemented")}>
+        <Button variant="primary" onClick={() => toast.info("Fitur ini belum tersedia")}>
           Kirim Undangan
         </Button>
       </div>

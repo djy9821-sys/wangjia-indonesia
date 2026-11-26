@@ -25,11 +25,11 @@ const RemoveEmployeePrompt = ({ employee }: { employee: QueryEmployee }) => {
   const handleRemove = async () => {
     setIsRemoving(true)
     await deleteEmployee(employee.company_id, employee.id).catch(() => {
-      toast.error("Error deleting employee")
+      toast.error("Gagal menghapus karyawan")
     })
     setIsRemoving(false)
 
-    toast.success("Employee deleted")
+    toast.success("Karyawan dihapus")
   }
 
   return (
@@ -91,13 +91,13 @@ const Employee = ({
 
     setIsSaving(true)
     await updateEmployee(updateData as StoreUpdateEmployee).catch(() => {
-      toast.error("Error updating employee")
+      toast.error("Gagal memperbarui data karyawan")
     })
 
     setIsSaving(false)
     setIsEditing(false)
 
-    toast.success("Employee updated")
+    toast.success("Data karyawan diperbarui")
   }
 
   const spent = getOrderTotalInSpendWindow(orders, getSpendWindow(company)) || 0
