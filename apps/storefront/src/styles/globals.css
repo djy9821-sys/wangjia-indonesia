@@ -112,41 +112,48 @@
 }
 
 /*
-  Night pages (home, product and listing pages): the header joins the night, as in
-  mock-up A2. The white logo replaces the ink one, hovers lighten instead of turning grey,
-  and the cart count takes the one accent.
+  The header is night on every page (mock-up A2): one logo and one skin, also over the paper
+  pages (cart, account, policies). Its colours sit on the element (nav/index.tsx); here the
+  hovers lighten instead of turning grey, and the divider and the cart count take the palette.
+  Pages in the night (home, product, listing) darken the body too, so nothing white shows
+  behind the bar or when the page is pulled past its edge, and let the scene show through it.
 */
 body:has([data-wj-night], [data-wj-product], [data-wj-list]) {
   background: #060b15;
 }
-body:has([data-wj-night], [data-wj-product], [data-wj-list]) [data-site-header] {
-  background: rgba(6, 11, 21, 0.86);
-  color: #f2f4f7;
-  border-color: rgba(190, 210, 255, 0.12);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-}
-body:has([data-wj-night], [data-wj-product], [data-wj-list]) [data-site-header] [data-logo="ink"] {
-  display: none;
-}
-body:has([data-wj-night], [data-wj-product], [data-wj-list]) [data-site-header] [data-logo="night"] {
-  display: block;
-}
-body:has([data-wj-night], [data-wj-product], [data-wj-list]) [data-site-header] :is(a, button):hover {
+[data-site-header] :is(a, button):hover {
   background-color: rgba(255, 255, 255, 0.08);
   color: #fff;
 }
-body:has([data-wj-night], [data-wj-product], [data-wj-list]) [data-site-header] .bg-neutral-300 {
+[data-site-header] .bg-neutral-300 {
   background-color: rgba(190, 210, 255, 0.24);
 }
-body:has([data-wj-night], [data-wj-product], [data-wj-list]) [data-site-header] .bg-blue-500 {
+[data-site-header] .bg-blue-500 {
   background-color: #ffb547;
   color: #1a1205;
 }
-@media (max-width: 767px) {
+@media (min-width: 768px) {
   body:has([data-wj-night], [data-wj-product], [data-wj-list]) [data-site-header] {
-    background: rgba(6, 11, 21, 0.96);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
+    background: rgba(6, 11, 21, 0.86);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
   }
+}
+
+/*
+  The phone menu (modules/layout/components/mobile-menu): the sheet fades in quickly, its rows
+  rise one after another, and it leaves faster than it came. Reduced motion keeps the fade only.
+*/
+.wj-menu[data-state="open"] { animation: wj-menu-in 240ms cubic-bezier(0.23, 1, 0.32, 1); }
+.wj-menu[data-state="closed"] { animation: wj-menu-out 160ms ease-in; }
+.wj-menu[data-state="open"] .wj-menu-item {
+  animation: wj-menu-row 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 45ms + 40ms);
+}
+.wj-menu a:active { opacity: 0.7; }
+@keyframes wj-menu-in { from { opacity: 0; } }
+@keyframes wj-menu-out { to { opacity: 0; } }
+@keyframes wj-menu-row { from { opacity: 0; transform: translateY(14px); } }
+@media (prefers-reduced-motion: reduce) {
+  .wj-menu[data-state="open"] .wj-menu-item { animation: none; }
 }

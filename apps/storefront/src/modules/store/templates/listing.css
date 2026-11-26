@@ -3,10 +3,8 @@
   product pages (mock-up A2): the same ink, lines, greys and one accent. The filters, the sort,
   checkboxes and pagination are Medusa UI pieces that draw from its CSS variables, so those
   variables take night values inside .wj-list. The product card uses the same variables and
-  stays light on the paper band under a product page. The header joins the night in globals.css.
+  stays light on the paper band under a product page.
 */
-body:has([data-wj-list]) [data-announce] { background: #0a1222; color: #a7b1c4; border-bottom: 1px solid rgba(190, 210, 255, 0.12); }
-
 .wj-list {
   --ink-1: #060b15;
   --ink-2: #0a1222;

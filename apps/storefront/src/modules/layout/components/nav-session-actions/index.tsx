@@ -24,17 +24,20 @@ export default function NavSessionActions() {
 
   return (
     <>
-      {customer && cart?.items && cart.items.length > 0 ? (
-        <RequestQuoteConfirmation>
-          <QuoteButton />
-        </RequestQuoteConfirmation>
-      ) : (
-        <RequestQuotePrompt>
-          <QuoteButton />
-        </RequestQuotePrompt>
-      )}
+      {/* on phones the bar keeps search and the cart: the account is in the menu, a quote starts from the cart page */}
+      <div className="hidden items-center gap-2 small:flex">
+        {customer && cart?.items && cart.items.length > 0 ? (
+          <RequestQuoteConfirmation>
+            <QuoteButton />
+          </RequestQuoteConfirmation>
+        ) : (
+          <RequestQuotePrompt>
+            <QuoteButton />
+          </RequestQuotePrompt>
+        )}
 
-      <AccountButton customer={customer} />
+        <AccountButton customer={customer} />
+      </div>
 
       <CartButton />
     </>

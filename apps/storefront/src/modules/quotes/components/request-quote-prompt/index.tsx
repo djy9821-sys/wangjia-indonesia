@@ -27,16 +27,16 @@ export const RequestQuotePrompt = ({
             <li>
               <Dialog.Close asChild>
                 <LocalizedClientLink
-                  className="text-blue-500 cursor-pointer"
+                  className="cursor-pointer font-medium underline underline-offset-4"
                   href="/account"
                 >
                   Masuk
                 </LocalizedClientLink>
               </Dialog.Close>
-              {" or "}
+              {" atau "}
               <Dialog.Close>
                 <LocalizedClientLink
-                  className="text-blue-500 cursor-pointer"
+                  className="cursor-pointer font-medium underline underline-offset-4"
                   href="/account"
                 >
                   buat akun
