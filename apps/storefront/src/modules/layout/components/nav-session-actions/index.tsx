@@ -9,9 +9,14 @@ import { RequestQuoteConfirmation } from "@/modules/quotes/components/request-qu
 import { RequestQuotePrompt } from "@/modules/quotes/components/request-quote-prompt"
 
 const QuoteButton = () => (
-  <button className="flex gap-1.5 items-center rounded-2xl bg-none shadow-none border-none hover:bg-neutral-100 px-2 py-1">
-    <FilePlus />
-    <span className="hidden small:inline-block">Penawaran</span>
+  <button
+    type="button"
+    aria-label="Minta penawaran"
+    className="flex min-h-[36px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-2xl px-2 py-1"
+  >
+    <FilePlus size={15} />
+    {/* the word from 1280 px up; narrower desktops keep the icon */}
+    <span className="hidden medium:inline-block">Penawaran</span>
   </button>
 )
 

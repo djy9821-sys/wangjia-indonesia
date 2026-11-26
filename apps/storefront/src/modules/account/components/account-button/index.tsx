@@ -10,11 +10,12 @@ export default function AccountButton({
   // a link styled as the bar's other controls (it used to wrap a button, which is not valid)
   return (
     <LocalizedClientLink
-      className="flex gap-1.5 items-center rounded-2xl px-2 py-1 hover:bg-neutral-100"
+      className="flex min-h-[36px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-2xl px-2 py-1"
       href="/account"
+      aria-label={customer ? "Akun saya" : "Masuk"}
     >
-      <User />
-      <span className="hidden small:inline-block">
+      <User size={15} />
+      <span className="hidden medium:inline-block">
         {customer ? customer.first_name : "Masuk"}
       </span>
     </LocalizedClientLink>

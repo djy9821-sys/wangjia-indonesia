@@ -40,9 +40,10 @@ export async function NavigationHeader({
   const categories = allCategories
     .filter((c) => !c.parent_category_id)
     .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+  // the bar says "Kincir Air", the category page keeps its full name "Kincir Air (Aerator)"
   const links = [
     ["Semua produk", "/store"],
-    ...categories.map((c) => [c.name, `/categories/${c.handle}`]),
+    ...categories.map((c) => [c.name.replace(/\s*\(.*\)\s*$/, ""), `/categories/${c.handle}`]),
     ["Panduan", "/panduan"],
     ["Cek garansi", "/garansi"],
   ]
@@ -82,9 +83,10 @@ export async function NavigationHeader({
             {/* on desktop the few destinations sit in the bar itself (a hover menu held two categories) */}
             <nav aria-label="Menu utama" className="hidden small:block">
               <ul className="flex items-center gap-1">
+                {/* between 1024 and 1280 px the bar is tight: "Semua produk" waits (the two categories hold everything) */}
                 {links.map(([label, href]) => (
-                  <li key={href}>
-                    <LocalizedClientLink href={href} className="rounded-full px-3 py-2 text-[14px] text-[#c9d1e0]">
+                  <li key={href} className={href === "/store" ? "hidden medium:block" : undefined}>
+                    <LocalizedClientLink href={href} className="whitespace-nowrap rounded-full px-3 py-2 text-[14px] text-[#c9d1e0]">
                       {label}
                     </LocalizedClientLink>
                   </li>
@@ -105,7 +107,7 @@ export async function NavigationHeader({
               href={whatsappLink("Halo WANGJIA, saya mau tanya tentang kincir air.")}
               target="_blank"
               rel="noreferrer"
-              className="flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-[14px]"
+              className="flex min-h-[44px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[14px]"
               data-testid="nav-whatsapp"
             >
               <WhatsAppIcon className="h-[18px] w-[18px] text-[#25d366]" />
