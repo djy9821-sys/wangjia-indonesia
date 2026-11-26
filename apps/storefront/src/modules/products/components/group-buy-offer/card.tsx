@@ -1,6 +1,7 @@
 import { GroupBuy } from "@/lib/data/group-buys"
 import { convertToLocale } from "@/lib/util/money"
 import { formatDateId } from "@/lib/util/order-status"
+import { asset } from "@/lib/util/preview"
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
 import JoinForm from "./join-form"
 
@@ -17,12 +18,12 @@ const GroupBuyCard = ({ g, countryCode, showProduct = true }: { g: GroupBuy; cou
       <div className="flex gap-3">
         {showProduct && (
           <LocalizedClientLink href={g.product_handle ? `/products/${g.product_handle}` : "/store"} className="shrink-0">
-            <img src={g.thumbnail ?? "/products/aerator-2hp.png"} alt={g.product_title} className="h-20 w-20 rounded-xl object-contain bg-white border border-ui-border-base" />
+            <img src={g.thumbnail ?? asset("/products/kincir-2hp-oranye-front.webp")} alt={g.product_title} className="h-20 w-20 rounded-xl object-contain bg-white border border-ui-border-base" />
           </LocalizedClientLink>
         )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="rounded-full bg-[#0193DE] px-2 py-0.5 text-[11px] font-semibold text-white">PATUNGAN</span>
+            <span className="rounded-full bg-[#121417] px-2 py-0.5 text-[11px] font-semibold text-white">PATUNGAN</span>
             {discount !== null && discount > 0 && (
               <span className="rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-600">Hemat {discount}%</span>
             )}
@@ -49,7 +50,7 @@ const GroupBuyCard = ({ g, countryCode, showProduct = true }: { g: GroupBuy; cou
           <span>{daysLeft(g.ends_at)} hari lagi · s.d. {formatDateId(g.ends_at)}</span>
         </div>
         <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-ui-bg-subtle">
-          <div className="h-full rounded-full bg-[linear-gradient(90deg,#0193DE,#0E5A8A)]" style={{ width: `${pct}%` }} />
+          <div className="h-full rounded-full bg-[#ffb547]" style={{ width: `${pct}%` }} />
         </div>
         <p className="mt-1 text-xs text-ui-fg-subtle">
           {missing > 0 ? `Kurang ${missing} unit lagi untuk harga patungan.` : "Unit minimum terpenuhi, harga patungan berlaku."}

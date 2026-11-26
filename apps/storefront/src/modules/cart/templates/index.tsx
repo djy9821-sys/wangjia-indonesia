@@ -25,7 +25,7 @@ const CartTemplate = ({ customer }: { customer: B2BCustomer | null }) => {
   )
 
   return (
-    <div className="small:py-12 py-6 bg-neutral-100">
+    <div className="bg-[#f6f4ef] py-6 small:py-12">
       <div className="content-container" data-testid="cart-container">
         {cart?.items?.length ? (
           <div>

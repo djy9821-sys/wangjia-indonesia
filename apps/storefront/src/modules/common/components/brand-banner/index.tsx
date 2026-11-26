@@ -2,9 +2,9 @@ import Image from "next/image"
 import { clx } from "@medusajs/ui"
 
 /**
- * Brand block used instead of the starter's stock photos: blue→green gradient,
- * the WANGJIA wordmark and the 2 HP aerator illustration. Swap the image for a
- * real field photo once 李总 provides one.
+ * Brand block used instead of the starter's stock photos: the night of the home page, the
+ * WANGJIA wordmark and the 2 HP machine's cut-out. Swap the image for a real field photo
+ * once the owner provides one.
  */
 const BrandBanner = ({
   className,
@@ -16,7 +16,7 @@ const BrandBanner = ({
   <div
     className={clx(
       "relative overflow-hidden rounded-md text-white w-full",
-      "bg-[linear-gradient(120deg,#0193DE_0%,#0E5A8A_100%)]",
+      "bg-[linear-gradient(160deg,#121d3d_0%,#060b15_70%)]",
       className
     )}
   >
@@ -48,14 +48,14 @@ const BrandBanner = ({
       )}
     </div>
     <Image
-      src="/products/aerator-2hp.png"
+      src="/products/kincir-2hp-oranye-front.webp"
       alt=""
-      width={640}
-      height={480}
+      width={1000}
+      height={475}
       priority
       className={clx(
-        "absolute right-0 bottom-0 object-contain pointer-events-none select-none opacity-95",
-        compact ? "h-full w-auto max-w-[45%]" : "h-[115%] w-auto max-w-[55%] -mb-4"
+        "absolute right-3 object-contain object-right-bottom pointer-events-none select-none",
+        compact ? "bottom-2 h-[70%] w-auto max-w-[42%]" : "bottom-4 h-[62%] w-auto max-w-[52%]"
       )}
     />
   </div>

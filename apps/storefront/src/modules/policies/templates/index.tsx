@@ -1,11 +1,10 @@
-import { convertToLocale } from "@/lib/util/money"
-import { formatDayRange, StorePolicies } from "@/lib/util/store-policies"
+import { archivo } from "@/lib/fonts/archivo"
 
-export const formatShippingRate = (rate: number, currencyCode: string) =>
-  rate === 0
-    ? "Free"
-    : convertToLocale({ amount: rate, currency_code: currencyCode })
-
+/*
+  The reading pages (delivery, returns, terms, privacy, contact, the installation guide), on
+  paper under the night header: the title in the shop's display face on the left, the text in
+  a readable column on the right, the same 4 | 8 split as the sections of a product page.
+*/
 export const PolicyPage = ({
   title,
   children,
@@ -13,40 +12,22 @@ export const PolicyPage = ({
   title: string
   children: React.ReactNode
 }) => (
-  <div className="content-container py-12 max-w-3xl" data-testid="policy-page">
-    <h1 className="text-2xl-semi mb-8">{title}</h1>
-    <div className="flex flex-col gap-6 text-base-regular text-ui-fg-base">
-      {children}
+  <div className={`bg-[#f6f4ef] text-[#121417] ${archivo.variable}`}>
+    <div
+      className="content-container grid gap-8 py-12 small:grid-cols-12 small:gap-12 small:py-20"
+      data-testid="policy-page"
+    >
+      <div className="small:col-span-4">
+        <p className="text-[12px] font-medium uppercase tracking-[0.12em] text-[#6b7280]">
+          <span translate="no">WANGJIA®</span> · Bantuan
+        </p>
+        <h1 className="mt-3 font-[family-name:var(--font-archivo)] text-[44px] font-extrabold uppercase leading-[0.92] [font-stretch:72%] [text-wrap:balance] small:text-[60px]">
+          {title}
+        </h1>
+      </div>
+      <div className="flex max-w-[68ch] flex-col gap-5 text-[17px] leading-relaxed text-[#2b2f36] small:col-span-8 [&_a]:underline [&_a]:underline-offset-4 [&_h2]:mt-4 [&_h2]:text-[20px] [&_h2]:font-semibold [&_h2]:text-[#121417] [&_strong]:font-semibold [&_strong]:text-[#121417]">
+        {children}
+      </div>
     </div>
   </div>
-)
-
-export const PoliciesUnavailable = () => (
-  <p className="text-ui-fg-subtle">
-    Policy details for this region haven&apos;t been published yet.
-  </p>
-)
-
-export const ShippingSummary = ({
-  policies,
-  currencyCode,
-}: {
-  policies: StorePolicies
-  currencyCode: string
-}) => (
-  <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2">
-    <dt className="text-ui-fg-subtle">Shipping rate</dt>
-    <dd>{formatShippingRate(policies.shippingRate, currencyCode)}</dd>
-    <dt className="text-ui-fg-subtle">Processing time</dt>
-    <dd>{formatDayRange(policies.handlingDays)} business days</dd>
-    <dt className="text-ui-fg-subtle">Delivery time</dt>
-    <dd>{formatDayRange(policies.transitDays)} business days after dispatch</dd>
-  </dl>
-)
-
-export const PlaceholderNotice = () => (
-  <p className="text-ui-fg-subtle" data-testid="policy-placeholder">
-    This is placeholder content from the Medusa starter. Replace it with your
-    store&apos;s own text before launch.
-  </p>
 )

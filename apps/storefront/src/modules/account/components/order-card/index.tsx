@@ -41,7 +41,7 @@ const OrderCard = ({ order }: OrderCardProps) => {
             />
           ) : (
             <Image
-              src="/products/aerator-2hp.png"
+              src="/products/kincir-2hp-oranye-front.webp"
               alt=""
               fill
               sizes="64px"

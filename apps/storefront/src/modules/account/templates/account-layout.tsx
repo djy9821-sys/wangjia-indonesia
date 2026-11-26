@@ -22,7 +22,7 @@ const AccountLayout: React.FC<AccountLayoutProps> = async ({
 
   return (
     <div
-      className="flex-1 small:py-12 bg-neutral-100"
+      className="flex-1 small:py-12 bg-[#f6f4ef]"
       data-testid="account-page"
     >
       <div className="flex-1 content-container h-full max-w-7xl mx-auto flex flex-col">
