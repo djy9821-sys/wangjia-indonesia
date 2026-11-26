@@ -77,7 +77,7 @@ export async function NavigationHeader({
               aria-label="WANGJIA, ke beranda"
             >
               <span className="small:text-base text-sm font-medium flex items-center">
-                <Image src="/wangjia-logo-white.png" alt="WANGJIA" width={289} height={80} priority className="h-9 w-[130px] shrink-0 object-contain" />
+                <Image src="/wangjia-logo-white.png" alt="WANGJIA" width={289} height={80} priority className="h-9 w-[130px] shrink-0 object-contain max-[359px]:w-[112px]" />
               </span>
             </LocalizedClientLink>
 
@@ -108,11 +108,13 @@ export async function NavigationHeader({
               href={whatsappLink("Halo WANGJIA, saya mau tanya tentang kincir air.")}
               target="_blank"
               rel="noreferrer"
-              className="flex min-h-[44px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[14px]"
+              aria-label="Tanya lewat WhatsApp"
+              className="flex min-h-[44px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[14px] max-[359px]:w-11 max-[359px]:justify-center max-[359px]:px-0"
               data-testid="nav-whatsapp"
             >
-              <WhatsAppIcon className="h-[18px] w-[18px] text-[#25d366]" />
-              Tanya
+              <WhatsAppIcon className="h-[18px] w-[18px] text-[#25d366] max-[359px]:h-[22px] max-[359px]:w-[22px]" />
+              {/* under 360 px (small phones, or a phone set to large display) the mark stands alone */}
+              <span className="max-[359px]:hidden">Tanya</span>
             </a>
 
             <NavSessionActions />

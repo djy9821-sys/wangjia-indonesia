@@ -46,7 +46,12 @@ const AddNoteButton = ({
   }
 
   return (
-    <div className="relative w-fit flex items-center justify-center">
+    <div
+      className={clx(
+        "relative flex items-center",
+        isOpen ? "w-full" : "w-fit justify-center"
+      )}
+    >
       {!note && !isOpen && (
         <button
           className={clx(
@@ -60,13 +65,8 @@ const AddNoteButton = ({
           Tambah catatan
         </button>
       )}
-      {note?.length > 0 && (
-        <span
-          className={clx(
-            "flex transition-opacity duration-150 items-center justify-center gap-x-1 text-neutral-600 text-xs line-clamp-none",
-            isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
-          )}
-        >
+      {note?.length > 0 && !isOpen && (
+        <span className="flex min-h-[44px] items-center justify-center gap-x-1 text-[14px] text-neutral-600 line-clamp-none">
           <span className="text-neutral-950">Catatan:&nbsp;</span>
           <span
             className="text-neutral-600 italic cursor-pointer hover:text-neutral-950 hover:underline"
@@ -75,32 +75,32 @@ const AddNoteButton = ({
             {note}
           </span>
           <button
-            className="text-neutral-600 text-xs ml-2 hover:text-ui-fg-interactive-hover"
+            type="button"
+            aria-label="Hapus catatan"
+            className="-my-2 ml-1 grid h-11 w-11 place-items-center rounded-full text-[16px] text-neutral-600 hover:bg-neutral-100"
             onClick={deleteNote}
           >
-            x
+            ×
           </button>
         </span>
       )}
-      <div
-        className={`absolute left-0 flex text-neutral-600 text-xs transition-all duration-150 items-center justify-center self-center ${
-          isOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
-        }`}
-      >
-        <span className="text-neutral-950">Catatan:&nbsp;</span>
-
-        <Input
-          ref={inputRef}
-          className="w-fit small:max-w-40 max-w-32 h-6 flex items-center justify-center text-neutral-950 text-xs rounded-full"
-          type="text"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          onKeyDown={(e) => handleKeyDown(e)}
-          onBlur={() => handleBlur()}
-        />
-      </div>
+      {/* the field exists only while it is open: hidden but laid out, it pushed a 320 px page
+          sideways, and at 12 px iOS zoomed the page on focus */}
+      {isOpen && (
+        <div className="w-full min-w-0 max-w-64">
+          <Input
+            ref={inputRef}
+            className="h-11 w-full rounded-full text-[16px] text-neutral-950"
+            type="text"
+            placeholder="Tulis catatan"
+            aria-label="Catatan untuk barang ini"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e)}
+            onBlur={() => handleBlur()}
+          />
+        </div>
+      )}
     </div>
   )
 }

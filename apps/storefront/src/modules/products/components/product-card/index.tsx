@@ -90,8 +90,9 @@ export default function ProductCard({
               </p>
             )}
             {price && (
-              <p className="leading-tight">
-                {price.from && <span className="mr-1 text-[12px] text-ui-fg-muted">mulai</span>}
+              // "mulai" may sit above the amount: on a 360 px phone the two do not fit one line of a card
+              <p className="flex flex-wrap items-baseline gap-x-1 leading-tight">
+                {price.from && <span className="text-[12px] text-ui-fg-muted">mulai</span>}
                 <span
                   className={clx(
                     "whitespace-nowrap text-[15px] font-semibold tabular-nums small:text-[16px]",
