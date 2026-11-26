@@ -1,20 +1,29 @@
 "use client"
 
-import { PRODUCT_INDEX_NAME, searchClient } from "@/lib/search-client"
+import Spinner from "@/modules/common/icons/spinner"
 import { MagnifyingGlass } from "@medusajs/icons"
 import { Drawer } from "@medusajs/ui"
-import type { SearchClient } from "instantsearch.js"
+import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useParams, usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
-import { Configure, InstantSearch } from "react-instantsearch"
 
-import SearchPanel from "./panel"
-
-const HITS_PER_PAGE = 12
+// The search itself arrives when it is first wanted: a pointer or finger on the button starts
+// the download, opening the drawer shows it.
+const loadBody = () => import("./body")
+const SearchBody = dynamic(loadBody, {
+  ssr: false,
+  loading: () => (
+    <div className="flex justify-center py-10">
+      <Spinner />
+    </div>
+  ),
+})
 
 const Search = ({ currencyCode }: { currencyCode: string }) => {
   const [isOpen, setIsOpen] = useState(false)
+  // stays mounted after the first opening, so a query survives closing the drawer
+  const [wanted, setWanted] = useState(false)
   const pathname = usePathname()
   const { countryCode } = useParams<{ countryCode: string }>()
 
@@ -30,8 +39,12 @@ const Search = ({ currencyCode }: { currencyCode: string }) => {
         href={`/${countryCode}/search`}
         onClick={(event) => {
           event.preventDefault()
+          setWanted(true)
           setIsOpen(true)
         }}
+        onPointerEnter={loadBody}
+        onTouchStart={loadBody}
+        onFocus={loadBody}
         aria-label="Cari produk"
         title="Cari produk"
         className="transition-fg inline-flex w-fit items-center justify-center outline-none px-3 py-1.5 rounded-full hover:bg-neutral-100"
@@ -49,17 +62,12 @@ const Search = ({ currencyCode }: { currencyCode: string }) => {
         </Drawer.Header>
 
         <div className="flex flex-col h-full overflow-hidden">
-          <InstantSearch
-            indexName={PRODUCT_INDEX_NAME}
-            searchClient={searchClient as unknown as SearchClient}
-            future={{ preserveSharedStateOnUnmount: true }}
-          >
-            <Configure hitsPerPage={HITS_PER_PAGE} />
-            <SearchPanel
+          {wanted && (
+            <SearchBody
               currencyCode={currencyCode}
               onNavigate={() => setIsOpen(false)}
             />
-          </InstantSearch>
+          )}
         </div>
       </Drawer.Content>
     </Drawer>
