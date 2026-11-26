@@ -1,7 +1,10 @@
 import { archivo } from "@/lib/fonts/archivo"
 import { machineByHandle } from "@/lib/util/machines"
+import FitsMachines from "@/modules/products/components/fits-machines"
 import GroupBuyOffer from "@/modules/products/components/group-buy-offer"
+import CompareMachines from "@/modules/products/components/compare-machines"
 import ImageGallery from "@/modules/products/components/image-gallery"
+import MachineParts from "@/modules/products/components/machine-parts"
 import ProductActions from "@/modules/products/components/product-actions"
 import ProductDetails from "@/modules/products/components/product-details"
 import RelatedProducts from "@/modules/products/components/related-products"
@@ -31,18 +34,20 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({ product, region, coun
   if (!product || !product.id) {
     return notFound()
   }
+  const machine = machineByHandle(product.handle)
 
   return (
     <div data-wj-product className={`wj-pdp ${archivo.variable} ${GeistMono.variable}`}>
       <div className="content-container grid grid-cols-1 gap-8 py-6 small:grid-cols-12 small:gap-12 small:py-12" data-testid="product-container">
         <div className="small:col-span-7">
           <div className="small:sticky small:top-28">
-            <ImageGallery product={product} stage={machineByHandle(product.handle)} />
+            <ImageGallery product={product} stage={machine} />
           </div>
         </div>
         <div className="flex flex-col gap-8 small:col-span-5">
           <ProductInfo product={product} />
           <ProductActions product={product} region={region} />
+          <FitsMachines handle={product.handle} />
           <Suspense fallback={null}>
             <GroupBuyOffer productId={product.id} countryCode={countryCode} />
           </Suspense>
@@ -50,7 +55,17 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({ product, region, coun
           <ProductFacts product={product} />
         </div>
       </div>
+      {machine?.parts && (
+        <Suspense fallback={null}>
+          <MachineParts machine={machine} region={region} countryCode={countryCode} />
+        </Suspense>
+      )}
       <ProductDetails product={product} />
+      {machine && (
+        <Suspense fallback={null}>
+          <CompareMachines current={machine.handle} region={region} countryCode={countryCode} />
+        </Suspense>
+      )}
       <Suspense
         fallback={
           <div className="bg-[#f6f4ef] pb-28">
