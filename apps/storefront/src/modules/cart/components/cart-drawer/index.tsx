@@ -151,7 +151,7 @@ const CartDrawer = ({
           </button>
         </Drawer.Trigger>
         <Drawer.Content
-          className="z-50 rounded-none m-0 p-0 inset-y-0 sm:right-0"
+          className="z-50 rounded-none m-0 p-0 inset-y-0 sm:right-0 [&_kbd]:hidden small:[&_kbd]:inline-flex"
           onMouseEnter={cancelTimer}
         >
           <Drawer.Header className="flex self-center">
