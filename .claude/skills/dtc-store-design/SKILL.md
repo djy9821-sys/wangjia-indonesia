@@ -7,7 +7,7 @@ description: Design or redesign the pages of an independent online store (a DTC 
 
 ## 中文概要
 
-这个 skill 记录了怎么把独立站做到顶级品牌站的水平。资料来自四类：顾客体验研究（Baymard、Nielsen Norman Group、Shopify），视觉和动效的手艺（排版、配色、间距、动效节奏的课程和文章），获奖网站和硬件品牌的做法（苹果、大疆、拓竹、Teenage Engineering、Nothing 的实测拆解，以及 Aesop、Oura 等案例），还有这个项目里走过的弯路。核心：第一屏要是会动的画面，产品在统一的光里干活，让画面先把品牌概念讲出来，文字只补一句；颜色和字体要克制，画面和动效要大胆。没有实拍素材时，就照产品照片建一个实时 3D 场景。拿不准口味时做两三个差别很大的小样，摆在参考网站旁边比，不靠猜。下面的正文是写给 AI 的工作流程和检查清单。
+这个 skill 记录了怎么把独立站做到顶级品牌站的水平。资料来自四类：顾客体验研究（Baymard、Nielsen Norman Group、Shopify），视觉和动效的手艺（排版、配色、间距、动效节奏的课程和文章），获奖网站和硬件品牌的做法（苹果、大疆、拓竹、Teenage Engineering、Nothing 的实测拆解，以及 Aesop、Oura 等案例），还有这个项目里走过的弯路。核心：第一屏要是会动的画面，产品在统一的光里干活，让画面先把品牌概念讲出来，文字只补一句；颜色和字体要克制，画面和动效要大胆。没有实拍素材时，就照产品照片建一个实时 3D 场景。拿不准口味时做两三个差别很大的小样，摆在参考网站旁边比，不靠猜。首页做好以后，还要把顾客从进站、挑选、加购、付款到回来买配件的整条路在手机上量一遍：顶栏、菜单、页脚、购物车、结账这些每页都有的部分往往还是模板原样；讲故事的页面用夜色，办事和阅读的页面用纸色（见 `references/store-system.md`）。下面的正文是写给 AI 的工作流程和检查清单。
 
 ## Why this skill exists
 
@@ -15,13 +15,15 @@ Earlier rounds on this shop failed in an instructive way: gradients, glows, bubb
 
 Round two (mock-ups A and B, 2026-11-19) then obeyed every rule and still looked static: the idea "while you sleep, the pond keeps breathing" was only written. There was no water, no night, and the machine was a still cut-out. Restraint belongs to colour and type, not to imagery and motion. Round three (A2, `docs/mockups/home-2026-11-20/`) shows the idea instead: a real-time 3D night pond with the machine working, and a scroll story that runs from night to dawn. `references/cinematic-scenes.md` records how it was built.
 
+Round four (2026-11-26) found the other half of the job. The hero was the night pond, and everything a buyer touches after it was still the starter template: a phone had no menu, the cart's buttons were 16 px, tax first appeared at checkout, the desktop bar broke at 1024 px. A store is judged on the whole path, so after a story page lands, audit and design the system around it. `references/store-system.md` records the audit, the surface rule and the recipes.
+
 ## Workflow
 
 Work through these steps in order. Each one produces something concrete; skipping one is how designs drift back to "template".
 
 1. **Brief.** For WANGJIA read `references/wangjia-brief.md` first (audience, allowed claims, assets, stack, owner's taste so far). For anything else fill `assets/creative-brief-template.md`. Output: the brief, short.
 2. **References.** Ask the person for two or three sites, posts or screenshots they love and what they love in each; taste cannot be guessed reliably. Open each and measure it the way `references/teardowns.md` does: fonts and sizes, colours, motion timings, libraries, page structure. On this machine outside sites open only in the user's Chrome (Claude in Chrome). Output: what to take from each reference.
-3. **Audit what exists.** Check the current page against the checklists below and list the problems by severity. This keeps the redesign honest about what is actually wrong.
+3. **Audit what exists.** Check the current page against the checklists below and list the problems by severity. This keeps the redesign honest about what is actually wrong. When the round is about the whole shop, audit the path a buyer walks instead of one page, by script and at 375, 1024 and 1440 px (`references/store-system.md`, section 7).
 4. **Idea and art direction.** Write the brand idea in one sentence and decide what imagery serves it. List what exists, what to shoot or render, and the fallback if it never arrives. Product imagery must be real (60 % of shoppers would feel less confident buying if a product image were AI-generated); generated imagery is only acceptable for atmosphere. Then choose the **signature moment**: the one moving picture that shows the idea, such as footage of the product at work, a real-time 3D scene built from the catalogue dimensions (`references/cinematic-scenes.md`), or a scroll-scrubbed sequence. A still cut-out on a flat colour is not a signature moment.
 5. **System.** Fix the tokens before drawing pages: display, text and label faces; a type scale; tracking; a spacing scale; the grid; ink, paper, 8–10 greys and one accent; radius; shadows (none on dark surfaces); motion durations and one easing curve. Put them in `tailwind.config.js` or a tokens file so every section draws from the same set.
 6. **Story.** Outline each page screen by screen (recipes below). One message per screen, and for each screen what the picture does (camera, light, state of the product), not only what the text says.
@@ -50,6 +52,8 @@ Work through these steps in order. Each one produces something concrete; skippin
 
 **Listing.** Name, price, image, the key spec (power, paddles) on every card; filters for every attribute shown; "Load more" with a count; a comparison table for up to five models.
 
+**Bar, menu, footer, cart, checkout.** Night chrome on every page; a 56 px phone bar with menu, logo, WhatsApp and cart; a full-screen menu that lists the machines with prices; a footer that opens with the way to ask a person; the whole sum with tax in the cart; a paper checkout; a payment-instruction page that opens from a WhatsApp link. A machine page lists its wear parts with prices, a part page names the machines it fits. Recipes and measurements: `references/store-system.md`.
+
 Details and sources: `references/ecommerce-ux.md` and `references/brand-and-motion.md`.
 
 ## Checklists
@@ -69,8 +73,11 @@ Details and sources: `references/ecommerce-ux.md` and `references/brand-and-moti
 **Store UX** (details in `references/ecommerce-ux.md`)
 - The first screen says what is sold and holds the main action.
 - Prices are never hidden; total cost (delivery, instalments) shown before checkout.
-- Tap targets at least 48 px with 8 px gaps; tel keyboards for phone numbers; forms at most 8 fields.
-- No auto-rotating carousel on phones; no floating widget covering content without reserved space.
+- Tap targets: 48 px is the aim for rows and buttons, 44 px the floor for icons in the bar, with 8 px gaps; measure them by script. Tel keyboards for phone numbers; forms at most 8 fields; field text at least 16 px.
+- Story pages (home, product, listing) and the chrome are night, task and reading pages are paper, and one page never mixes the two.
+- The cart shows subtotal, tax and total before checkout, and says what is not in the sum yet.
+- The bar holds one line at 1024 px; no page scrolls sideways at 375 px.
+- No auto-rotating carousel on phones; no floating widget over the content: chat gets fixed places (the bar, beside the price, the menu, the footer).
 - Trust: address, warranty, spare parts, contact hours, links to outside reviews; no fake urgency.
 
 **Motion and speed**
@@ -85,6 +92,9 @@ Details and sources: `references/ecommerce-ux.md` and `references/brand-and-moti
 - Open the dev server as `http://localhost:8000`, not `127.0.0.1`: Next.js 16 blocks dev resources for other hosts, so the page never hydrates and nothing moves.
 - Next resizes every image to the size it shows (WebP; on since 2026-11-25, the backend host comes from `NEXT_PUBLIC_MEDUSA_BACKEND_URL` in `next.config.js`), so give each `fill` image a real `sizes`. Catalogue photos with a coloured backdrop: `scripts/photo_bg.swift` finds them and puts the subject on pure white with macOS Vision (`VNGenerateForegroundInstanceMaskRequest`), keeping the file name.
 - Listing pages and the product card: `modules/store/templates/listing.css` gives Medusa UI's CSS variables night values inside `.wj-list`, and `modules/products/components/product-card/` draws every card (machines on a small night stage, photos multiplied onto a pool of light; light again on the paper band under a product page).
+- The chrome: `modules/layout/templates/nav/` (the bar), `modules/layout/components/mobile-menu/` (the phone menu, styles under `.wj-menu` in `styles/globals.css`), `modules/layout/templates/footer/`, `modules/layout/templates/not-found/`, `modules/cart/components/cart-drawer/`. Night pages mark themselves with `data-wj-night`, `data-wj-product` or `data-wj-list`; everything else sits on the paper body. `lib/util/machines.ts` holds which part fits which machine.
+- The public browse-only copy (GitHub Pages) is rebuilt with `node scripts/build-preview.mjs --publish` from `apps/storefront`. The browser pane blocks that host's files: check the live copy with `curl`, and look at it through a local static server instead.
+- Research agents sent to study other sites use search and page fetching only. The browser pane waits for a site approval from a person, and an unattended agent stalls there.
 - Fonts come from `@fontsource/*` (Google Fonts are blocked here); install with `--registry=https://registry.npmmirror.com`.
 - three.js 0.187, GSAP 3.15 (ScrollTrigger included, free for commercial use) and Lenis 1.3 install from npmmirror too; esbuild 0.28 is already in `node_modules` for bundling a mock-up. Mock-up A2 (`docs/mockups/home-2026-11-20/`, source in `a2-scene.source.js`) is the reference implementation of a 3D hero and scroll story.
 - Mock-ups: write static HTML in the session scratchpad, serve it on 127.0.0.1 only, view it in the browser pane at 1440 and 375 px. The pane pauses animations while hidden: check `getAnimations()` or scroll once before judging a screenshot.
@@ -99,6 +109,7 @@ Details and sources: `references/ecommerce-ux.md` and `references/brand-and-moti
 - `references/craft.md`: motion on two clocks and by role, scroll rules, hover and press, reduced motion, typography and font licences, composition, art direction without photography, a 40-item details list, and what the top design courses teach.
 - `references/hardware-playbook.md`: how hardware brands and 独立站 courses sell a machine, Indonesian payment and delivery norms, the local competition, and the WANGJIA product page outline.
 - `references/moves.md`: the 24 set-piece techniques award sites use, their cost in KB and GPU time on the phones Indonesians buy (Mali-G52 class), the device tiers, and the licences of reference code.
+- `references/store-system.md`: when the work is the whole shop or anything shared between pages: the audit of 2026-11-26, night for story and paper for tasks, the bar, menu and footer, the cart and the path to payment, machines and their spare parts, how to audit by script and how to run a study.
 - `references/visual-craft.md`: when setting type, spacing, colour, depth and finishing details.
 - `references/ecommerce-ux.md`: when designing homepages, listings, product pages, checkout, trust and mobile behaviour.
 - `references/brand-and-motion.md`: when finding the idea, structuring the story, briefing imagery, choosing motion and setting the speed budget.

@@ -79,6 +79,7 @@
 
 ## 8. 常用位置
 
+- 网页店整站外观的规则（2026-11-26 调研后定的，米杰还没单独点评过）：讲故事的页面（首页、商品、列表）和顶栏、菜单、页脚用夜色，办事和阅读的页面（购物车、登录、账户、结算、政策、文章）用纸色，主按钮一律琥珀色，手机上按钮不低于 44 像素。细节、颜色值和依据在 `.claude/skills/dtc-store-design/references/store-system.md`，改任何多页共用的部分之前先读它；下一批要做的事在大纲 1.20。
 - 网页店首页：`apps/storefront/src/app/[countryCode]/(main)/page.tsx`
 - 网页店搜索和列表价格：`apps/storefront/src/lib/search-client.ts`，后端 `apps/backend/src/search/`
 - 后端中间件：`apps/backend/src/api/middlewares.ts`；注册开关：`apps/backend/src/api/middlewares/signup-closed.ts`；App 启动时读的开关：`apps/backend/src/api/store/app-version/route.ts`
